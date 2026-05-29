@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-Hans" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-developer-guide/provider-runtime" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">Provider 运行时解析 | Hermes Agent</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/img/hermes-agent-banner.png"><meta data-rh="true" name="twitter:image" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/img/hermes-agent-banner.png"><meta data-rh="true" property="og:url" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/developer-guide/provider-runtime"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Provider 运行时解析 | Hermes Agent"><meta data-rh="true" name="description" content="Hermes 如何在运行时解析 provider、凭据、API 模式及辅助模型"><meta data-rh="true" property="og:description" content="Hermes 如何在运行时解析 provider、凭据、API 模式及辅助模型"><link data-rh="true" rel="icon" href="/hermes-agent/docs/zh-Hans/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/developer-guide/provider-runtime"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/developer-guide/provider-runtime" hreflang="en"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/developer-guide/provider-runtime" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/developer-guide/provider-runtime" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Provider 运行时解析","item":"https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/developer-guide/provider-runtime"}]}</script><link rel="stylesheet" href="/hermes-agent/docs/zh-Hans/assets/css/styles.68258a75.css">
+<script src="/hermes-agent/docs/zh-Hans/assets/js/runtime~main.66205d72.js" defer="defer"></script>
+<script src="/hermes-agent/docs/zh-Hans/assets/js/main.99aec22d.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/hermes-agent/docs/zh-Hans/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/hermes-agent/docs/zh-Hans/"><div class="navbar__logo"><img src="/hermes-agent/docs/zh-Hans/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/hermes-agent/docs/zh-Hans/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Hermes Agent</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/hermes-agent/docs/zh-Hans/user-stories">Docs</a><a class="navbar__item navbar__link" href="/hermes-agent/docs/zh-Hans/skills">Skills</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="iconLanguage_nlXk"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"></path></svg>简体中文</a><ul class="dropdown__menu"><li><a href="/hermes-agent/docs/developer-guide/provider-runtime" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="en">English</a></li><li><a href="/hermes-agent/docs/zh-Hans/developer-guide/provider-runtime" target="_self" rel="noopener noreferrer" class="dropdown__link dropdown__link--active" lang="zh-Hans">简体中文</a></li></ul></div><a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Home<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="搜索" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/hermes-agent/docs/zh-Hans/user-stories"><span title="用户故事与使用案例" class="linkLabel_WmDU">用户故事与使用案例</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/getting-started/quickstart"><span title="Getting Started" class="categoryLinkLabel_W154">Getting Started</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/user-guide/cli"><span title="Using Hermes" class="categoryLinkLabel_W154">Using Hermes</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/user-guide/features/overview"><span title="Features" class="categoryLinkLabel_W154">Features</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/user-guide/messaging/"><span title="Messaging Platforms" class="categoryLinkLabel_W154">Messaging Platforms</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/integrations/"><span title="Integrations" class="categoryLinkLabel_W154">Integrations</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/guides/run-hermes-with-nous-portal"><span title="Guides &amp; Tutorials" class="categoryLinkLabel_W154">Guides &amp; Tutorials</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/hermes-agent/docs/zh-Hans/developer-guide/contributing"><span title="Developer Guide" class="categoryLinkLabel_W154">Developer Guide</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/contributing"><span title="贡献指南" class="linkLabel_WmDU">贡献指南</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/architecture"><span title="Architecture" class="categoryLinkLabel_W154">Architecture</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/architecture"><span title="架构" class="linkLabel_WmDU">架构</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/agent-loop"><span title="Agent Loop 内部机制" class="linkLabel_WmDU">Agent Loop 内部机制</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/prompt-assembly"><span title="Prompt 组装" class="linkLabel_WmDU">Prompt 组装</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/context-compression-and-caching"><span title="上下文压缩与缓存" class="linkLabel_WmDU">上下文压缩与缓存</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/gateway-internals"><span title="Gateway 内部机制" class="linkLabel_WmDU">Gateway 内部机制</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/session-storage"><span title="会话存储" class="linkLabel_WmDU">会话存储</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/provider-runtime"><span title="Provider 运行时解析" class="linkLabel_WmDU">Provider 运行时解析</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/programmatic-integration"><span title="程序化集成" class="linkLabel_WmDU">程序化集成</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/adding-tools"><span title="Extending" class="categoryLinkLabel_W154">Extending</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/developer-guide/tools-runtime"><span title="Internals" class="categoryLinkLabel_W154">Internals</span></a></div></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/reference/cli-commands"><span title="Reference" class="categoryLinkLabel_W154">Reference</span></a></div></li></ul></nav><button type="button" title="收起侧边栏" aria-label="收起侧边栏" class="button button--secondary button--outline collapseSidebarButton_PEFL"><svg width="20" height="20" aria-hidden="true" class="collapseSidebarButtonIcon_kv0_"><g fill="#7a7a7a"><path d="M9.992 10.023c0 .2-.062.399-.172.547l-4.996 7.492a.982.982 0 01-.828.454H1c-.55 0-1-.453-1-1 0-.2.059-.403.168-.551l4.629-6.942L.168 3.078A.939.939 0 010 2.528c0-.548.45-.997 1-.997h2.996c.352 0 .649.18.828.45L9.82 9.472c.11.148.172.347.172.55zm0 0"></path><path d="M19.98 10.023c0 .2-.058.399-.168.547l-4.996 7.492a.987.987 0 01-.828.454h-3c-.547 0-.996-.453-.996-1 0-.2.059-.403.168-.551l4.625-6.942-4.625-6.945a.939.939 0 01-.168-.55 1 1 0 01.996-.997h3c.348 0 .649.18.828.45l4.996 7.492c.11.148.168.347.168.55zm0 0"></path></g></svg></button></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/hermes-agent/docs/zh-Hans/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Developer Guide</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Architecture</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Provider 运行时解析</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>Provider 运行时解析</h1></header>
+<p>Hermes 拥有一个共享的 provider 运行时解析器，用于以下场景：</p>
+<ul>
+<li class="">CLI</li>
+<li class="">gateway</li>
+<li class="">cron 任务</li>
+<li class="">ACP</li>
+<li class="">辅助模型调用</li>
+</ul>
+<p>主要实现：</p>
+<ul>
+<li class=""><code>hermes_cli/runtime_provider.py</code> — 凭据解析，<code>_resolve_custom_runtime()</code></li>
+<li class=""><code>hermes_cli/auth.py</code> — provider 注册表，<code>resolve_provider()</code></li>
+<li class=""><code>hermes_cli/model_switch.py</code> — 共享 <code>/model</code> 切换流水线（CLI + gateway）</li>
+<li class=""><code>agent/auxiliary_client.py</code> — 辅助模型路由</li>
+<li class=""><code>providers/</code> — ABC + 注册表入口点（<code>ProviderProfile</code>、<code>register_provider</code>、<code>get_provider_profile</code>、<code>list_providers</code>）</li>
+<li class=""><code>plugins/model-providers/&lt;name&gt;/</code> — 每个 provider 的插件（内置），声明 <code>api_mode</code>、<code>base_url</code>、<code>env_vars</code>、<code>fallback_models</code> 并在首次访问时将自身注册到注册表。用户插件位于 <code>$HERMES_HOME/plugins/model-providers/&lt;name&gt;/</code>，会覆盖同名的内置插件。</li>
+</ul>
+<p><code>providers/</code> 中的 <code>get_provider_profile()</code> 为给定 provider id 返回一个 <code>ProviderProfile</code>。<code>runtime_provider.py</code> 在解析时调用它，以获取规范的 <code>base_url</code>、<code>env_vars</code> 优先级列表、<code>api_mode</code> 和 <code>fallback_models</code>，无需在多个文件中重复这些数据。在 <code>plugins/model-providers/&lt;your-provider&gt;/</code>（或 <code>$HERMES_HOME/plugins/model-providers/&lt;your-provider&gt;/</code>）下添加一个调用 <code>register_provider()</code> 的新插件，即可让 <code>runtime_provider.py</code> 自动识别它——无需在解析器本身中添加分支。</p>
+<p>如果你想添加一个新的一等推理 provider，请结合本页阅读 <a class="" href="/hermes-agent/docs/zh-Hans/developer-guide/adding-providers">添加 Provider</a> 和 <a class="" href="/hermes-agent/docs/zh-Hans/developer-guide/model-provider-plugin">Model Provider 插件指南</a>。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="解析优先级">解析优先级<a href="#解析优先级" class="hash-link" aria-label="解析优先级的直接链接" title="解析优先级的直接链接" translate="no">​</a></h2>
+<p>从高层来看，provider 解析使用以下顺序：</p>
+<ol>
+<li class="">显式 CLI/运行时请求</li>
+<li class=""><code>config.yaml</code> 中的模型/provider 配置</li>
+<li class="">环境变量</li>
+<li class="">provider 特定的默认值或自动解析</li>
+</ol>
+<p>该顺序很重要，因为 Hermes 将已保存的模型/provider 选择视为正常运行的真实来源。这可以防止过时的 shell 导出变量悄悄覆盖用户在 <code>hermes model</code> 中最后选择的端点。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="provider">Provider<a href="#provider" class="hash-link" aria-label="Provider的直接链接" title="Provider的直接链接" translate="no">​</a></h2>
+<p>当前 provider 系列包括（完整内置集合见 <code>plugins/model-providers/</code>）：</p>
+<ul>
+<li class="">OpenRouter</li>
+<li class="">Nous Portal</li>
+<li class="">OpenAI Codex</li>
+<li class="">Copilot / Copilot ACP</li>
+<li class="">Anthropic（原生）</li>
+<li class="">Google / Gemini（<code>gemini</code>、<code>google-gemini-cli</code>）</li>
+<li class="">Alibaba / DashScope（<code>alibaba</code>、<code>alibaba-coding-plan</code>）</li>
+<li class="">DeepSeek</li>
+<li class="">Z.AI</li>
+<li class="">Kimi / Moonshot（<code>kimi-coding</code>、<code>kimi-coding-cn</code>）</li>
+<li class="">MiniMax（<code>minimax</code>、<code>minimax-cn</code>、<code>minimax-oauth</code>）</li>
+<li class="">Kilo Code</li>
+<li class="">Hugging Face</li>
+<li class="">OpenCode Zen / OpenCode Go</li>
+<li class="">AWS Bedrock</li>
+<li class="">Azure Foundry</li>
+<li class="">NVIDIA NIM</li>
+<li class="">xAI（Grok）</li>
+<li class="">Arcee</li>
+<li class="">GMI Cloud</li>
+<li class="">StepFun</li>
+<li class="">Qwen OAuth</li>
+<li class="">Xiaomi</li>
+<li class="">Ollama Cloud</li>
+<li class="">LM Studio</li>
+<li class="">Tencent TokenHub</li>
+<li class="">Custom（<code>provider: custom</code>）— 适用于任何 OpenAI 兼容端点的一等 provider</li>
+<li class="">命名自定义 provider（<code>config.yaml</code> 中的 <code>custom_providers</code> 列表）</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="运行时解析的输出">运行时解析的输出<a href="#运行时解析的输出" class="hash-link" aria-label="运行时解析的输出的直接链接" title="运行时解析的输出的直接链接" translate="no">​</a></h2>
+<p>运行时解析器返回的数据包括：</p>
+<ul>
+<li class=""><code>provider</code></li>
+<li class=""><code>api_mode</code></li>
+<li class=""><code>base_url</code></li>
+<li class=""><code>api_key</code></li>
+<li class=""><code>source</code></li>
+<li class="">provider 特定的元数据，如过期/刷新信息</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="为什么这很重要">为什么这很重要<a href="#为什么这很重要" class="hash-link" aria-label="为什么这很重要的直接链接" title="为什么这很重要的直接链接" translate="no">​</a></h2>
+<p>该解析器是 Hermes 能够在以下场景之间共享认证/运行时逻辑的主要原因：</p>
+<ul>
+<li class=""><code>hermes chat</code></li>
+<li class="">gateway 消息处理</li>
+<li class="">在全新会话中运行的 cron 任务</li>
+<li class="">ACP 编辑器会话</li>
+<li class="">辅助模型任务</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="openrouter-与自定义-openai-兼容-base-url">OpenRouter 与自定义 OpenAI 兼容 base URL<a href="#openrouter-与自定义-openai-兼容-base-url" class="hash-link" aria-label="OpenRouter 与自定义 OpenAI 兼容 base URL的直接链接" title="OpenRouter 与自定义 OpenAI 兼容 base URL的直接链接" translate="no">​</a></h2>
+<p>Hermes 包含相关逻辑，以避免在存在多个 provider 密钥时（例如同时存在 <code>OPENROUTER_API_KEY</code> 和 <code>OPENAI_API_KEY</code>）将错误的 API key 泄露给自定义端点。</p>
+<p>每个 provider 的 API key 仅作用于其自身的 base URL：</p>
+<ul>
+<li class=""><code>OPENROUTER_API_KEY</code> 仅发送至 <code>openrouter.ai</code> 端点</li>
+<li class=""><code>OPENAI_API_KEY</code> 用于自定义端点及作为回退</li>
+</ul>
+<p>Hermes 还区分以下两种情况：</p>
+<ul>
+<li class="">用户主动选择的真实自定义端点</li>
+<li class="">未配置自定义端点时使用的 OpenRouter 回退路径</li>
+</ul>
+<p>这种区分对以下场景尤为重要：</p>
+<ul>
+<li class="">本地模型服务器</li>
+<li class="">非 OpenRouter 的 OpenAI 兼容 API</li>
+<li class="">无需重新运行 setup 即可切换 provider</li>
+<li class="">通过 config 保存的自定义端点，即使当前 shell 中未导出 <code>OPENAI_BASE_URL</code> 也应正常工作</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="原生-anthropic-路径">原生 Anthropic 路径<a href="#原生-anthropic-路径" class="hash-link" aria-label="原生 Anthropic 路径的直接链接" title="原生 Anthropic 路径的直接链接" translate="no">​</a></h2>
+<p>Anthropic 不再仅限于&quot;通过 OpenRouter&quot;访问。</p>
+<p>当 provider 解析选择 <code>anthropic</code> 时，Hermes 使用：</p>
+<ul>
+<li class=""><code>api_mode = anthropic_messages</code></li>
+<li class="">原生 Anthropic Messages API</li>
+<li class=""><code>agent/anthropic_adapter.py</code> 进行转换</li>
+</ul>
+<p>原生 Anthropic 的凭据解析现在在两者同时存在时，优先使用可刷新的 Claude Code 凭据，而非复制的环境变量 token。实际效果为：</p>
+<ul>
+<li class="">包含可刷新认证的 Claude Code 凭据文件被视为首选来源</li>
+<li class="">手动设置的 <code>ANTHROPIC_TOKEN</code> / <code>CLAUDE_CODE_OAUTH_TOKEN</code> 值仍可作为显式覆盖</li>
+<li class="">Hermes 在调用原生 Messages API 前会预检 Anthropic 凭据刷新</li>
+<li class="">Hermes 在重建 Anthropic 客户端后，仍会在收到 401 时重试一次，作为回退路径</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="openai-codex-路径">OpenAI Codex 路径<a href="#openai-codex-路径" class="hash-link" aria-label="OpenAI Codex 路径的直接链接" title="OpenAI Codex 路径的直接链接" translate="no">​</a></h2>
+<p>Codex 使用独立的 Responses API 路径：</p>
+<ul>
+<li class=""><code>api_mode = codex_responses</code></li>
+<li class="">专用的凭据解析和认证存储支持</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="辅助模型路由">辅助模型路由<a href="#辅助模型路由" class="hash-link" aria-label="辅助模型路由的直接链接" title="辅助模型路由的直接链接" translate="no">​</a></h2>
+<p>辅助任务包括：</p>
+<ul>
+<li class="">视觉</li>
+<li class="">网页提取摘要</li>
+<li class="">上下文压缩摘要</li>
+<li class="">skills hub 操作</li>
+<li class="">MCP 辅助操作</li>
+<li class="">记忆刷新</li>
+</ul>
+<p>这些任务可以使用各自独立的 provider/模型路由，而非主对话模型。</p>
+<p>当辅助任务配置的 provider 为 <code>main</code> 时，Hermes 通过与普通对话相同的共享运行时路径进行解析。实际效果为：</p>
+<ul>
+<li class="">环境变量驱动的自定义端点仍然有效</li>
+<li class="">通过 <code>hermes model</code> / <code>config.yaml</code> 保存的自定义端点同样有效</li>
+<li class="">辅助路由能够区分真实保存的自定义端点与 OpenRouter 回退</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="回退模型">回退模型<a href="#回退模型" class="hash-link" aria-label="回退模型的直接链接" title="回退模型的直接链接" translate="no">​</a></h2>
+<p>Hermes 支持配置回退 provider 链——一个按顺序尝试的 <code>(provider, model)</code> 条目列表，当主模型遇到错误时依次尝试。旧版单对 <code>fallback_model</code> 字典仍被接受以保持向后兼容（并在首次写入时迁移）。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="内部工作原理">内部工作原理<a href="#内部工作原理" class="hash-link" aria-label="内部工作原理的直接链接" title="内部工作原理的直接链接" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>存储</strong>：<code>AIAgent.__init__</code> 存储 <code>fallback_model</code> 字典并将 <code>_fallback_activated</code> 设为 <code>False</code>。</p>
+</li>
+<li class="">
+<p><strong>触发点</strong>：<code>_try_activate_fallback()</code> 在 <code>run_agent.py</code> 主重试循环的三处被调用：</p>
+<ul>
+<li class="">在无效 API 响应（None choices、缺少 content）达到最大重试次数后</li>
+<li class="">在不可重试的客户端错误（HTTP 401、403、404）时</li>
+<li class="">在瞬时错误（HTTP 429、500、502、503）达到最大重试次数后</li>
+</ul>
+</li>
+<li class="">
+<p><strong>激活流程</strong>（<code>_try_activate_fallback</code>）：</p>
+<ul>
+<li class="">若已激活或未配置，立即返回 <code>False</code></li>
+<li class="">调用 <code>auxiliary_client.py</code> 中的 <code>resolve_provider_client()</code> 构建带有正确认证的新客户端</li>
+<li class="">确定 <code>api_mode</code>：openai-codex 使用 <code>codex_responses</code>，anthropic 使用 <code>anthropic_messages</code>，其余使用 <code>chat_completions</code></li>
+<li class="">原地替换：<code>self.model</code>、<code>self.provider</code>、<code>self.base_url</code>、<code>self.api_mode</code>、<code>self.client</code>、<code>self._client_kwargs</code></li>
+<li class="">对于 anthropic 回退：构建原生 Anthropic 客户端而非 OpenAI 兼容客户端</li>
+<li class="">重新评估 prompt 缓存（对 OpenRouter 上的 Claude 模型启用）</li>
+<li class="">将 <code>_fallback_activated</code> 设为 <code>True</code>——防止再次触发</li>
+<li class="">将重试计数重置为 0 并继续循环</li>
+</ul>
+</li>
+<li class="">
+<p><strong>配置流程</strong>：</p>
+<ul>
+<li class="">CLI：<code>cli.py</code> 读取 <code>CLI_CONFIG[&quot;fallback_model&quot;]</code> → 传递给 <code>AIAgent(fallback_model=...)</code></li>
+<li class="">Gateway：<code>gateway/run.py._load_fallback_model()</code> 读取 <code>config.yaml</code> → 传递给 <code>AIAgent</code></li>
+<li class="">验证：<code>provider</code> 和 <code>model</code> 键均须非空，否则回退被禁用</li>
+</ul>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="不支持回退的场景">不支持回退的场景<a href="#不支持回退的场景" class="hash-link" aria-label="不支持回退的场景的直接链接" title="不支持回退的场景的直接链接" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>子代理委托</strong>（<code>tools/delegate_tool.py</code>）：子代理继承父代理的 provider，但不继承回退配置</li>
+<li class=""><strong>辅助任务</strong>：使用各自独立的 provider 自动检测链（见上方辅助模型路由）</li>
+</ul>
+<p>Cron 任务<strong>支持</strong>回退：<code>run_job()</code> 从 <code>config.yaml</code> 读取 <code>fallback_providers</code>（或旧版 <code>fallback_model</code>）并传递给 <code>AIAgent(fallback_model=...)</code>，与 gateway 的 <code>_load_fallback_model()</code> 模式一致。参见 <a class="" href="/hermes-agent/docs/zh-Hans/developer-guide/cron-internals">Cron 内部机制</a>。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="测试覆盖">测试覆盖<a href="#测试覆盖" class="hash-link" aria-label="测试覆盖的直接链接" title="测试覆盖的直接链接" translate="no">​</a></h3>
+<p>参见 <code>tests/test_fallback_model.py</code>，其中包含覆盖所有支持 provider、单次触发语义及边界情况的完整测试。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="相关文档">相关文档<a href="#相关文档" class="hash-link" aria-label="相关文档的直接链接" title="相关文档的直接链接" translate="no">​</a></h2>
+<ul>
+<li class=""><a class="" href="/hermes-agent/docs/zh-Hans/developer-guide/agent-loop">Agent 循环内部机制</a></li>
+<li class=""><a class="" href="/hermes-agent/docs/zh-Hans/developer-guide/acp-internals">ACP 内部机制</a></li>
+<li class=""><a class="" href="/hermes-agent/docs/zh-Hans/developer-guide/context-compression-and-caching">上下文压缩与 Prompt 缓存</a></li>
+</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/NousResearch/hermes-agent/edit/main/website/docs/developer-guide/provider-runtime.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑此页</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/hermes-agent/docs/zh-Hans/developer-guide/session-storage"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">会话存储</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/hermes-agent/docs/zh-Hans/developer-guide/programmatic-integration"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">程序化集成</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#解析优先级" class="table-of-contents__link toc-highlight">解析优先级</a></li><li><a href="#provider" class="table-of-contents__link toc-highlight">Provider</a></li><li><a href="#运行时解析的输出" class="table-of-contents__link toc-highlight">运行时解析的输出</a></li><li><a href="#为什么这很重要" class="table-of-contents__link toc-highlight">为什么这很重要</a></li><li><a href="#openrouter-与自定义-openai-兼容-base-url" class="table-of-contents__link toc-highlight">OpenRouter 与自定义 OpenAI 兼容 base URL</a></li><li><a href="#原生-anthropic-路径" class="table-of-contents__link toc-highlight">原生 Anthropic 路径</a></li><li><a href="#openai-codex-路径" class="table-of-contents__link toc-highlight">OpenAI Codex 路径</a></li><li><a href="#辅助模型路由" class="table-of-contents__link toc-highlight">辅助模型路由</a></li><li><a href="#回退模型" class="table-of-contents__link toc-highlight">回退模型</a><ul><li><a href="#内部工作原理" class="table-of-contents__link toc-highlight">内部工作原理</a></li><li><a href="#不支持回退的场景" class="table-of-contents__link toc-highlight">不支持回退的场景</a></li><li><a href="#测试覆盖" class="table-of-contents__link toc-highlight">测试覆盖</a></li></ul></li><li><a href="#相关文档" class="table-of-contents__link toc-highlight">相关文档</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/getting-started/quickstart">Getting Started</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/user-guide/cli">User Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/developer-guide/architecture">Developer Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/reference/cli-commands">Reference</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent/discussions" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub Discussions<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://agentskills.io" target="_blank" rel="noopener noreferrer" class="footer__link-item">Skills Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://nousresearch.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Nous Research<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Built by <a href="https://nousresearch.com">Nous Research</a> · MIT License · 2026</div></div></div></footer></div>
+</body>
+</html>

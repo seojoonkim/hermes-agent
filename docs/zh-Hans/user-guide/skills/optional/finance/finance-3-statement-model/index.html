@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="zh-Hans" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-user-guide/skills/optional/finance/finance-3-statement-model" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">三表模型 | Hermes Agent</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/img/hermes-agent-banner.png"><meta data-rh="true" name="twitter:image" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/img/hermes-agent-banner.png"><meta data-rh="true" property="og:url" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="三表模型 | Hermes Agent"><meta data-rh="true" name="description" content="在 Excel 中构建完整集成的三表模型（利润表、资产负债表、现金流量表），包含营运资本明细表、折旧摊销滚动表、债务计划表，以及使现金和留存收益勾稽的插销项。与 excel-author 配合使用。"><meta data-rh="true" property="og:description" content="在 Excel 中构建完整集成的三表模型（利润表、资产负债表、现金流量表），包含营运资本明细表、折旧摊销滚动表、债务计划表，以及使现金和留存收益勾稽的插销项。与 excel-author 配合使用。"><link data-rh="true" rel="icon" href="/hermes-agent/docs/zh-Hans/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-3-statement-model" hreflang="en"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-3-statement-model" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"三表模型","item":"https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"}]}</script><link rel="stylesheet" href="/hermes-agent/docs/zh-Hans/assets/css/styles.68258a75.css">
+<script src="/hermes-agent/docs/zh-Hans/assets/js/runtime~main.66205d72.js" defer="defer"></script>
+<script src="/hermes-agent/docs/zh-Hans/assets/js/main.99aec22d.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/hermes-agent/docs/zh-Hans/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/hermes-agent/docs/zh-Hans/"><div class="navbar__logo"><img src="/hermes-agent/docs/zh-Hans/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/hermes-agent/docs/zh-Hans/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Hermes Agent</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/hermes-agent/docs/zh-Hans/user-stories">Docs</a><a class="navbar__item navbar__link" href="/hermes-agent/docs/zh-Hans/skills">Skills</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="iconLanguage_nlXk"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"></path></svg>简体中文</a><ul class="dropdown__menu"><li><a href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-3-statement-model" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="en">English</a></li><li><a href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model" target="_self" rel="noopener noreferrer" class="dropdown__link dropdown__link--active" lang="zh-Hans">简体中文</a></li></ul></div><a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Home<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="搜索" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/hermes-agent/docs/zh-Hans/user-stories"><span title="用户故事与使用案例" class="linkLabel_WmDU">用户故事与使用案例</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/getting-started/quickstart"><span title="Getting Started" class="categoryLinkLabel_W154">Getting Started</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/user-guide/cli"><span title="Using Hermes" class="categoryLinkLabel_W154">Using Hermes</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/hermes-agent/docs/zh-Hans/user-guide/features/overview"><span title="Features" class="categoryLinkLabel_W154">Features</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/overview"><span title="概览" class="linkLabel_WmDU">概览</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/tool-gateway"><span title="Tool Gateway" class="linkLabel_WmDU">Tool Gateway</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/tools"><span title="Core" class="categoryLinkLabel_W154">Core</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/cron"><span title="Automation" class="categoryLinkLabel_W154">Automation</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/voice-mode"><span title="Media &amp; Web" class="categoryLinkLabel_W154">Media &amp; Web</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/web-dashboard"><span title="Management" class="categoryLinkLabel_W154">Management</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/zh-Hans/reference/skills-catalog"><span title="Skills" class="categoryLinkLabel_W154">Skills</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/reference/skills-catalog"><span title="内置技能目录" class="linkLabel_WmDU">内置技能目录</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/reference/optional-skills-catalog"><span title="可选技能目录" class="linkLabel_WmDU">可选技能目录</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/bundled/apple/apple-apple-notes"><span title="Bundled" class="categoryLinkLabel_W154">Bundled</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="Optional" class="categoryLinkLabel_W154">Optional</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="autonomous-ai-agents" class="categoryLinkLabel_W154">autonomous-ai-agents</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/blockchain/blockchain-evm"><span title="blockchain" class="categoryLinkLabel_W154">blockchain</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/communication/communication-one-three-one-rule"><span title="communication" class="categoryLinkLabel_W154">communication</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/creative/creative-blender-mcp"><span title="creative" class="categoryLinkLabel_W154">creative</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/devops/devops-cli"><span title="devops" class="categoryLinkLabel_W154">devops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/dogfood/dogfood-adversarial-ux-test"><span title="dogfood" class="categoryLinkLabel_W154">dogfood</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/email/email-agentmail"><span title="email" class="categoryLinkLabel_W154">email</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"><span title="finance" class="categoryLinkLabel_W154">finance</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"><span title="三表模型" class="linkLabel_WmDU">三表模型</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis"><span title="可比公司分析" class="linkLabel_WmDU">可比公司分析</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model"><span title="Dcf Model" class="linkLabel_WmDU">Dcf Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-excel-author"><span title="Excel Author" class="linkLabel_WmDU">Excel Author</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-lbo-model"><span title="Lbo Model" class="linkLabel_WmDU">Lbo Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-merger-model"><span title="Merger Model" class="linkLabel_WmDU">Merger Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-pptx-author"><span title="Pptx Author" class="linkLabel_WmDU">Pptx Author</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-stocks"><span title="Stocks" class="linkLabel_WmDU">Stocks</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/health/health-fitness-nutrition"><span title="health" class="categoryLinkLabel_W154">health</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/mcp/mcp-fastmcp"><span title="mcp" class="categoryLinkLabel_W154">mcp</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/migration/migration-openclaw-migration"><span title="migration" class="categoryLinkLabel_W154">migration</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/mlops/mlops-accelerate"><span title="mlops" class="categoryLinkLabel_W154">mlops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/productivity/productivity-canvas"><span title="productivity" class="categoryLinkLabel_W154">productivity</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/research/research-bioinformatics"><span title="research" class="categoryLinkLabel_W154">research</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/security/security-1password"><span title="security" class="categoryLinkLabel_W154">security</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/software-development/software-development-code-wiki"><span title="software-development" class="categoryLinkLabel_W154">software-development</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/web-development/web-development-page-agent"><span title="web-development" class="categoryLinkLabel_W154">web-development</span></a></div></li></ul></li></ul></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/user-guide/messaging/"><span title="Messaging Platforms" class="categoryLinkLabel_W154">Messaging Platforms</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/integrations/"><span title="Integrations" class="categoryLinkLabel_W154">Integrations</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/guides/run-hermes-with-nous-portal"><span title="Guides &amp; Tutorials" class="categoryLinkLabel_W154">Guides &amp; Tutorials</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/developer-guide/contributing"><span title="Developer Guide" class="categoryLinkLabel_W154">Developer Guide</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/reference/cli-commands"><span title="Reference" class="categoryLinkLabel_W154">Reference</span></a></div></li></ul></nav><button type="button" title="收起侧边栏" aria-label="收起侧边栏" class="button button--secondary button--outline collapseSidebarButton_PEFL"><svg width="20" height="20" aria-hidden="true" class="collapseSidebarButtonIcon_kv0_"><g fill="#7a7a7a"><path d="M9.992 10.023c0 .2-.062.399-.172.547l-4.996 7.492a.982.982 0 01-.828.454H1c-.55 0-1-.453-1-1 0-.2.059-.403.168-.551l4.629-6.942L.168 3.078A.939.939 0 010 2.528c0-.548.45-.997 1-.997h2.996c.352 0 .649.18.828.45L9.82 9.472c.11.148.172.347.172.55zm0 0"></path><path d="M19.98 10.023c0 .2-.058.399-.168.547l-4.996 7.492a.987.987 0 01-.828.454h-3c-.547 0-.996-.453-.996-1 0-.2.059-.403.168-.551l4.625-6.942-4.625-6.945a.939.939 0 01-.168-.55 1 1 0 01.996-.997h3c.348 0 .649.18.828.45l4.996 7.492c.11.148.168.347.168.55zm0 0"></path></g></svg></button></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/hermes-agent/docs/zh-Hans/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Features</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Skills</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Optional</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">finance</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">三表模型</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">本页总览</button></div><div class="theme-doc-markdown markdown">
+<header><h1>三表模型</h1></header>
+<p>在 Excel 中构建完整集成的三表模型（利润表、资产负债表、现金流量表），包含营运资本明细表、折旧摊销滚动表、债务计划表，以及使现金和留存收益勾稽的插销项。与 excel-author 配合使用。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="skill-元数据">Skill 元数据<a href="#skill-元数据" class="hash-link" aria-label="Skill 元数据的直接链接" title="Skill 元数据的直接链接" translate="no">​</a></h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>来源</td><td>可选 — 通过 <code>hermes skills install official/finance/3-statement-model</code> 安装</td></tr><tr><td>路径</td><td><code>optional-skills/finance/3-statement-model</code></td></tr><tr><td>版本</td><td><code>1.0.0</code></td></tr><tr><td>作者</td><td>Anthropic（由 Nous Research 改编）</td></tr><tr><td>许可证</td><td>Apache-2.0</td></tr><tr><td>平台</td><td>linux, macos, windows</td></tr><tr><td>标签</td><td><code>finance</code>, <code>three-statement</code>, <code>income-statement</code>, <code>balance-sheet</code>, <code>cash-flow</code>, <code>excel</code>, <code>openpyxl</code>, <code>modeling</code></td></tr><tr><td>相关 skill</td><td><a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-excel-author"><code>excel-author</code></a>, <a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-pptx-author"><code>pptx-author</code></a>, <a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model"><code>dcf-model</code></a>, <a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-lbo-model"><code>lbo-model</code></a></td></tr></tbody></table>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="参考完整-skillmd">参考：完整 SKILL.md<a href="#参考完整-skillmd" class="hash-link" aria-label="参考：完整 SKILL.md的直接链接" title="参考：完整 SKILL.md的直接链接" translate="no">​</a></h2>
+<div class="theme-admonition theme-admonition-info admonition_xJq3 alert alert--info"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg></span>信息</div><div class="admonitionContent_BuS1"><p>以下是 Hermes 在触发此 skill 时加载的完整 skill 定义。这是 skill 激活时 agent 所看到的指令内容。</p></div></div>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="环境">环境<a href="#环境" class="hash-link" aria-label="环境的直接链接" title="环境的直接链接" translate="no">​</a></h2>
+<p>本 skill 假设使用<strong>无界面 openpyxl</strong> — 即在磁盘上生成 .xlsx 文件。
+遵循 <code>excel-author</code> skill 关于单元格着色、公式、命名区域和敏感性分析表的规范。
+交付前重新计算：<code>python /path/to/excel-author/scripts/recalc.py ./out/model.xlsx</code>。</p>
+<h1>三表财务模型模板填写</h1>
+<p>完整填写集成财务模型模板，确保利润表、资产负债表和现金流量表之间正确勾稽。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="️-核心原则--填写任何模板前必读">⚠️ 核心原则 — 填写任何模板前必读<a href="#️-核心原则--填写任何模板前必读" class="hash-link" aria-label="⚠️ 核心原则 — 填写任何模板前必读的直接链接" title="⚠️ 核心原则 — 填写任何模板前必读的直接链接" translate="no">​</a></h2>
+<p><strong>公式优先，禁止硬编码（不可妥协）：</strong></p>
+<ul>
+<li class="">每个预测单元格、滚动计算、勾稽项和小计，必须使用 Excel 公式，绝不使用预计算值</li>
+<li class="">使用 Python/openpyxl 时：写入公式字符串（<code>ws[&quot;D15&quot;] = &quot;=D14*(1+Assumptions!$B$5)&quot;</code>），而非计算结果（<code>ws[&quot;D15&quot;] = 12500</code>）</li>
+<li class="">唯一允许硬编码数字的单元格：(1) 历史实际数据，(2) 假设标签页中的驱动假设</li>
+<li class="">如果你发现自己在 Python 中计算了一个值并将结果写入单元格 — 停下来，改写公式</li>
+<li class="">原因：模型必须在场景切换或假设变更时自动联动。硬编码会悄无声息地破坏所有下游完整性检查。</li>
+</ul>
+<p><strong>与用户逐步确认：</strong></p>
+<ol>
+<li class=""><strong>映射模板后</strong> → 向用户展示已识别的标签页/章节，确认后再修改任何单元格</li>
+<li class=""><strong>填写历史数据后</strong> → 向用户展示历史数据块，确认数值/期间与源数据匹配</li>
+<li class=""><strong>构建利润表预测后</strong> → 运行小计检查，向用户展示预测利润表，确认后再进行资产负债表</li>
+<li class=""><strong>构建资产负债表后</strong> → 向用户展示每个期间的平衡检查（资产 = 负债 + 权益），确认后再进行现金流量表</li>
+<li class=""><strong>构建现金流量表后</strong> → 向用户展示现金勾稽（现金流量表期末现金 = 资产负债表现金），确认后再定稿</li>
+<li class=""><strong>不要端到端填写整个模型后再呈现完成品</strong> — 在每张报表处暂停，展示工作成果，尽早发现错误</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="格式--专业蓝灰配色除非模板用户另有指定">格式 — 专业蓝灰配色（除非模板/用户另有指定）<a href="#格式--专业蓝灰配色除非模板用户另有指定" class="hash-link" aria-label="格式 — 专业蓝灰配色（除非模板/用户另有指定）的直接链接" title="格式 — 专业蓝灰配色（除非模板/用户另有指定）的直接链接" translate="no">​</a></h2>
+<p><strong>保持颜色简洁。</strong> 单元格填充仅使用蓝色和灰色。不要引入绿色、黄色、橙色或多种强调色 — 简洁的模型讲究克制。</p>
+<table><thead><tr><th>元素</th><th>填充色</th><th>字体色</th></tr></thead><tbody><tr><td>章节标题（利润表/资产负债表/现金流量表标题）</td><td>深蓝 <code>#1F4E79</code></td><td>白色加粗</td></tr><tr><td>列标题（FY2024A、FY2025E 等）</td><td>浅蓝 <code>#D9E1F2</code></td><td>黑色加粗</td></tr><tr><td>输入单元格（历史数据、假设驱动项）</td><td>浅灰 <code>#F2F2F2</code> 或白色</td><td>蓝色 <code>#0000FF</code></td></tr><tr><td>公式单元格</td><td>白色</td><td>黑色</td></tr><tr><td>跨标签页链接</td><td>白色</td><td>绿色 <code>#008000</code></td></tr><tr><td>检查行/关键合计</td><td>中蓝 <code>#BDD7EE</code></td><td>黑色加粗</td></tr></tbody></table>
+<p><strong>共 3 种蓝色 + 1 种灰色 + 白色。</strong> 如果模板有自己的配色方案，则遵循模板。</p>
+<p>字体颜色表示单元格类型（输入/公式/链接）。填充颜色表示所在位置（标题/数据/检查）。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="模型结构">模型结构<a href="#模型结构" class="hash-link" aria-label="模型结构的直接链接" title="模型结构的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="识别模板标签页组织">识别模板标签页组织<a href="#识别模板标签页组织" class="hash-link" aria-label="识别模板标签页组织的直接链接" title="识别模板标签页组织的直接链接" translate="no">​</a></h3>
+<p>模板的标签页命名规范和组织方式各有不同。填写前，先查看所有标签页以了解模板结构。以下是常见标签页名称及其典型内容：</p>
+<table><thead><tr><th>常见标签页名称</th><th>对应内容</th></tr></thead><tbody><tr><td>IS, P&amp;L, Income Statement</td><td>利润表</td></tr><tr><td>BS, Balance Sheet</td><td>资产负债表</td></tr><tr><td>CF, CFS, Cash Flow</td><td>现金流量表</td></tr><tr><td>WC, Working Capital</td><td>营运资本明细表</td></tr><tr><td>DA, D&amp;A, Depreciation, PP&amp;E</td><td>折旧摊销明细表</td></tr><tr><td>Debt, Debt Schedule</td><td>债务计划表</td></tr><tr><td>NOL, Tax, DTA</td><td>净经营亏损明细表</td></tr><tr><td>Assumptions, Inputs, Drivers</td><td>驱动假设与输入项</td></tr><tr><td>Checks, Audit, Validation</td><td>错误检查仪表板</td></tr></tbody></table>
+<p><strong>模板审查清单</strong></p>
+<ul>
+<li class="">确认模板中存在哪些标签页（并非所有模板都包含每张明细表）</li>
+<li class="">记录上表未列出的模板专属标签页</li>
+<li class="">了解标签页依赖关系（例如，哪些明细表汇入主报表）</li>
+<li class="">在每个标签页上定位输入单元格与公式单元格</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="理解模板结构">理解模板结构<a href="#理解模板结构" class="hash-link" aria-label="理解模板结构的直接链接" title="理解模板结构的直接链接" translate="no">​</a></h3>
+<p>填写模板前，先熟悉其现有布局，确保数据录入位置正确且公式保持完整。</p>
+<p><strong>识别行结构</strong></p>
+<ul>
+<li class="">在每个标签页顶部找到模型标题</li>
+<li class="">识别章节标题及其视觉分隔</li>
+<li class="">找到表示单位的行（百万美元、%、x 等）</li>
+<li class="">注意区分实际值与预测值期间的列标题</li>
+<li class="">确认期间标签（例如 FY2024A、FY2025E）</li>
+<li class="">识别输入单元格与公式单元格（通常通过字体颜色区分）</li>
+</ul>
+<p><strong>识别列结构</strong></p>
+<ul>
+<li class="">确认最左列为行项目标签</li>
+<li class="">验证历史年份在预测年份之前</li>
+<li class="">注意历史期间与预测期间之间的视觉分隔线</li>
+<li class="">检查所有标签页的列顺序是否一致</li>
+</ul>
+<p><strong>使用命名区域</strong>
+模板通常对关键输入和输出使用命名区域。录入数据前：</p>
+<ul>
+<li class="">查看模板中现有的命名区域（Excel 中：公式 → 名称管理器）</li>
+<li class="">常见命名区域包括：收入增长率、成本百分比、关键输出（净利润、EBITDA、总债务、现金）、场景选择单元格</li>
+<li class="">确保输入录入在能够汇入这些命名区域的单元格中</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="预测期间">预测期间<a href="#预测期间" class="hash-link" aria-label="预测期间的直接链接" title="预测期间的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">模板通常从最后一个历史年份起向前预测 5 年</li>
+<li class="">验证历史（A）与预测（E）列已清晰分隔</li>
+<li class="">确认列使用财年标注（例如 FY2024A、FY2025E）</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="利润率分析">利润率分析<a href="#利润率分析" class="hash-link" aria-label="利润率分析的直接链接" title="利润率分析的直接链接" translate="no">​</a></h2>
+<p><strong>注意：以下利润率分析仅在用户明确要求或模板明确需要时执行。如无提示，跳过本节。</strong></p>
+<p>在利润表（IS）标签页上计算并展示盈利利润率，以追踪运营效率并支持同业比较。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="核心利润率指标">核心利润率指标<a href="#核心利润率指标" class="hash-link" aria-label="核心利润率指标的直接链接" title="核心利润率指标的直接链接" translate="no">​</a></h3>
+<table><thead><tr><th>利润率</th><th>公式</th><th>衡量内容</th></tr></thead><tbody><tr><td>毛利率</td><td>毛利润 / 收入</td><td>定价能力、生产效率</td></tr><tr><td>EBITDA 利润率</td><td>EBITDA / 收入</td><td>核心运营盈利能力</td></tr><tr><td>EBIT 利润率</td><td>EBIT / 收入</td><td>折旧摊销后运营盈利能力</td></tr><tr><td>净利润率</td><td>净利润 / 收入</td><td>最终盈利能力</td></tr></tbody></table>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="含利润率的利润表布局">含利润率的利润表布局<a href="#含利润率的利润表布局" class="hash-link" aria-label="含利润率的利润表布局的直接链接" title="含利润率的利润表布局的直接链接" translate="no">​</a></h3>
+<p>在每个利润行项目正下方展示利润率百分比：</p>
+<ul>
+<li class="">毛利润下方显示毛利率 %</li>
+<li class="">EBIT 下方显示 EBIT 利润率 %</li>
+<li class="">EBITDA 下方显示 EBITDA 利润率 %</li>
+<li class="">净利润下方显示净利润率 %</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="信用指标">信用指标<a href="#信用指标" class="hash-link" aria-label="信用指标的直接链接" title="信用指标的直接链接" translate="no">​</a></h2>
+<p><strong>注意：以下信用分析仅在用户明确要求或模板明确需要时执行。如无提示，跳过本节。</strong></p>
+<p>在资产负债表（BS）标签页上计算并展示信用/杠杆指标，以评估财务健康状况、债务承载能力和契约合规性。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="核心信用指标">核心信用指标<a href="#核心信用指标" class="hash-link" aria-label="核心信用指标的直接链接" title="核心信用指标的直接链接" translate="no">​</a></h3>
+<table><thead><tr><th>指标</th><th>公式</th><th>衡量内容</th></tr></thead><tbody><tr><td>总债务 / EBITDA</td><td>总债务 / 过去十二个月 EBITDA</td><td>杠杆倍数</td></tr><tr><td>净债务 / EBITDA</td><td>（总债务 - 现金）/ 过去十二个月 EBITDA</td><td>扣除现金后的杠杆</td></tr><tr><td>利息覆盖率</td><td>EBITDA / 利息费用</td><td>偿债能力</td></tr><tr><td>债务 / 总资本</td><td>总债务 /（总债务 + 权益）</td><td>资本结构</td></tr><tr><td>债务 / 权益</td><td>总债务 / 总权益</td><td>财务杠杆</td></tr><tr><td>流动比率</td><td>流动资产 / 流动负债</td><td>短期流动性</td></tr><tr><td>速动比率</td><td>（流动资产 - 存货）/ 流动负债</td><td>即时流动性</td></tr></tbody></table>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="信用指标层级检查">信用指标层级检查<a href="#信用指标层级检查" class="hash-link" aria-label="信用指标层级检查的直接链接" title="信用指标层级检查的直接链接" translate="no">​</a></h3>
+<p>验证乐观情景呈现最优信用状况：</p>
+<ul>
+<li class="">杠杆：乐观 &lt; 基准 &lt; 悲观（越低越好）</li>
+<li class="">覆盖率：乐观 &gt; 基准 &gt; 悲观（越高越好）</li>
+<li class="">流动性：乐观 &gt; 基准 &gt; 悲观（越高越好）</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="契约合规追踪">契约合规追踪<a href="#契约合规追踪" class="hash-link" aria-label="契约合规追踪的直接链接" title="契约合规追踪的直接链接" translate="no">​</a></h3>
+<p>如已知债务契约条款，添加明确的合规检查，将实际指标与契约阈值进行比较。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="情景分析基准--乐观--悲观">情景分析（基准 / 乐观 / 悲观）<a href="#情景分析基准--乐观--悲观" class="hash-link" aria-label="情景分析（基准 / 乐观 / 悲观）的直接链接" title="情景分析（基准 / 乐观 / 悲观）的直接链接" translate="no">​</a></h2>
+<p>在假设标签页中使用情景切换（下拉菜单），配合 CHOOSE 或 INDEX/MATCH 公式。</p>
+<table><thead><tr><th>情景</th><th>描述</th></tr></thead><tbody><tr><td>基准情景</td><td>管理层指引或市场一致预期</td></tr><tr><td>乐观情景</td><td>超预期增长、利润率扩张</td></tr><tr><td>悲观情景</td><td>低于趋势增长、利润率压缩</td></tr></tbody></table>
+<p><strong>关键敏感性驱动因素</strong>：收入增长率、毛利率、SG&amp;A %、DSO/DIO/DPO、资本支出 %、利率、税率。</p>
+<p><strong>情景审计检查</strong>：切换开关联动所有报表，所有情景下资产负债表平衡，现金勾稽，层级成立（乐观 &gt; 基准 &gt; 悲观，适用于净利润、EBITDA、自由现金流、各利润率）。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sec-申报文件数据提取">SEC 申报文件数据提取<a href="#sec-申报文件数据提取" class="hash-link" aria-label="SEC 申报文件数据提取的直接链接" title="SEC 申报文件数据提取的直接链接" translate="no">​</a></h2>
+<p>如果模板明确需要从 SEC 申报文件（10-K、10-Q）中提取数据，请参阅 <a href="https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/finance/3-statement-model/references/sec-filings.md" target="_blank" rel="noopener noreferrer" class="">references/sec-filings.md</a> 获取详细提取指引。仅在使用上市公司监管申报文件数据填写模板时才需要此参考文档。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="填写模型模板">填写模型模板<a href="#填写模型模板" class="hash-link" aria-label="填写模型模板的直接链接" title="填写模型模板的直接链接" translate="no">​</a></h2>
+<p>本节提供填写任意三表财务模型模板的通用指引，同时保留现有公式并确保数据完整性。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第一步分析模板结构">第一步：分析模板结构<a href="#第一步分析模板结构" class="hash-link" aria-label="第一步：分析模板结构的直接链接" title="第一步：分析模板结构的直接链接" translate="no">​</a></h3>
+<p>录入任何数据前，彻底审查模板以了解其架构：</p>
+<p><strong>识别输入单元格与公式单元格</strong></p>
+<ul>
+<li class="">寻找区分输入单元格与公式单元格的视觉提示（字体颜色、单元格底纹）</li>
+<li class="">常见规范：蓝色字体 = 输入，黑色字体 = 公式，绿色字体 = 跨表链接</li>
+<li class="">使用 Excel 的追踪引用单元格/从属单元格功能（公式 → 追踪引用单元格）了解单元格关系</li>
+<li class="">检查可能控制关键输入的命名区域（公式 → 名称管理器）</li>
+</ul>
+<p><strong>梳理模板流程</strong></p>
+<ul>
+<li class="">识别哪些标签页汇入其他标签页（例如，假设 → 利润表 → 资产负债表 → 现金流量表）</li>
+<li class="">记录各支撑明细表及其与主报表的勾稽关系</li>
+<li class="">在填写前记录模板的具体行项目和结构</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第二步在不破坏公式的前提下录入数据">第二步：在不破坏公式的前提下录入数据<a href="#第二步在不破坏公式的前提下录入数据" class="hash-link" aria-label="第二步：在不破坏公式的前提下录入数据的直接链接" title="第二步：在不破坏公式的前提下录入数据的直接链接" translate="no">​</a></h3>
+<p><strong>数据录入黄金法则</strong></p>
+<table><thead><tr><th>规则</th><th>说明</th></tr></thead><tbody><tr><td>仅编辑输入单元格</td><td>除非有意替换公式，否则绝不覆盖含公式的单元格</td></tr><tr><td>保留单元格引用</td><td>复制数据时，使用选择性粘贴值（Ctrl+Shift+V），避免用源格式覆盖公式</td></tr><tr><td>匹配模板单位</td><td>录入数据前确认模板使用千元、百万元还是实际值</td></tr><tr><td>遵守符号规范</td><td>遵循模板现有的符号规范（例如，费用为正数或负数）</td></tr><tr><td>检查循环引用</td><td>如果模板使用迭代计算，确保已启用迭代计算</td></tr></tbody></table>
+<p><strong>安全数据录入流程</strong></p>
+<ol>
+<li class="">确定指定用于输入的确切单元格（通常已高亮或标注）</li>
+<li class="">先录入历史数据，然后验证这些期间的公式计算是否正确</li>
+<li class="">录入驱动预测计算的假设驱动项</li>
+<li class="">审查计算输出，确认公式按预期运行</li>
+<li class="">如必须修改公式单元格，在修改前记录原始公式</li>
+</ol>
+<p><strong>处理预置公式</strong></p>
+<ul>
+<li class="">如果公式引用了尚未填写的单元格，在所有输入完成前预期会出现临时错误（#REF!、#DIV/0!）</li>
+<li class="">当公式产生意外结果时，追踪引用单元格以识别缺失或错误的输入</li>
+<li class="">在未检查所有标签页的公式依赖关系前，绝不删除行/列</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第三步验证公式">第三步：验证公式<a href="#第三步验证公式" class="hash-link" aria-label="第三步：验证公式的直接链接" title="第三步：验证公式的直接链接" translate="no">​</a></h3>
+<p><strong>公式完整性检查</strong></p>
+<p>在依赖模板输出前，验证公式是否正常运行：</p>
+<table><thead><tr><th>检查类型</th><th>方法</th></tr></thead><tbody><tr><td>追踪引用单元格</td><td>选择公式单元格 → 公式 → 追踪引用单元格，验证其引用了正确的输入</td></tr><tr><td>追踪从属单元格</td><td>验证关键输入是否流向预期的输出单元格</td></tr><tr><td>公式求值</td><td>使用公式 → 公式求值，逐步分析复杂计算</td></tr><tr><td>检查硬编码</td><td>预测公式应引用假设项，不应包含硬编码值</td></tr><tr><td>用已知值测试</td><td>输入简单测试值，验证公式是否产生预期结果</td></tr><tr><td>跨标签页一致性</td><td>确保相同的公式逻辑适用于所有预测期间</td></tr></tbody></table>
+<p><strong>常见公式问题</strong></p>
+<ul>
+<li class="">混合绝对/相对引用导致跨期间复制时结果错误</li>
+<li class="">指向外部文件或已删除区域的断裂链接（#REF! 错误）</li>
+<li class="">收入尚未起量的早期期间出现除零错误（#DIV/0! 错误）</li>
+<li class="">循环引用警告（利息计算中可能是有意为之）</li>
+<li class="">预测列之间公式不一致（使用 Ctrl+\ 查找差异）</li>
+</ul>
+<p><strong>验证跨标签页勾稽</strong></p>
+<ul>
+<li class="">确认出现在多个标签页上的数值是链接的（而非重复录入）</li>
+<li class="">验证明细表合计与主报表对应行项目勾稽</li>
+<li class="">检查所有标签页的期间标签是否对齐</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第四步按工作表进行质量检查">第四步：按工作表进行质量检查<a href="#第四步按工作表进行质量检查" class="hash-link" aria-label="第四步：按工作表进行质量检查的直接链接" title="第四步：按工作表进行质量检查的直接链接" translate="no">​</a></h3>
+<p>填写模板后，对每张工作表执行以下验证检查：</p>
+<p><strong>利润表（IS）质量检查</strong></p>
+<ul>
+<li class="">历史期间收入数据与源数据匹配</li>
+<li class="">所有费用行项目加总等于报告合计</li>
+<li class="">小计（毛利润、EBIT、税前利润、净利润）计算正确</li>
+<li class="">税务计算逻辑合理（正确处理亏损情况）</li>
+<li class="">预测驱动项引用假设标签页（无硬编码）</li>
+<li class="">同比变动方向合理</li>
+</ul>
+<p><strong>资产负债表（BS）质量检查</strong></p>
+<ul>
+<li class="">每个期间资产 = 负债 + 权益（主要检查项）</li>
+<li class="">现金余额与现金流量表期末现金匹配</li>
+<li class="">营运资本科目与支撑明细表勾稽（如适用）</li>
+<li class="">留存收益正确滚动：期初留存收益 + 净利润 - 股息 +/- 调整项 = 期末留存收益</li>
+<li class="">债务余额与债务计划表勾稽（如适用）</li>
+<li class="">所有资产负债表项目符号正确（资产为正，大多数负债为正）</li>
+</ul>
+<p><strong>现金流量表（CF）质量检查</strong></p>
+<ul>
+<li class="">经营活动现金流顶部净利润与利润表净利润匹配</li>
+<li class="">非现金加回项（折旧摊销、股权激励等）与其来源明细表/报表勾稽</li>
+<li class="">营运资本变动符号正确（资产增加 = 现金使用 = 负数）</li>
+<li class="">资本支出与固定资产明细表或固定资产滚动表勾稽</li>
+<li class="">融资活动与资产负债表债务和权益科目变动勾稽</li>
+<li class="">期末现金与资产负债表现金匹配</li>
+<li class="">期初现金等于上期期末现金</li>
+</ul>
+<p><strong>支撑明细表质量检查</strong></p>
+<ul>
+<li class="">期初余额等于上期期末余额</li>
+<li class="">滚动逻辑完整（期初 + 增加 - 减少 = 期末）</li>
+<li class="">明细表合计与主报表行项目勾稽</li>
+<li class="">计算中使用的假设与假设标签页匹配</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第五步跨报表完整性检查">第五步：跨报表完整性检查<a href="#第五步跨报表完整性检查" class="hash-link" aria-label="第五步：跨报表完整性检查的直接链接" title="第五步：跨报表完整性检查的直接链接" translate="no">​</a></h3>
+<p>验证各张工作表后，确认三张报表已正确集成：</p>
+<table><thead><tr><th>检查项</th><th>公式</th><th>预期结果</th></tr></thead><tbody><tr><td>资产负债表平衡</td><td>资产 - 负债 - 权益</td><td>= 0</td></tr><tr><td>现金勾稽</td><td>现金流量表期末现金 - 资产负债表现金</td><td>= 0</td></tr><tr><td>净利润勾稽</td><td>利润表净利润 - 现金流量表起始净利润</td><td>= 0</td></tr><tr><td>留存收益</td><td>期初留存收益 + 净利润 - 股息 - 资产负债表期末留存收益</td><td>= 0（根据需要调整股权激励/其他项目）</td></tr></tbody></table>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第六步最终审查">第六步：最终审查<a href="#第六步最终审查" class="hash-link" aria-label="第六步：最终审查的直接链接" title="第六步：最终审查的直接链接" translate="no">​</a></h3>
+<p>在认为模型完成前：</p>
+<ul>
+<li class="">切换所有情景（如适用），验证每种情景下检查均通过</li>
+<li class="">审查所有 #REF!、#DIV/0!、#VALUE! 和 #NAME? 错误，解决或记录说明</li>
+<li class="">确认所有输入单元格已填写（搜索占位符值）</li>
+<li class="">验证所有标签页单位一致</li>
+<li class="">在进行任何额外修改前保存一个干净版本</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="模型验证与审计">模型验证与审计<a href="#模型验证与审计" class="hash-link" aria-label="模型验证与审计的直接链接" title="模型验证与审计的直接链接" translate="no">​</a></h2>
+<p>本节汇总已完成模板的所有验证检查和审计程序。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="核心勾稽项必须始终成立">核心勾稽项（必须始终成立）<a href="#核心勾稽项必须始终成立" class="hash-link" aria-label="核心勾稽项（必须始终成立）的直接链接" title="核心勾稽项（必须始终成立）的直接链接" translate="no">​</a></h3>
+<p>所有公式详情见 <a href="https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/finance/3-statement-model/references/formulas.md" target="_blank" rel="noopener noreferrer" class="">references/formulas.md</a>。</p>
+<table><thead><tr><th>检查项</th><th>公式</th><th>预期结果</th></tr></thead><tbody><tr><td>资产负债表平衡</td><td>资产 - 负债 - 权益</td><td>= 0</td></tr><tr><td>现金勾稽</td><td>现金流量表期末现金 - 资产负债表现金</td><td>= 0</td></tr><tr><td>月度与年度现金</td><td>期末现金（月度）- 期末现金（年度）</td><td>= 0</td></tr><tr><td>净利润勾稽</td><td>利润表净利润 - 现金流量表起始净利润</td><td>= 0</td></tr><tr><td>留存收益</td><td>期初留存收益 + 净利润 + 股权激励 - 股息 - 资产负债表期末留存收益</td><td>= 0</td></tr><tr><td>权益融资</td><td>资产负债表普通股/资本公积变动 - 融资活动权益发行</td><td>= 0</td></tr><tr><td>第 0 年权益</td><td>第 0 年募集权益 - 第 1 年期初权益资本</td><td>= 0</td></tr></tbody></table>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="符号规范参考">符号规范参考<a href="#符号规范参考" class="hash-link" aria-label="符号规范参考的直接链接" title="符号规范参考的直接链接" translate="no">​</a></h3>
+<table><thead><tr><th>报表</th><th>项目</th><th>符号规范</th></tr></thead><tbody><tr><td>经营活动现金流</td><td>折旧摊销、股权激励</td><td>正数（加回）</td></tr><tr><td>经营活动现金流</td><td>应收账款增加</td><td>负数（现金使用）</td></tr><tr><td>经营活动现金流</td><td>应付账款增加</td><td>正数（现金来源）</td></tr><tr><td>投资活动现金流</td><td>资本支出</td><td>负数</td></tr><tr><td>融资活动现金流</td><td>债务发行</td><td>正数</td></tr><tr><td>融资活动现金流</td><td>债务偿还</td><td>负数</td></tr><tr><td>融资活动现金流</td><td>股息</td><td>负数</td></tr></tbody></table>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="循环引用处理">循环引用处理<a href="#循环引用处理" class="hash-link" aria-label="循环引用处理的直接链接" title="循环引用处理的直接链接" translate="no">​</a></h3>
+<p>利息费用产生循环：利息 → 净利润 → 现金 → 债务余额 → 利息</p>
+<p>在 Excel 中启用迭代计算：文件 → 选项 → 公式 → 启用迭代计算。设置最大迭代次数为 100，最大误差为 0.001。在假设标签页中添加断路器切换开关。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="检查类别">检查类别<a href="#检查类别" class="hash-link" aria-label="检查类别的直接链接" title="检查类别的直接链接" translate="no">​</a></h3>
+<p><strong>第 1 节：货币一致性</strong></p>
+<ul>
+<li class="">货币已在假设标签页中标识和记录</li>
+<li class="">所有标签页使用一致的货币符号和量级</li>
+<li class="">单位行与模型货币匹配</li>
+</ul>
+<p><strong>第 2 节：资产负债表完整性</strong></p>
+<ul>
+<li class="">每个期间资产 = 负债 + 权益</li>
+<li class="">公式：资产 - 负债 - 权益（必须 = 0）</li>
+</ul>
+<p><strong>第 3 节：现金流量完整性</strong></p>
+<ul>
+<li class="">现金与资产负债表勾稽（现金流量表期末现金 = 资产负债表现金）</li>
+<li class="">月度与年度现金：期末现金（月度）= 期末现金（年度）</li>
+<li class="">净利润与利润表勾稽（现金流量表净利润 = 利润表净利润）</li>
+<li class="">折旧摊销与明细表勾稽</li>
+<li class="">股权激励与利润表勾稽</li>
+<li class="">应收账款变动、存货变动、应付账款变动与营运资本明细表勾稽</li>
+<li class="">资本支出与折旧摊销明细表勾稽</li>
+</ul>
+<p><strong>第 4 节：留存收益</strong></p>
+<ul>
+<li class="">留存收益滚动检查：期初留存收益 + 净利润 + 股权激励 - 股息 = 期末留存收益</li>
+<li class="">展示组成部分明细以便调试</li>
+</ul>
+<p><strong>第 5 节：营运资本</strong></p>
+<ul>
+<li class="">应收账款、存货、应付账款与资产负债表勾稽</li>
+<li class="">DSO、DIO、DPO 合理性检查（超出正常范围时标记）</li>
+</ul>
+<p><strong>第 6 节：债务计划表</strong></p>
+<ul>
+<li class="">总债务与资产负债表勾稽（流动 + 长期债务）</li>
+<li class="">利息计算与利润表勾稽</li>
+</ul>
+<p><strong>第 6b 节：权益融资</strong></p>
+<ul>
+<li class="">权益发行所得与资产负债表普通股/资本公积增加额勾稽</li>
+<li class="">权益带来的现金增加 = 权益科目增加（必须平衡）</li>
+<li class="">权益募集勾稽：资产负债表普通股/资本公积变动 = 融资活动权益发行（必须 = 0）</li>
+<li class="">第 0 年权益勾稽：第 0 年募集权益 = 第 1 年期初权益资本</li>
+</ul>
+<p><strong>第 6c 节：净经营亏损明细表</strong></p>
+<ul>
+<li class="">第 1 年/成立时期初净经营亏损 = 0（新企业从零净经营亏损起步）</li>
+<li class="">仅当税前利润 &lt; 0 时净经营亏损增加（必须实现亏损才能产生净经营亏损）</li>
+<li class="">递延税资产与资产负债表勾稽（净经营亏损明细表递延税资产 = 资产负债表递延税资产）</li>
+<li class="">净经营亏损利用额 ≤ 税前利润的 80%（2017 年后联邦限制）</li>
+<li class="">净经营亏损余额非负（不能利用超过可用额度）</li>
+<li class="">仅当税前利润 &lt; 0 时产生净经营亏损</li>
+<li class="">应税收入 ≤ 0 时税务费用 = 0</li>
+</ul>
+<p><strong>第 7 节：情景层级</strong></p>
+<ul>
+<li class="">绝对指标：乐观 &gt; 基准 &gt; 悲观（净利润、EBITDA、自由现金流）</li>
+<li class="">利润率：乐观 &gt; 基准 &gt; 悲观（毛利率 %、EBITDA %、净利润率 %）</li>
+<li class="">信用指标：杠杆方面乐观 &lt; 基准 &lt; 悲观（反向）</li>
+</ul>
+<p><strong>第 8 节：公式完整性</strong></p>
+<ul>
+<li class="">营业成本、销售费用、管理费用、研发费用、股权激励由收入百分比驱动（无硬编码）</li>
+<li class="">预测年份间公式一致</li>
+<li class="">无 #REF!、#DIV/0!、#VALUE! 错误</li>
+</ul>
+<p><strong>第 9 节：信用指标阈值</strong></p>
+<ul>
+<li class="">根据契约阈值将指标标记为绿色/黄色/红色</li>
+<li class="">汇总所有红色预警</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="主检查公式">主检查公式<a href="#主检查公式" class="hash-link" aria-label="主检查公式的直接链接" title="主检查公式的直接链接" translate="no">​</a></h3>
+<p>将所有章节状态汇总为单一主检查：</p>
+<ul>
+<li class="">如果所有章节通过 → &quot;✓ ALL CHECKS PASS&quot;</li>
+<li class="">如果任何章节失败 → &quot;✗ ERRORS DETECTED - REVIEW BELOW&quot;</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="快速调试流程">快速调试流程<a href="#快速调试流程" class="hash-link" aria-label="快速调试流程的直接链接" title="快速调试流程的直接链接" translate="no">​</a></h3>
+<p>当主状态显示错误时：</p>
+<ol>
+<li class="">滚动查找红色高亮章节</li>
+<li class="">识别哪个检查类别存在失败</li>
+<li class="">导航至源标签页进行排查</li>
+<li class="">修复根本问题</li>
+<li class="">返回检查标签页验证是否已解决</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="数据来源--优先-mcp其次网络回退">数据来源 — 优先 MCP，其次网络回退<a href="#数据来源--优先-mcp其次网络回退" class="hash-link" aria-label="数据来源 — 优先 MCP，其次网络回退的直接链接" title="数据来源 — 优先 MCP，其次网络回退的直接链接" translate="no">​</a></h2>
+<p>以下许多段落提到&quot;使用 S&amp;P Kensho MCP / Daloopa MCP / FactSet MCP&quot;。这些是原 Cowork 插件上下文中的商业金融数据 MCP。在 Hermes 中：</p>
+<ul>
+<li class=""><strong>如果已配置任何结构化金融数据 MCP</strong>（Hermes 支持 MCP — 参见 <code>native-mcp</code> skill），优先使用它获取时点可比数据、前例交易和申报文件。</li>
+<li class=""><strong>否则</strong>，回退至：<!-- -->
+<ul>
+<li class="">针对 SEC EDGAR（<code>https://www.sec.gov/cgi-bin/browse-edgar</code>）使用 <code>web_search</code> / <code>web_extract</code> 获取美国申报文件</li>
+<li class="">公司投资者关系页面获取新闻稿、业绩演示文稿</li>
+<li class=""><code>browser_navigate</code> 访问交互式数据门户</li>
+<li class="">用户提供的数据（当上下文中没有时，明确询问）</li>
+</ul>
+</li>
+<li class=""><strong>绝不捏造数据</strong>。如果某个倍数、前例或申报数字无法溯源，将该单元格标记为 <code>[UNSOURCED]</code> 并向用户说明。</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="归属声明">归属声明<a href="#归属声明" class="hash-link" aria-label="归属声明的直接链接" title="归属声明的直接链接" translate="no">​</a></h2>
+<p>本 skill 改编自 Anthropic 的 Claude 金融服务插件套件（Apache-2.0）。Office-JS / Cowork 实时 Excel 路径已移除；本版本通过 <code>excel-author</code> skill 的规范面向无界面 openpyxl。原始来源：<a href="https://github.com/anthropics/financial-services" target="_blank" rel="noopener noreferrer" class="">https://github.com/anthropics/financial-services</a></p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/NousResearch/hermes-agent/edit/main/website/docs/user-guide/skills/optional/finance/finance-3-statement-model.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑此页</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/email/email-agentmail"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">Agentmail</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">可比公司分析</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#skill-元数据" class="table-of-contents__link toc-highlight">Skill 元数据</a></li><li><a href="#参考完整-skillmd" class="table-of-contents__link toc-highlight">参考：完整 SKILL.md</a></li><li><a href="#环境" class="table-of-contents__link toc-highlight">环境</a></li><li><a href="#️-核心原则--填写任何模板前必读" class="table-of-contents__link toc-highlight">⚠️ 核心原则 — 填写任何模板前必读</a></li><li><a href="#格式--专业蓝灰配色除非模板用户另有指定" class="table-of-contents__link toc-highlight">格式 — 专业蓝灰配色（除非模板/用户另有指定）</a></li><li><a href="#模型结构" class="table-of-contents__link toc-highlight">模型结构</a><ul><li><a href="#识别模板标签页组织" class="table-of-contents__link toc-highlight">识别模板标签页组织</a></li><li><a href="#理解模板结构" class="table-of-contents__link toc-highlight">理解模板结构</a></li><li><a href="#预测期间" class="table-of-contents__link toc-highlight">预测期间</a></li></ul></li><li><a href="#利润率分析" class="table-of-contents__link toc-highlight">利润率分析</a><ul><li><a href="#核心利润率指标" class="table-of-contents__link toc-highlight">核心利润率指标</a></li><li><a href="#含利润率的利润表布局" class="table-of-contents__link toc-highlight">含利润率的利润表布局</a></li></ul></li><li><a href="#信用指标" class="table-of-contents__link toc-highlight">信用指标</a><ul><li><a href="#核心信用指标" class="table-of-contents__link toc-highlight">核心信用指标</a></li><li><a href="#信用指标层级检查" class="table-of-contents__link toc-highlight">信用指标层级检查</a></li><li><a href="#契约合规追踪" class="table-of-contents__link toc-highlight">契约合规追踪</a></li></ul></li><li><a href="#情景分析基准--乐观--悲观" class="table-of-contents__link toc-highlight">情景分析（基准 / 乐观 / 悲观）</a></li><li><a href="#sec-申报文件数据提取" class="table-of-contents__link toc-highlight">SEC 申报文件数据提取</a></li><li><a href="#填写模型模板" class="table-of-contents__link toc-highlight">填写模型模板</a><ul><li><a href="#第一步分析模板结构" class="table-of-contents__link toc-highlight">第一步：分析模板结构</a></li><li><a href="#第二步在不破坏公式的前提下录入数据" class="table-of-contents__link toc-highlight">第二步：在不破坏公式的前提下录入数据</a></li><li><a href="#第三步验证公式" class="table-of-contents__link toc-highlight">第三步：验证公式</a></li><li><a href="#第四步按工作表进行质量检查" class="table-of-contents__link toc-highlight">第四步：按工作表进行质量检查</a></li><li><a href="#第五步跨报表完整性检查" class="table-of-contents__link toc-highlight">第五步：跨报表完整性检查</a></li><li><a href="#第六步最终审查" class="table-of-contents__link toc-highlight">第六步：最终审查</a></li></ul></li><li><a href="#模型验证与审计" class="table-of-contents__link toc-highlight">模型验证与审计</a><ul><li><a href="#核心勾稽项必须始终成立" class="table-of-contents__link toc-highlight">核心勾稽项（必须始终成立）</a></li><li><a href="#符号规范参考" class="table-of-contents__link toc-highlight">符号规范参考</a></li><li><a href="#循环引用处理" class="table-of-contents__link toc-highlight">循环引用处理</a></li><li><a href="#检查类别" class="table-of-contents__link toc-highlight">检查类别</a></li><li><a href="#主检查公式" class="table-of-contents__link toc-highlight">主检查公式</a></li><li><a href="#快速调试流程" class="table-of-contents__link toc-highlight">快速调试流程</a></li></ul></li><li><a href="#数据来源--优先-mcp其次网络回退" class="table-of-contents__link toc-highlight">数据来源 — 优先 MCP，其次网络回退</a></li><li><a href="#归属声明" class="table-of-contents__link toc-highlight">归属声明</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/getting-started/quickstart">Getting Started</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/user-guide/cli">User Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/developer-guide/architecture">Developer Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/reference/cli-commands">Reference</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent/discussions" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub Discussions<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://agentskills.io" target="_blank" rel="noopener noreferrer" class="footer__link-item">Skills Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://nousresearch.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Nous Research<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Built by <a href="https://nousresearch.com">Nous Research</a> · MIT License · 2026</div></div></div></footer></div>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-user-guide/skills/optional/finance/finance-comps-analysis" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">Comps Analysis | Hermes Agent</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://seojoonkim.github.io/hermes-agent/docs/img/hermes-agent-banner.png"><meta data-rh="true" name="twitter:image" content="https://seojoonkim.github.io/hermes-agent/docs/img/hermes-agent-banner.png"><meta data-rh="true" property="og:url" content="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Comps Analysis | Hermes Agent"><meta data-rh="true" name="description" content="Build comparable company analysis in Excel — operating metrics, valuation multiples, statistical benchmarking vs peer sets"><meta data-rh="true" property="og:description" content="Build comparable company analysis in Excel — operating metrics, valuation multiples, statistical benchmarking vs peer sets"><link data-rh="true" rel="icon" href="/hermes-agent/docs/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis" hreflang="en"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Comps Analysis","item":"https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis"}]}</script><link rel="stylesheet" href="/hermes-agent/docs/assets/css/styles.68258a75.css">
+<script src="/hermes-agent/docs/assets/js/runtime~main.4d90e967.js" defer="defer"></script>
+<script src="/hermes-agent/docs/assets/js/main.b3762a77.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/hermes-agent/docs/img/logo.png"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/hermes-agent/docs/"><div class="navbar__logo"><img src="/hermes-agent/docs/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/hermes-agent/docs/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Hermes Agent</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/hermes-agent/docs/user-stories">Docs</a><a class="navbar__item navbar__link" href="/hermes-agent/docs/skills">Skills</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="iconLanguage_nlXk"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"></path></svg>English</a><ul class="dropdown__menu"><li><a href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis" target="_self" rel="noopener noreferrer" class="dropdown__link dropdown__link--active" lang="en">English</a></li><li><a href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="zh-Hans">简体中文</a></li></ul></div><a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Home<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="Search" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/hermes-agent/docs/user-stories"><span title="User Stories &amp; Use Cases" class="linkLabel_WmDU">User Stories &amp; Use Cases</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/getting-started/quickstart"><span title="Getting Started" class="categoryLinkLabel_W154">Getting Started</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/user-guide/cli"><span title="Using Hermes" class="categoryLinkLabel_W154">Using Hermes</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/hermes-agent/docs/user-guide/features/overview"><span title="Features" class="categoryLinkLabel_W154">Features</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/features/overview"><span title="Overview" class="linkLabel_WmDU">Overview</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/features/tool-gateway"><span title="Tool Gateway" class="linkLabel_WmDU">Tool Gateway</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/tools"><span title="Core" class="categoryLinkLabel_W154">Core</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/cron"><span title="Automation" class="categoryLinkLabel_W154">Automation</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/voice-mode"><span title="Media &amp; Web" class="categoryLinkLabel_W154">Media &amp; Web</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/web-dashboard"><span title="Management" class="categoryLinkLabel_W154">Management</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/reference/skills-catalog"><span title="Skills" class="categoryLinkLabel_W154">Skills</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/reference/skills-catalog"><span title="Bundled Skills Catalog" class="linkLabel_WmDU">Bundled Skills Catalog</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/reference/optional-skills-catalog"><span title="Optional Skills Catalog" class="linkLabel_WmDU">Optional Skills Catalog</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/apple/apple-apple-notes"><span title="Bundled" class="categoryLinkLabel_W154">Bundled</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="Optional" class="categoryLinkLabel_W154">Optional</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="autonomous-ai-agents" class="categoryLinkLabel_W154">autonomous-ai-agents</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/blockchain/blockchain-evm"><span title="blockchain" class="categoryLinkLabel_W154">blockchain</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/communication/communication-one-three-one-rule"><span title="communication" class="categoryLinkLabel_W154">communication</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/creative/creative-blender-mcp"><span title="creative" class="categoryLinkLabel_W154">creative</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/devops/devops-cli"><span title="devops" class="categoryLinkLabel_W154">devops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/dogfood/dogfood-adversarial-ux-test"><span title="dogfood" class="categoryLinkLabel_W154">dogfood</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/email/email-agentmail"><span title="email" class="categoryLinkLabel_W154">email</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-3-statement-model"><span title="finance" class="categoryLinkLabel_W154">finance</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-3-statement-model"><span title="3 Statement Model" class="linkLabel_WmDU">3 Statement Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis"><span title="Comps Analysis" class="linkLabel_WmDU">Comps Analysis</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model"><span title="Dcf Model" class="linkLabel_WmDU">Dcf Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-excel-author"><span title="Excel Author" class="linkLabel_WmDU">Excel Author</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-lbo-model"><span title="Lbo Model" class="linkLabel_WmDU">Lbo Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-merger-model"><span title="Merger Model" class="linkLabel_WmDU">Merger Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-pptx-author"><span title="Pptx Author" class="linkLabel_WmDU">Pptx Author</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-stocks"><span title="Stocks" class="linkLabel_WmDU">Stocks</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/health/health-fitness-nutrition"><span title="health" class="categoryLinkLabel_W154">health</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/mcp/mcp-fastmcp"><span title="mcp" class="categoryLinkLabel_W154">mcp</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/migration/migration-openclaw-migration"><span title="migration" class="categoryLinkLabel_W154">migration</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/mlops/mlops-accelerate"><span title="mlops" class="categoryLinkLabel_W154">mlops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/productivity/productivity-canvas"><span title="productivity" class="categoryLinkLabel_W154">productivity</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/research/research-bioinformatics"><span title="research" class="categoryLinkLabel_W154">research</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/security/security-1password"><span title="security" class="categoryLinkLabel_W154">security</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/software-development/software-development-code-wiki"><span title="software-development" class="categoryLinkLabel_W154">software-development</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/web-development/web-development-page-agent"><span title="web-development" class="categoryLinkLabel_W154">web-development</span></a></div></li></ul></li></ul></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/user-guide/messaging/"><span title="Messaging Platforms" class="categoryLinkLabel_W154">Messaging Platforms</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/integrations/"><span title="Integrations" class="categoryLinkLabel_W154">Integrations</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/guides/run-hermes-with-nous-portal"><span title="Guides &amp; Tutorials" class="categoryLinkLabel_W154">Guides &amp; Tutorials</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/developer-guide/contributing"><span title="Developer Guide" class="categoryLinkLabel_W154">Developer Guide</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/reference/cli-commands"><span title="Reference" class="categoryLinkLabel_W154">Reference</span></a></div></li></ul></nav><button type="button" title="Collapse sidebar" aria-label="Collapse sidebar" class="button button--secondary button--outline collapseSidebarButton_PEFL"><svg width="20" height="20" aria-hidden="true" class="collapseSidebarButtonIcon_kv0_"><g fill="#7a7a7a"><path d="M9.992 10.023c0 .2-.062.399-.172.547l-4.996 7.492a.982.982 0 01-.828.454H1c-.55 0-1-.453-1-1 0-.2.059-.403.168-.551l4.629-6.942L.168 3.078A.939.939 0 010 2.528c0-.548.45-.997 1-.997h2.996c.352 0 .649.18.828.45L9.82 9.472c.11.148.172.347.172.55zm0 0"></path><path d="M19.98 10.023c0 .2-.058.399-.168.547l-4.996 7.492a.987.987 0 01-.828.454h-3c-.547 0-.996-.453-.996-1 0-.2.059-.403.168-.551l4.625-6.942-4.625-6.945a.939.939 0 01-.168-.55 1 1 0 01.996-.997h3c.348 0 .649.18.828.45l4.996 7.492c.11.148.168.347.168.55zm0 0"></path></g></svg></button></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/hermes-agent/docs/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Features</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Skills</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Optional</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">finance</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Comps Analysis</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown">
+<header><h1>Comps Analysis</h1></header>
+<p>Build comparable company analysis in Excel — operating metrics, valuation multiples, statistical benchmarking vs peer sets. Pairs with excel-author. Use for public-company valuation, IPO pricing, sector benchmarking, or outlier detection.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="skill-metadata">Skill metadata<a href="#skill-metadata" class="hash-link" aria-label="Direct link to Skill metadata" title="Direct link to Skill metadata" translate="no">​</a></h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Source</td><td>Optional — install with <code>hermes skills install official/finance/comps-analysis</code></td></tr><tr><td>Path</td><td><code>optional-skills/finance/comps-analysis</code></td></tr><tr><td>Version</td><td><code>1.0.0</code></td></tr><tr><td>Author</td><td>Anthropic (adapted by Nous Research)</td></tr><tr><td>License</td><td>Apache-2.0</td></tr><tr><td>Platforms</td><td>linux, macos, windows</td></tr><tr><td>Tags</td><td><code>finance</code>, <code>valuation</code>, <code>comps</code>, <code>excel</code>, <code>openpyxl</code>, <code>modeling</code>, <code>investment-banking</code></td></tr><tr><td>Related skills</td><td><a class="" href="/hermes-agent/docs/docs/user-guide/skills/optional/finance/finance-excel-author"><code>excel-author</code></a>, <a class="" href="/hermes-agent/docs/docs/user-guide/skills/optional/finance/finance-pptx-author"><code>pptx-author</code></a>, <a class="" href="/hermes-agent/docs/docs/user-guide/skills/optional/finance/finance-dcf-model"><code>dcf-model</code></a>, <a class="" href="/hermes-agent/docs/docs/user-guide/skills/optional/finance/finance-lbo-model"><code>lbo-model</code></a></td></tr></tbody></table>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="reference-full-skillmd">Reference: full SKILL.md<a href="#reference-full-skillmd" class="hash-link" aria-label="Direct link to Reference: full SKILL.md" title="Direct link to Reference: full SKILL.md" translate="no">​</a></h2>
+<div class="theme-admonition theme-admonition-info admonition_xJq3 alert alert--info"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg></span>info</div><div class="admonitionContent_BuS1"><p>The following is the complete skill definition that Hermes loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.</p></div></div>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="environment">Environment<a href="#environment" class="hash-link" aria-label="Direct link to Environment" title="Direct link to Environment" translate="no">​</a></h2>
+<p>This skill assumes <strong>headless openpyxl</strong> — you are producing an .xlsx file on disk.
+Follow the <code>excel-author</code> skill&#x27;s conventions for cell coloring, formulas, named ranges, and sensitivity tables.
+Recalculate before delivery: <code>python /path/to/excel-author/scripts/recalc.py ./out/model.xlsx</code>.</p>
+<h1>Comparable Company Analysis</h1>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="️-critical-data-source-priority-read-first">⚠️ CRITICAL: Data Source Priority (READ FIRST)<a href="#️-critical-data-source-priority-read-first" class="hash-link" aria-label="Direct link to ⚠️ CRITICAL: Data Source Priority (READ FIRST)" title="Direct link to ⚠️ CRITICAL: Data Source Priority (READ FIRST)" translate="no">​</a></h2>
+<p><strong>ALWAYS follow this data source hierarchy:</strong></p>
+<ol>
+<li class=""><strong>FIRST: Check for MCP data sources</strong> - If S&amp;P Kensho MCP, FactSet MCP, or Daloopa MCP are available, use them exclusively for financial and trading information</li>
+<li class=""><strong>DO NOT use web search</strong> if the above MCP data sources are available</li>
+<li class=""><strong>ONLY if MCPs are unavailable:</strong> Then use Bloomberg Terminal, SEC EDGAR filings, or other institutional sources</li>
+<li class=""><strong>NEVER use web search as a primary data source</strong> - it lacks the accuracy, audit trails, and reliability required for institutional-grade analysis</li>
+</ol>
+<p><strong>Why this matters:</strong> MCP sources provide verified, institutional-grade data with proper citations. Web search results can be outdated, inaccurate, or unreliable for financial analysis.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="overview">Overview<a href="#overview" class="hash-link" aria-label="Direct link to Overview" title="Direct link to Overview" translate="no">​</a></h2>
+<p>This skill teaches the agent to build institutional-grade comparable company analyses that combine operating metrics, valuation multiples, and statistical benchmarking. The output is a structured Excel/spreadsheet that enables informed investment decisions through peer comparison.</p>
+<p><strong>Reference Material &amp; Contextualization:</strong></p>
+<p>An example comparable company analysis is provided in <code>examples/comps_example.xlsx</code>. When using this or other example files in this skill directory, use them intelligently:</p>
+<p><strong>DO use examples for:</strong></p>
+<ul>
+<li class="">Understanding structural hierarchy (how sections flow)</li>
+<li class="">Grasping the level of rigor expected (statistical depth, documentation standards)</li>
+<li class="">Learning principles (clear headers, transparent formulas, audit trails)</li>
+</ul>
+<p><strong>DO NOT use examples for:</strong></p>
+<ul>
+<li class="">Exact reproduction of format or metrics</li>
+<li class="">Copying layout without considering context</li>
+<li class="">Applying the same visual style regardless of audience</li>
+</ul>
+<p><strong>ALWAYS ask yourself first:</strong></p>
+<ol>
+<li class=""><strong>&quot;Do you have a preferred format or should I adapt the template style?&quot;</strong></li>
+<li class=""><strong>&quot;Who is the audience?&quot;</strong> (Investment committee, board presentation, quick reference, detailed memo)</li>
+<li class=""><strong>&quot;What&#x27;s the key question?&quot;</strong> (Valuation, growth analysis, competitive positioning, efficiency)</li>
+<li class=""><strong>&quot;What&#x27;s the context?&quot;</strong> (M&amp;A evaluation, investment decision, sector benchmarking, performance review)</li>
+</ol>
+<p><strong>Adapt based on specifics:</strong></p>
+<ul>
+<li class=""><strong>Industry context</strong>: Big tech mega-caps need different metrics than emerging SaaS startups</li>
+<li class=""><strong>Sector-specific needs</strong>: Add relevant metrics early (e.g., cloud ARR, enterprise customers, developer ecosystem for tech)</li>
+<li class=""><strong>Company familiarity</strong>: Well-known companies may need less background, more focus on delta analysis</li>
+<li class=""><strong>Decision type</strong>: M&amp;A requires different emphasis than ongoing portfolio monitoring</li>
+</ul>
+<p><strong>Core principle:</strong> Use template principles (clear structure, statistical rigor, transparent formulas) but vary execution based on context. The goal is institutional-quality analysis, not institutional-looking templates.</p>
+<p>User-provided examples and explicit preferences always take precedence over defaults.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="core-philosophy">Core Philosophy<a href="#core-philosophy" class="hash-link" aria-label="Direct link to Core Philosophy" title="Direct link to Core Philosophy" translate="no">​</a></h2>
+<p><strong>&quot;Build the right structure first, then let the data tell the story.&quot;</strong></p>
+<p>Start with headers that force strategic thinking about what matters, input clean data, build transparent formulas, and let statistics emerge automatically. A good comp should be immediately readable by someone who didn&#x27;t build it.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="️-critical-formulas-over-hardcodes--step-by-step-verification">⚠️ CRITICAL: Formulas Over Hardcodes + Step-by-Step Verification<a href="#️-critical-formulas-over-hardcodes--step-by-step-verification" class="hash-link" aria-label="Direct link to ⚠️ CRITICAL: Formulas Over Hardcodes + Step-by-Step Verification" title="Direct link to ⚠️ CRITICAL: Formulas Over Hardcodes + Step-by-Step Verification" translate="no">​</a></h2>
+<p><strong>Formulas, not hardcodes:</strong></p>
+<ul>
+<li class="">Every derived value (margin, multiple, statistic) MUST be an Excel formula referencing input cells — never a pre-computed number pasted in</li>
+<li class="">When using Python/openpyxl to build the sheet: write <code>cell.value = &quot;=E7/C7&quot;</code> (formula string), NOT <code>cell.value = 0.687</code> (computed result)</li>
+<li class="">The only hardcoded values should be raw input data (revenue, EBITDA, share price, etc.) — and every one of those gets a cell comment with its source</li>
+<li class="">Why: the model must update automatically when an input changes. A hardcoded margin is a silent bug waiting to happen.</li>
+</ul>
+<p><strong>Verify step-by-step with the user:</strong></p>
+<ul>
+<li class="">After setting up the structure → show the user the header layout before filling data</li>
+<li class="">After entering raw inputs → show the user the input block and confirm sources/periods before building formulas</li>
+<li class="">After building operating metrics formulas → show the calculated margins and sanity-check with the user before moving to valuation</li>
+<li class="">After building valuation multiples → show the multiples and confirm they look reasonable before adding statistics</li>
+<li class="">Do NOT build the entire sheet end-to-end and then present it — catch errors early by confirming each section</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-1-document-structure--setup">Section 1: Document Structure &amp; Setup<a href="#section-1-document-structure--setup" class="hash-link" aria-label="Direct link to Section 1: Document Structure &amp; Setup" title="Direct link to Section 1: Document Structure &amp; Setup" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="header-block-rows-1-3">Header Block (Rows 1-3)<a href="#header-block-rows-1-3" class="hash-link" aria-label="Direct link to Header Block (Rows 1-3)" title="Direct link to Header Block (Rows 1-3)" translate="no">​</a></h3>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Row 1: [ANALYSIS TITLE] - COMPARABLE COMPANY ANALYSIS</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Row 2: [List of Companies with Tickers] • [Company 1 (TICK1)] • [Company 2 (TICK2)] • [Company 3 (TICK3)]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Row 3: As of [Period] | All figures in [USD Millions/Billions] except per-share amounts and ratios</span><br></span></code></pre></div></div>
+<p><strong>Why this matters:</strong> Establishes context immediately. Anyone opening this file knows what they&#x27;re looking at, when it was created, and how to interpret the numbers.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="visual-convention-standards-optional---user-preferences-and-uploaded-templates-always-override">Visual Convention Standards (OPTIONAL - User preferences and uploaded templates always override)<a href="#visual-convention-standards-optional---user-preferences-and-uploaded-templates-always-override" class="hash-link" aria-label="Direct link to Visual Convention Standards (OPTIONAL - User preferences and uploaded templates always override)" title="Direct link to Visual Convention Standards (OPTIONAL - User preferences and uploaded templates always override)" translate="no">​</a></h3>
+<p><strong>IMPORTANT: These are suggested defaults only. Always prioritize:</strong></p>
+<ol>
+<li class="">User&#x27;s explicit formatting preferences</li>
+<li class="">Formatting from any uploaded template files</li>
+<li class="">Company/team style guides</li>
+<li class="">These defaults (only if no other guidance provided)</li>
+</ol>
+<p><strong>Suggested Font &amp; Typography:</strong></p>
+<ul>
+<li class=""><strong>Font family</strong>: Times New Roman (professional, readable, industry standard)</li>
+<li class=""><strong>Font size</strong>: 11pt for data cells, 12pt for headers</li>
+<li class=""><strong>Bold text</strong>: Section headers, company names, statistic labels</li>
+</ul>
+<p><strong>Default Color &amp; Shading — Professional Blue/Grey Palette (minimal is better):</strong></p>
+<ul>
+<li class=""><strong>Keep it restrained</strong> — only blues and greys. Do NOT introduce greens, oranges, reds, or multiple accent colors. A clean comps sheet uses 3-4 colors total.</li>
+<li class=""><strong>Section headers</strong> (e.g., &quot;OPERATING STATISTICS &amp; FINANCIAL METRICS&quot;):<!-- -->
+<ul>
+<li class="">Dark blue background (<code>#1F4E79</code> or <code>#17365D</code> navy)</li>
+<li class="">White bold text</li>
+<li class="">Full row shading across all columns</li>
+</ul>
+</li>
+<li class=""><strong>Column headers</strong> (e.g., &quot;Company&quot;, &quot;Revenue&quot;, &quot;Margin&quot;):<!-- -->
+<ul>
+<li class="">Light blue background (<code>#D9E1F2</code> or similar pale blue)</li>
+<li class="">Black bold text</li>
+<li class="">Centered alignment</li>
+</ul>
+</li>
+<li class=""><strong>Data rows</strong>:<!-- -->
+<ul>
+<li class="">White background for company data</li>
+<li class="">Black text for formulas; blue text for hardcoded inputs</li>
+</ul>
+</li>
+<li class=""><strong>Statistics rows</strong> (Maximum, 75th Percentile, etc.):<!-- -->
+<ul>
+<li class="">Light grey background (<code>#F2F2F2</code>)</li>
+<li class="">Black text, left-aligned labels</li>
+</ul>
+</li>
+<li class=""><strong>That&#x27;s the whole palette</strong>: dark blue + light blue + light grey + white. Nothing else unless the user&#x27;s template says otherwise.</li>
+</ul>
+<p><strong>Suggested Formatting Conventions:</strong></p>
+<ul>
+<li class=""><strong>Decimal precision</strong>:<!-- -->
+<ul>
+<li class="">Percentages: 1 decimal (12.3%)</li>
+<li class="">Multiples: 1 decimal (13.5x)</li>
+<li class="">Dollar amounts: No decimals, thousands separator (69,632)</li>
+<li class="">Margins shown as percentages: 1 decimal (68.7%)</li>
+</ul>
+</li>
+<li class=""><strong>Borders</strong>: No borders (clean, minimal appearance)</li>
+<li class=""><strong>Alignment</strong>: All metrics center-aligned for clean, uniform appearance</li>
+<li class=""><strong>Cell dimensions</strong>: All column widths should be uniform/even, all row heights should be consistent (creates clean, professional grid)</li>
+</ul>
+<p><strong>Note:</strong> If the user provides a template file or specifies different formatting, use that instead.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-2-operating-statistics--financial-metrics">Section 2: Operating Statistics &amp; Financial Metrics<a href="#section-2-operating-statistics--financial-metrics" class="hash-link" aria-label="Direct link to Section 2: Operating Statistics &amp; Financial Metrics" title="Direct link to Section 2: Operating Statistics &amp; Financial Metrics" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="core-columns-start-with-these">Core Columns (Start with these)<a href="#core-columns-start-with-these" class="hash-link" aria-label="Direct link to Core Columns (Start with these)" title="Direct link to Core Columns (Start with these)" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>Company</strong> - Names with consistent formatting</li>
+<li class=""><strong>Revenue</strong> - Size metric (can be LTM, quarterly, or annual depending on context)</li>
+<li class=""><strong>Revenue Growth</strong> - Year-over-year percentage change</li>
+<li class=""><strong>Gross Profit</strong> - Revenue minus cost of goods sold</li>
+<li class=""><strong>Gross Margin</strong> - GP/Revenue (fundamental profitability)</li>
+<li class=""><strong>EBITDA</strong> - Earnings before interest, tax, depreciation, amortization</li>
+<li class=""><strong>EBITDA Margin</strong> - EBITDA/Revenue (operating efficiency)</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="optional-additions-choose-based-on-industrypurpose">Optional Additions (Choose based on industry/purpose)<a href="#optional-additions-choose-based-on-industrypurpose" class="hash-link" aria-label="Direct link to Optional Additions (Choose based on industry/purpose)" title="Direct link to Optional Additions (Choose based on industry/purpose)" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>Quarterly vs LTM</strong> - Include both if seasonality matters</li>
+<li class=""><strong>Free Cash Flow</strong> - For capital-intensive or SaaS businesses</li>
+<li class=""><strong>FCF Margin</strong> - FCF/Revenue (cash generation efficiency)</li>
+<li class=""><strong>Net Income</strong> - For mature, profitable companies</li>
+<li class=""><strong>Operating Income</strong> - For businesses with varying D&amp;A</li>
+<li class=""><strong>CapEx metrics</strong> - For asset-heavy industries</li>
+<li class=""><strong>Rule of 40</strong> - Specifically for SaaS (Growth % + Margin %)</li>
+<li class=""><strong>FCF Conversion</strong> - For quality of earnings analysis (advanced)</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="formula-examples-using-row-7-as-example">Formula Examples (Using Row 7 as example)<a href="#formula-examples-using-row-7-as-example" class="hash-link" aria-label="Direct link to Formula Examples (Using Row 7 as example)" title="Direct link to Formula Examples (Using Row 7 as example)" translate="no">​</a></h3>
+<div class="language-excel codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-excel codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">// Core ratios - these are always calculated</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Gross Margin (F7): =E7/C7</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBITDA Margin (H7): =G7/C7</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// Optional ratios - include if relevant</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF Margin: =[FCF]/[Revenue]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Net Margin: =[Net Income]/[Revenue]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Rule of 40: =[Growth %]+[FCF Margin %]</span><br></span></code></pre></div></div>
+<p><strong>Golden Rule:</strong> Every ratio should be [Something] / [Revenue] or [Something] / [Something from this sheet]. Keep it simple.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="statistics-block-after-company-data">Statistics Block (After company data)<a href="#statistics-block-after-company-data" class="hash-link" aria-label="Direct link to Statistics Block (After company data)" title="Direct link to Statistics Block (After company data)" translate="no">​</a></h3>
+<p><strong>CRITICAL: Add statistics formulas for all comparable metrics (ratios, margins, growth rates, multiples).</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">[Leave one blank row for visual separation]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Maximum: =MAX(B7:B9)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- 75th Percentile: =QUARTILE(B7:B9,3)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Median: =MEDIAN(B7:B9)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- 25th Percentile: =QUARTILE(B7:B9,1)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Minimum: =MIN(B7:B9)</span><br></span></code></pre></div></div>
+<p><strong>Columns that NEED statistics (comparable metrics):</strong></p>
+<ul>
+<li class="">Revenue Growth %, Gross Margin %, EBITDA Margin %, EPS</li>
+<li class="">EV/Revenue, EV/EBITDA, P/E, Dividend Yield %, Beta</li>
+</ul>
+<p><strong>Columns that DON&#x27;T need statistics (size metrics):</strong></p>
+<ul>
+<li class="">Revenue, EBITDA, Net Income (absolute size varies by company scale)</li>
+<li class="">Market Cap, Enterprise Value (not comparable across different-sized companies)</li>
+</ul>
+<p><strong>Note:</strong> Add one blank row between company data and statistics rows for visual separation. Do NOT add a &quot;SECTOR STATISTICS&quot; or &quot;VALUATION STATISTICS&quot; header row.</p>
+<p><strong>Why quartiles matter:</strong> They show distribution, not just average. A 75th percentile multiple tells you what &quot;premium&quot; companies trade at.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-3-valuation-multiples--investment-metrics">Section 3: Valuation Multiples &amp; Investment Metrics<a href="#section-3-valuation-multiples--investment-metrics" class="hash-link" aria-label="Direct link to Section 3: Valuation Multiples &amp; Investment Metrics" title="Direct link to Section 3: Valuation Multiples &amp; Investment Metrics" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="core-valuation-columns-start-with-these">Core Valuation Columns (Start with these)<a href="#core-valuation-columns-start-with-these" class="hash-link" aria-label="Direct link to Core Valuation Columns (Start with these)" title="Direct link to Core Valuation Columns (Start with these)" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>Company</strong> - Same order as operating section</li>
+<li class=""><strong>Market Cap</strong> - Current market valuation</li>
+<li class=""><strong>Enterprise Value</strong> - Market Cap ± Net Debt/Cash</li>
+<li class=""><strong>EV/Revenue</strong> - How much market pays per dollar of sales</li>
+<li class=""><strong>EV/EBITDA</strong> - How much market pays per dollar of earnings</li>
+<li class=""><strong>P/E Ratio</strong> - Price relative to net earnings</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="optional-valuation-metrics-choose-based-on-context">Optional Valuation Metrics (Choose based on context)<a href="#optional-valuation-metrics-choose-based-on-context" class="hash-link" aria-label="Direct link to Optional Valuation Metrics (Choose based on context)" title="Direct link to Optional Valuation Metrics (Choose based on context)" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>FCF Yield</strong> - FCF/Market Cap (for cash-focused analysis)</li>
+<li class=""><strong>PEG Ratio</strong> - P/E/Growth Rate (for growth companies)</li>
+<li class=""><strong>Price/Book</strong> - Market value vs. book value (for asset-heavy businesses)</li>
+<li class=""><strong>ROE/ROA</strong> - Return metrics (for profitability comparison)</li>
+<li class=""><strong>Revenue/EBITDA CAGR</strong> - Historical growth rates (for trend analysis)</li>
+<li class=""><strong>Asset Turnover</strong> - Revenue/Assets (for operational efficiency)</li>
+<li class=""><strong>Debt/Equity</strong> - Leverage (for capital structure analysis)</li>
+</ul>
+<p><strong>Key Principle:</strong> Include 3-5 core multiples that matter for your industry. Don&#x27;t include every possible metric just because you can.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="formula-examples">Formula Examples<a href="#formula-examples" class="hash-link" aria-label="Direct link to Formula Examples" title="Direct link to Formula Examples" translate="no">​</a></h3>
+<div class="language-excel codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-excel codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">// Core multiples - always include these</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EV/Revenue: =[Enterprise Value]/[LTM Revenue]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EV/EBITDA: =[Enterprise Value]/[LTM EBITDA]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">P/E Ratio: =[Market Cap]/[Net Income]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// Optional multiples - include if data available</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF Yield: =[LTM FCF]/[Market Cap]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PEG Ratio: =[P/E]/[Growth Rate %]</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cross-reference-rule">Cross-Reference Rule<a href="#cross-reference-rule" class="hash-link" aria-label="Direct link to Cross-Reference Rule" title="Direct link to Cross-Reference Rule" translate="no">​</a></h3>
+<p><strong>CRITICAL:</strong> Valuation multiples MUST reference the operating metrics section. Never input the same raw data twice. If revenue is in C7, then EV/Revenue formula should reference C7.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="statistics-block">Statistics Block<a href="#statistics-block" class="hash-link" aria-label="Direct link to Statistics Block" title="Direct link to Statistics Block" translate="no">​</a></h3>
+<p>Same structure as operating section: Max, 75th, Median, 25th, Min for every metric. Add one blank row for visual separation between company data and statistics. Do NOT add a &quot;VALUATION STATISTICS&quot; header row.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-4-notes--methodology-documentation">Section 4: Notes &amp; Methodology Documentation<a href="#section-4-notes--methodology-documentation" class="hash-link" aria-label="Direct link to Section 4: Notes &amp; Methodology Documentation" title="Direct link to Section 4: Notes &amp; Methodology Documentation" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="required-components">Required Components<a href="#required-components" class="hash-link" aria-label="Direct link to Required Components" title="Direct link to Required Components" translate="no">​</a></h3>
+<p><strong>Data Sources &amp; Quality:</strong></p>
+<ul>
+<li class="">Where did the data come from? (S&amp;P Kensho MCP, FactSet MCP, Daloopa MCP, Bloomberg, SEC filings)</li>
+<li class="">What period does it cover? (Q4 2024, audited figures)</li>
+<li class="">How was it verified? (Cross-checked against 10-K/10-Q)</li>
+<li class="">Note: Prioritize MCP data sources (S&amp;P Kensho, FactSet, Daloopa) if available for better accuracy and traceability</li>
+</ul>
+<p><strong>Key Definitions:</strong></p>
+<ul>
+<li class="">EBITDA calculation method (Gross Profit + D&amp;A, or Operating Income + D&amp;A)</li>
+<li class="">Free Cash Flow formula (Operating CF - CapEx)</li>
+<li class="">Special metrics explained (Rule of 40, FCF Conversion)</li>
+<li class="">Time period definitions (LTM, CAGR calculation periods)</li>
+</ul>
+<p><strong>Valuation Methodology:</strong></p>
+<ul>
+<li class="">How was Enterprise Value calculated? (Market Cap + Net Debt)</li>
+<li class="">What growth rates were used? (Historical CAGR, forward estimates)</li>
+<li class="">Any adjustments made? (One-time items excluded, normalized margins)</li>
+</ul>
+<p><strong>Analysis Framework:</strong></p>
+<ul>
+<li class="">What&#x27;s the investment thesis? (Cloud/SaaS efficiency)</li>
+<li class="">What metrics matter most? (Cash generation, capital efficiency)</li>
+<li class="">How should readers interpret the statistics? (Quartiles provide context)</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-5-choosing-the-right-metrics-decision-framework">Section 5: Choosing the Right Metrics (Decision Framework)<a href="#section-5-choosing-the-right-metrics-decision-framework" class="hash-link" aria-label="Direct link to Section 5: Choosing the Right Metrics (Decision Framework)" title="Direct link to Section 5: Choosing the Right Metrics (Decision Framework)" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="start-with-what-question-am-i-answering">Start with &quot;What question am I answering?&quot;<a href="#start-with-what-question-am-i-answering" class="hash-link" aria-label="Direct link to Start with &quot;What question am I answering?&quot;" title="Direct link to Start with &quot;What question am I answering?&quot;" translate="no">​</a></h3>
+<p><strong>&quot;Which company is undervalued?&quot;</strong>
+→ Focus on: EV/Revenue, EV/EBITDA, P/E, Market Cap
+→ Skip: Operational details, growth metrics</p>
+<p><strong>&quot;Which company is most efficient?&quot;</strong>
+→ Focus on: Gross Margin, EBITDA Margin, FCF Margin, Asset Turnover
+→ Skip: Size metrics, absolute dollar amounts</p>
+<p><strong>&quot;Which company is growing fastest?&quot;</strong>
+→ Focus on: Revenue Growth %, EBITDA CAGR, User/Customer Growth
+→ Skip: Margin metrics, leverage ratios</p>
+<p><strong>&quot;Which is the best cash generator?&quot;</strong>
+→ Focus on: FCF, FCF Margin, FCF Conversion, CapEx intensity
+→ Skip: EBITDA, P/E ratios</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="industry-specific-metric-selection">Industry-Specific Metric Selection<a href="#industry-specific-metric-selection" class="hash-link" aria-label="Direct link to Industry-Specific Metric Selection" title="Direct link to Industry-Specific Metric Selection" translate="no">​</a></h3>
+<p><strong>Software/SaaS:</strong>
+Must have: Revenue Growth, Gross Margin, Rule of 40
+Optional: ARR, Net Dollar Retention, CAC Payback
+Skip: Asset Turnover, Inventory metrics</p>
+<p><strong>Manufacturing/Industrials:</strong>
+Must have: EBITDA Margin, Asset Turnover, CapEx/Revenue
+Optional: ROA, Inventory Turns, Backlog
+Skip: Rule of 40, SaaS metrics</p>
+<p><strong>Financial Services:</strong>
+Must have: ROE, ROA, Efficiency Ratio, P/E
+Optional: Net Interest Margin, Loan Loss Reserves
+Skip: Gross Margin, EBITDA (not meaningful for banks)</p>
+<p><strong>Retail/E-commerce:</strong>
+Must have: Revenue Growth, Gross Margin, Inventory Turnover
+Optional: Same-Store Sales, Customer Acquisition Cost
+Skip: Heavy R&amp;D or CapEx metrics</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="the-5-10-rule">The &quot;5-10 Rule&quot;<a href="#the-5-10-rule" class="hash-link" aria-label="Direct link to The &quot;5-10 Rule&quot;" title="Direct link to The &quot;5-10 Rule&quot;" translate="no">​</a></h3>
+<p><strong>5 operating metrics</strong> - Revenue, Growth, 2-3 margins/efficiency metrics
+<strong>5 valuation metrics</strong> - Market Cap, EV, 3 multiples
+<strong>= 10 total columns</strong> - Enough to tell the story, not so many you lose the thread</p>
+<p>If you have more than 15 metrics, you&#x27;re probably including noise. Edit ruthlessly.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-6-best-practices--quality-checks">Section 6: Best Practices &amp; Quality Checks<a href="#section-6-best-practices--quality-checks" class="hash-link" aria-label="Direct link to Section 6: Best Practices &amp; Quality Checks" title="Direct link to Section 6: Best Practices &amp; Quality Checks" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="before-you-start">Before You Start<a href="#before-you-start" class="hash-link" aria-label="Direct link to Before You Start" title="Direct link to Before You Start" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>Define the peer group</strong> - Companies must be truly comparable (similar business model, scale, geography)</li>
+<li class=""><strong>Choose the right period</strong> - LTM smooths seasonality; quarterly shows trends</li>
+<li class=""><strong>Standardize units upfront</strong> - Millions vs. billions decision affects everything</li>
+<li class=""><strong>Map data sources</strong> - Know where each number comes from</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="as-you-build">As You Build<a href="#as-you-build" class="hash-link" aria-label="Direct link to As You Build" title="Direct link to As You Build" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>Input all raw data first</strong> - Complete the blue text before writing formulas</p>
+</li>
+<li class="">
+<p><strong>Add cell comments to ALL hard-coded inputs</strong> - Right-click cell → Insert Comment → Document source OR assumption</p>
+<p><strong>For sourced data, cite exactly where it came from:</strong></p>
+<ul>
+<li class="">Example: &quot;Bloomberg Terminal - MSFT Equity DES, accessed 2024-10-02&quot;</li>
+<li class="">Example: &quot;Q4 2024 10-K filing, page 42, line item &#x27;Total Revenue&#x27;&quot;</li>
+<li class="">Example: &quot;FactSet consensus estimate as of 2024-10-02&quot;</li>
+<li class=""><strong>Include hyperlinks when possible</strong>: Right-click cell → Link → paste URL to SEC filing, data source, or report</li>
+</ul>
+<p><strong>For assumptions, explain the reasoning:</strong></p>
+<ul>
+<li class="">Example: &quot;Assumed 15% EBITDA margin based on peer median, company does not disclose&quot;</li>
+<li class="">Example: &quot;Estimated Enterprise Value as Market Cap + $50M net debt (from Q3 balance sheet, Q4 not yet available)&quot;</li>
+<li class="">Example: &quot;Forward P/E based on street consensus EPS of $3.45 (average of 12 analyst estimates)&quot;</li>
+</ul>
+<p><strong>Why this matters</strong>: Enables audit trails, data verification, assumption transparency, and future updates</p>
+</li>
+<li class="">
+<p><strong>Build formulas row by row</strong> - Test each calculation before moving on</p>
+</li>
+<li class="">
+<p><strong>Use absolute references for headers</strong> - $C$6 locks the header row</p>
+</li>
+<li class="">
+<p><strong>Format consistently</strong> - Percentages as percentages, not decimals</p>
+</li>
+<li class="">
+<p><strong>Add conditional formatting</strong> - Highlight outliers automatically</p>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="sanity-checks">Sanity Checks<a href="#sanity-checks" class="hash-link" aria-label="Direct link to Sanity Checks" title="Direct link to Sanity Checks" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>Margin test</strong>: Gross margin &gt; EBITDA margin &gt; Net margin (always true by definition)</li>
+<li class=""><strong>Multiple reasonableness</strong>:<!-- -->
+<ul>
+<li class="">EV/Revenue: typically 0.5-20x (varies widely by industry)</li>
+<li class="">EV/EBITDA: typically 8-25x (fairly consistent across industries)</li>
+<li class="">P/E: typically 10-50x (depends on growth rate)</li>
+</ul>
+</li>
+<li class=""><strong>Growth-multiple correlation</strong>: Higher growth usually means higher multiples</li>
+<li class=""><strong>Size-efficiency trade-off</strong>: Larger companies often have better margins (scale benefits)</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="common-mistakes-to-avoid">Common Mistakes to Avoid<a href="#common-mistakes-to-avoid" class="hash-link" aria-label="Direct link to Common Mistakes to Avoid" title="Direct link to Common Mistakes to Avoid" translate="no">​</a></h3>
+<p>❌ Mixing market cap and enterprise value in formulas
+❌ Using different time periods for numerator and denominator (LTM vs quarterly)
+❌ Hardcoding numbers into formulas instead of cell references
+❌ <strong>Hard-coded inputs without cell comments citing the source OR explaining the assumption</strong>
+❌ Missing hyperlinks to SEC filings or data sources when available
+❌ Including too many metrics without clear purpose
+❌ Including non-comparable companies (different business models)
+❌ Using outdated data without disclosure
+❌ Calculating averages of percentages incorrectly (should be median)</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-6-advanced-features">Section 6: Advanced Features<a href="#section-6-advanced-features" class="hash-link" aria-label="Direct link to Section 6: Advanced Features" title="Direct link to Section 6: Advanced Features" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="dynamic-headers">Dynamic Headers<a href="#dynamic-headers" class="hash-link" aria-label="Direct link to Dynamic Headers" title="Direct link to Dynamic Headers" translate="no">​</a></h3>
+<p>For columns showing calculations, use clear unit labels:</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (YoY) % | EBITDA Margin | FCF Margin | Rule of 40</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="quartile-analysis-benefits">Quartile Analysis Benefits<a href="#quartile-analysis-benefits" class="hash-link" aria-label="Direct link to Quartile Analysis Benefits" title="Direct link to Quartile Analysis Benefits" translate="no">​</a></h3>
+<p>Instead of just mean/median, quartiles show:</p>
+<ul>
+<li class=""><strong>75th percentile</strong> = &quot;Premium&quot; companies trade here</li>
+<li class=""><strong>Median</strong> = Typical market valuation</li>
+<li class=""><strong>25th percentile</strong> = &quot;Discount&quot; territory</li>
+</ul>
+<p>This helps answer: &quot;Is our target company trading rich or cheap vs. peers?&quot;</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="industry-specific-modifications">Industry-Specific Modifications<a href="#industry-specific-modifications" class="hash-link" aria-label="Direct link to Industry-Specific Modifications" title="Direct link to Industry-Specific Modifications" translate="no">​</a></h3>
+<p><strong>Software/SaaS:</strong></p>
+<ul>
+<li class="">Add: ARR, Net Dollar Retention, CAC Payback Period</li>
+<li class="">Emphasize: Rule of 40, FCF margins, gross margins &gt;70%</li>
+</ul>
+<p><strong>Healthcare:</strong></p>
+<ul>
+<li class="">Add: R&amp;D/Revenue, Pipeline value, Regulatory status</li>
+<li class="">Emphasize: EBITDA margins, growth rates, reimbursement risk</li>
+</ul>
+<p><strong>Industrials:</strong></p>
+<ul>
+<li class="">Add: Backlog, Order book trends, Geographic mix</li>
+<li class="">Emphasize: ROIC, asset turnover, cyclical adjustments</li>
+</ul>
+<p><strong>Consumer:</strong></p>
+<ul>
+<li class="">Add: Same-store sales, Customer acquisition cost, Brand value</li>
+<li class="">Emphasize: Revenue growth, gross margins, inventory turns</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-7-workflow--practical-tips">Section 7: Workflow &amp; Practical Tips<a href="#section-7-workflow--practical-tips" class="hash-link" aria-label="Direct link to Section 7: Workflow &amp; Practical Tips" title="Direct link to Section 7: Workflow &amp; Practical Tips" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-by-step-process">Step-by-Step Process<a href="#step-by-step-process" class="hash-link" aria-label="Direct link to Step-by-Step Process" title="Direct link to Step-by-Step Process" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>Set up structure</strong> (30 minutes)</p>
+<ul>
+<li class="">Create all headers</li>
+<li class="">Format cells (blue for inputs, black for formulas)</li>
+<li class="">Lock in units and date references</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Gather data</strong> (60-90 minutes)</p>
+<ul>
+<li class="">Pull from primary sources (S&amp;P Kensho MCP, FactSet MCP, Daloopa MCP if available; otherwise Bloomberg, SEC)</li>
+<li class="">Input all raw numbers in blue</li>
+<li class="">Document sources in notes section</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Build formulas</strong> (30 minutes)</p>
+<ul>
+<li class="">Start with simple ratios (margins)</li>
+<li class="">Progress to multiples (EV/Revenue)</li>
+<li class="">Add cross-checks (do margins make sense?)</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Add statistics</strong> (15 minutes)</p>
+<ul>
+<li class="">Copy formula structure for all columns</li>
+<li class="">Verify ranges are correct (B7<!-- -->:B9<!-- -->, not B7<!-- -->:B10<!-- -->)</li>
+<li class="">Check quartile logic</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Quality control</strong> (30 minutes)</p>
+<ul>
+<li class="">Run sanity checks</li>
+<li class="">Verify formula references</li>
+<li class="">Check for #DIV/0! or #REF! errors</li>
+<li class="">Compare against known benchmarks</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Documentation</strong> (15 minutes)</p>
+<ul>
+<li class="">Complete notes section</li>
+<li class="">Add data sources</li>
+<li class="">Define methodologies</li>
+<li class="">Date-stamp the analysis</li>
+</ul>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="pro-tips">Pro Tips<a href="#pro-tips" class="hash-link" aria-label="Direct link to Pro Tips" title="Direct link to Pro Tips" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>Save templates</strong>: Build once, reuse forever</li>
+<li class=""><strong>Color-code outliers</strong>: Conditional formatting for values &gt;2 standard deviations</li>
+<li class=""><strong>Link to source files</strong>: Hyperlink to Bloomberg screenshots or SEC filings</li>
+<li class=""><strong>Version control</strong>: Save as &quot;Comps_v1_2024-12-15&quot; with clear dating</li>
+<li class=""><strong>Collaborative reviews</strong>: Have someone else check your formulas</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="excel-formatting-checklist-optional---adapt-to-user-preferences">Excel Formatting Checklist (Optional - adapt to user preferences)<a href="#excel-formatting-checklist-optional---adapt-to-user-preferences" class="hash-link" aria-label="Direct link to Excel Formatting Checklist (Optional - adapt to user preferences)" title="Direct link to Excel Formatting Checklist (Optional - adapt to user preferences)" translate="no">​</a></h3>
+<ul class="contains-task-list containsTaskList_mC6p">
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Font set to user&#x27;s preferred style (default: Times New Roman, 11pt data, 12pt headers)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Section headers formatted per user&#x27;s template (default: dark blue #17365D with white bold text)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Column headers formatted per user&#x27;s template (default: light blue/gray #D9E2F3 with black bold text)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Statistics rows formatted per user&#x27;s template (default: light gray #F2F2F2)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->No borders applied (clean, minimal appearance)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>Column widths set to uniform/even width</strong> (creates clean, professional appearance)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>Row heights set to consistent height</strong> (typically 20-25pt for data rows)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Numbers formatted with proper decimal precision and thousands separators</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>All metrics center-aligned</strong> for clean, uniform appearance</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>One blank row for separation between company data and statistics rows</strong></li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>No separate &quot;SECTOR STATISTICS&quot; or &quot;VALUATION STATISTICS&quot; header rows</strong></li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>Every hard-coded input cell has a comment with either: (1) exact data source, OR (2) assumption explanation</strong></li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>Hyperlinks added to cells where applicable</strong> (SEC filings, data provider pages, reports)</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-8-example-template-layout">Section 8: Example Template Layout<a href="#section-8-example-template-layout" class="hash-link" aria-label="Direct link to Section 8: Example Template Layout" title="Direct link to Section 8: Example Template Layout" translate="no">​</a></h2>
+<p><strong>Simple Version (Start here):</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">┌─────────────────────────────────────────────────────────────┐</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ TECHNOLOGY - COMPARABLE COMPANY ANALYSIS                    │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ Microsoft • Alphabet • Amazon                               │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ As of Q4 2024 | All figures in USD Millions                │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├─────────────────────────────────────────────────────────────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ OPERATING METRICS                                           │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├──────────┬─────────┬─────────┬──────────┬──────────────────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ Company  │ Revenue │ Growth  │ Gross    │ EBITDA  │ EBITDA │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│          │ (LTM)   │ (YoY)   │ Margin   │ (LTM)   │ Margin │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├──────────┼─────────┼─────────┼──────────┼─────────┼────────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ MSFT     │ 261,400 │ 12.3%   │ 68.7%    │ 205,100 │ 78.4%  │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ GOOGL    │ 349,800 │ 11.8%   │ 57.9%    │ 239,300 │ 68.4%  │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ AMZN     │ 638,100 │ 10.5%   │ 47.3%    │ 152,600 │ 23.9%  │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│          │         │         │          │         │        │ [blank row]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ Median   │ =MEDIAN │ =MEDIAN │ =MEDIAN  │ =MEDIAN │=MEDIAN │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 75th %   │ =QUART  │ =QUART  │ =QUART   │ =QUART  │=QUART  │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 25th %   │ =QUART  │ =QUART  │ =QUART   │ =QUART  │=QUART  │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├─────────────────────────────────────────────────────────────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ VALUATION MULTIPLES                                         │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├──────────┬──────────┬──────────┬──────────┬────────────────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ Company  │ Mkt Cap  │ EV       │ EV/Rev   │ EV/EBITDA │ P/E│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├──────────┼──────────┼──────────┼──────────┼───────────┼────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ MSFT     │3,550,000 │3,530,000 │ 13.5x    │ 17.2x     │36.0│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ GOOGL    │2,030,000 │1,960,000 │  5.6x    │  8.2x     │24.5│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ AMZN     │2,226,000 │2,320,000 │  3.6x    │ 15.2x     │58.3│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│          │          │          │          │           │    │ [blank row]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ Median   │ =MEDIAN  │ =MEDIAN  │ =MEDIAN  │ =MEDIAN   │=MED│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 75th %   │ =QUART   │ =QUART   │ =QUART   │ =QUART    │=QRT│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 25th %   │ =QUART   │ =QUART   │ =QUART   │ =QUART    │=QRT│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">└──────────┴──────────┴──────────┴──────────┴───────────┴────┘</span><br></span></code></pre></div></div>
+<p><strong>Add complexity only when needed:</strong></p>
+<ul>
+<li class="">Include quarterly AND LTM if seasonality matters</li>
+<li class="">Add FCF metrics if cash generation is key story</li>
+<li class="">Include industry-specific metrics (Rule of 40 for SaaS, etc.)</li>
+<li class="">Add more statistics rows if you have &gt;5 companies</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-9-industry-specific-additions-optional">Section 9: Industry-Specific Additions (Optional)<a href="#section-9-industry-specific-additions-optional" class="hash-link" aria-label="Direct link to Section 9: Industry-Specific Additions (Optional)" title="Direct link to Section 9: Industry-Specific Additions (Optional)" translate="no">​</a></h2>
+<p>Only add these if they&#x27;re critical to your analysis. Most comps work fine with just core metrics.</p>
+<p><strong>Software/SaaS:</strong>
+Add if relevant: ARR, Net Dollar Retention, Rule of 40</p>
+<p><strong>Financial Services:</strong>
+Add if relevant: ROE, Net Interest Margin, Efficiency Ratio</p>
+<p><strong>E-commerce:</strong>
+Add if relevant: GMV, Take Rate, Active Buyers</p>
+<p><strong>Healthcare:</strong>
+Add if relevant: R&amp;D/Revenue, Pipeline Value, Patent Timeline</p>
+<p><strong>Manufacturing:</strong>
+Add if relevant: Asset Turnover, Inventory Turns, Backlog</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-10-red-flags--warning-signs">Section 10: Red Flags &amp; Warning Signs<a href="#section-10-red-flags--warning-signs" class="hash-link" aria-label="Direct link to Section 10: Red Flags &amp; Warning Signs" title="Direct link to Section 10: Red Flags &amp; Warning Signs" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="data-quality-issues">Data Quality Issues<a href="#data-quality-issues" class="hash-link" aria-label="Direct link to Data Quality Issues" title="Direct link to Data Quality Issues" translate="no">​</a></h3>
+<p>🚩 Inconsistent time periods (mixing quarterly and annual)<br>
+<!-- -->🚩 Missing data without explanation<br>
+<!-- -->🚩 Significant differences between data sources (&gt;10% variance)</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="valuation-red-flags">Valuation Red Flags<a href="#valuation-red-flags" class="hash-link" aria-label="Direct link to Valuation Red Flags" title="Direct link to Valuation Red Flags" translate="no">​</a></h3>
+<p>🚩 Negative EBITDA companies being valued on EBITDA multiples (use revenue multiples instead)<br>
+<!-- -->🚩 P/E ratios &gt;100x without hypergrowth story<br>
+<!-- -->🚩 Margins that don&#x27;t make sense for the industry</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="comparability-issues">Comparability Issues<a href="#comparability-issues" class="hash-link" aria-label="Direct link to Comparability Issues" title="Direct link to Comparability Issues" translate="no">​</a></h3>
+<p>🚩 Different fiscal year ends (causes timing problems)<br>
+<!-- -->🚩ixing pure-play and conglomerates<br>
+<!-- -->🚩 Materially different business models labeled as &quot;comps&quot;</p>
+<p><strong>When in doubt, exclude the company.</strong> Better to have 3 perfect comps than 6 questionable ones.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-11-formulas-reference-guide">Section 11: Formulas Reference Guide<a href="#section-11-formulas-reference-guide" class="hash-link" aria-label="Direct link to Section 11: Formulas Reference Guide" title="Direct link to Section 11: Formulas Reference Guide" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="essential-excel-formulas">Essential Excel Formulas<a href="#essential-excel-formulas" class="hash-link" aria-label="Direct link to Essential Excel Formulas" title="Direct link to Essential Excel Formulas" translate="no">​</a></h3>
+<div class="language-excel codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-excel codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">// Statistical Functions</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=AVERAGE(range)          // Simple mean</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=MEDIAN(range)           // Middle value</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=QUARTILE(range, 1)      // 25th percentile</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=QUARTILE(range, 3)      // 75th percentile</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=MAX(range)              // Maximum value</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=MIN(range)              // Minimum value</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=STDEV.P(range)          // Standard deviation</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// Financial Calculations</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=B7/C7                   // Simple ratio (Margin)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=SUM(B7:B9)/3            // Average of multiple companies</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=IF(B7&gt;0, C7/B7, &quot;N/A&quot;)  // Conditional calculation</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=IFERROR(C7/D7, 0)       // Handle divide by zero</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// Cross-Sheet References</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=&#x27;Sheet1&#x27;!B7             // Reference another sheet</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=VLOOKUP(A7, Table1, 2)  // Lookup from data table</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=INDEX(MATCH())          // Advanced lookup</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// Formatting</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=TEXT(B7, &quot;0.0%&quot;)        // Format as percentage</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=TEXT(C7, &quot;#,##0&quot;)       // Thousands separator</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="common-ratio-formulas">Common Ratio Formulas<a href="#common-ratio-formulas" class="hash-link" aria-label="Direct link to Common Ratio Formulas" title="Direct link to Common Ratio Formulas" translate="no">​</a></h3>
+<div class="language-excel codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-excel codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Gross Margin = Gross Profit / Revenue</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBITDA Margin = EBITDA / Revenue</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF Margin = Free Cash Flow / Revenue</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF Conversion = FCF / Operating Cash Flow</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">ROE = Net Income / Shareholders&#x27; Equity</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">ROA = Net Income / Total Assets</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Asset Turnover = Revenue / Total Assets</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Debt/Equity = Total Debt / Shareholders&#x27; Equity</span><br></span></code></pre></div></div>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="key-principles-summary">Key Principles Summary<a href="#key-principles-summary" class="hash-link" aria-label="Direct link to Key Principles Summary" title="Direct link to Key Principles Summary" translate="no">​</a></h2>
+<ol>
+<li class=""><strong>Structure drives insight</strong> - Right headers force right thinking</li>
+<li class=""><strong>Less is more</strong> - 5-10 metrics that matter beat 20 that don&#x27;t</li>
+<li class=""><strong>Choose metrics for your question</strong> - Valuation analysis ≠ efficiency analysis</li>
+<li class=""><strong>Statistics show patterns</strong> - Median/quartiles reveal more than average</li>
+<li class=""><strong>Transparency beats complexity</strong> - Simple formulas everyone understands</li>
+<li class=""><strong>Comparability is king</strong> - Better to exclude than force a bad comp</li>
+<li class=""><strong>Document your choices</strong> - Explain which metrics and why in notes section</li>
+</ol>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="output-checklist">Output Checklist<a href="#output-checklist" class="hash-link" aria-label="Direct link to Output Checklist" title="Direct link to Output Checklist" translate="no">​</a></h2>
+<p>Before delivering a comp analysis, verify:</p>
+<ul class="contains-task-list containsTaskList_mC6p">
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->All companies are truly comparable</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Data is from consistent time periods</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Units are clearly labeled (millions/billions)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Formulas reference cells, not hardcoded values</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>All hard-coded input cells have comments with either: (1) exact data source with citation, OR (2) clear assumption with explanation</strong></li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>Hyperlinks added where relevant</strong> (SEC EDGAR filings, Bloomberg pages, research reports)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Statistics include at least 5 metrics (Max, 75th, Med, 25th, Min)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Notes section documents sources and methodology</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Visual formatting follows conventions (blue = input, black = formula)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Sanity checks pass (margins logical, multiples reasonable)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Date stamp is current (&quot;As of [Date]&quot;)</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->Formula auditing shows no errors (#DIV/0!, #REF!, #N/A)</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="continuous-improvement">Continuous Improvement<a href="#continuous-improvement" class="hash-link" aria-label="Direct link to Continuous Improvement" title="Direct link to Continuous Improvement" translate="no">​</a></h2>
+<p>After completing a comp analysis, ask:</p>
+<ol>
+<li class="">Did the statistics reveal unexpected insights?</li>
+<li class="">Were there any data gaps that limited analysis?</li>
+<li class="">Did stakeholders ask for metrics you didn&#x27;t include?</li>
+<li class="">How long did it take vs. how long should it take?</li>
+<li class="">What would make this more useful next time?</li>
+</ol>
+<p>The best comp analyses evolve with each iteration. Save templates, learn from feedback, and refine the structure based on what decision-makers actually use.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="data-sources--mcp-first-web-fallback">Data sources — MCP first, web fallback<a href="#data-sources--mcp-first-web-fallback" class="hash-link" aria-label="Direct link to Data sources — MCP first, web fallback" title="Direct link to Data sources — MCP first, web fallback" translate="no">​</a></h2>
+<p>Many passages below say &quot;use the S&amp;P Kensho MCP / Daloopa MCP / FactSet MCP&quot;. Those are commercial financial-data MCPs from the original Cowork plugin context. In Hermes:</p>
+<ul>
+<li class=""><strong>If you have any structured financial-data MCP configured</strong> (Hermes supports MCP — see <code>native-mcp</code> skill), prefer it for point-in-time comps, precedent transactions, and filings.</li>
+<li class=""><strong>Otherwise</strong>, fall back to:<!-- -->
+<ul>
+<li class=""><code>web_search</code> / <code>web_extract</code> against SEC EDGAR (<code>https://www.sec.gov/cgi-bin/browse-edgar</code>) for US filings</li>
+<li class="">Company IR pages for press releases, earnings decks</li>
+<li class=""><code>browser_navigate</code> for interactive data portals</li>
+<li class="">User-provided data (explicitly ask when the context doesn&#x27;t have it)</li>
+</ul>
+</li>
+<li class=""><strong>Never fabricate</strong>. If a multiple, precedent, or filing number can&#x27;t be sourced, flag the cell as <code>[UNSOURCED]</code> and surface it to the user.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="attribution">Attribution<a href="#attribution" class="hash-link" aria-label="Direct link to Attribution" title="Direct link to Attribution" translate="no">​</a></h2>
+<p>This skill is adapted from Anthropic&#x27;s Claude for Financial Services plugin suite (Apache-2.0). The Office-JS / Cowork live-Excel paths have been removed; this version targets headless openpyxl via the <code>excel-author</code> skill&#x27;s conventions. Original: <a href="https://github.com/anthropics/financial-services" target="_blank" rel="noopener noreferrer" class="">https://github.com/anthropics/financial-services</a></p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/NousResearch/hermes-agent/edit/main/website/docs/user-guide/skills/optional/finance/finance-comps-analysis.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-3-statement-model"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">3 Statement Model</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Dcf Model</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#skill-metadata" class="table-of-contents__link toc-highlight">Skill metadata</a></li><li><a href="#reference-full-skillmd" class="table-of-contents__link toc-highlight">Reference: full SKILL.md</a></li><li><a href="#environment" class="table-of-contents__link toc-highlight">Environment</a></li><li><a href="#️-critical-data-source-priority-read-first" class="table-of-contents__link toc-highlight">⚠️ CRITICAL: Data Source Priority (READ FIRST)</a></li><li><a href="#overview" class="table-of-contents__link toc-highlight">Overview</a></li><li><a href="#core-philosophy" class="table-of-contents__link toc-highlight">Core Philosophy</a></li><li><a href="#️-critical-formulas-over-hardcodes--step-by-step-verification" class="table-of-contents__link toc-highlight">⚠️ CRITICAL: Formulas Over Hardcodes + Step-by-Step Verification</a></li><li><a href="#section-1-document-structure--setup" class="table-of-contents__link toc-highlight">Section 1: Document Structure &amp; Setup</a><ul><li><a href="#header-block-rows-1-3" class="table-of-contents__link toc-highlight">Header Block (Rows 1-3)</a></li><li><a href="#visual-convention-standards-optional---user-preferences-and-uploaded-templates-always-override" class="table-of-contents__link toc-highlight">Visual Convention Standards (OPTIONAL - User preferences and uploaded templates always override)</a></li></ul></li><li><a href="#section-2-operating-statistics--financial-metrics" class="table-of-contents__link toc-highlight">Section 2: Operating Statistics &amp; Financial Metrics</a><ul><li><a href="#core-columns-start-with-these" class="table-of-contents__link toc-highlight">Core Columns (Start with these)</a></li><li><a href="#optional-additions-choose-based-on-industrypurpose" class="table-of-contents__link toc-highlight">Optional Additions (Choose based on industry/purpose)</a></li><li><a href="#formula-examples-using-row-7-as-example" class="table-of-contents__link toc-highlight">Formula Examples (Using Row 7 as example)</a></li><li><a href="#statistics-block-after-company-data" class="table-of-contents__link toc-highlight">Statistics Block (After company data)</a></li></ul></li><li><a href="#section-3-valuation-multiples--investment-metrics" class="table-of-contents__link toc-highlight">Section 3: Valuation Multiples &amp; Investment Metrics</a><ul><li><a href="#core-valuation-columns-start-with-these" class="table-of-contents__link toc-highlight">Core Valuation Columns (Start with these)</a></li><li><a href="#optional-valuation-metrics-choose-based-on-context" class="table-of-contents__link toc-highlight">Optional Valuation Metrics (Choose based on context)</a></li><li><a href="#formula-examples" class="table-of-contents__link toc-highlight">Formula Examples</a></li><li><a href="#cross-reference-rule" class="table-of-contents__link toc-highlight">Cross-Reference Rule</a></li><li><a href="#statistics-block" class="table-of-contents__link toc-highlight">Statistics Block</a></li></ul></li><li><a href="#section-4-notes--methodology-documentation" class="table-of-contents__link toc-highlight">Section 4: Notes &amp; Methodology Documentation</a><ul><li><a href="#required-components" class="table-of-contents__link toc-highlight">Required Components</a></li></ul></li><li><a href="#section-5-choosing-the-right-metrics-decision-framework" class="table-of-contents__link toc-highlight">Section 5: Choosing the Right Metrics (Decision Framework)</a><ul><li><a href="#start-with-what-question-am-i-answering" class="table-of-contents__link toc-highlight">Start with &quot;What question am I answering?&quot;</a></li><li><a href="#industry-specific-metric-selection" class="table-of-contents__link toc-highlight">Industry-Specific Metric Selection</a></li><li><a href="#the-5-10-rule" class="table-of-contents__link toc-highlight">The &quot;5-10 Rule&quot;</a></li></ul></li><li><a href="#section-6-best-practices--quality-checks" class="table-of-contents__link toc-highlight">Section 6: Best Practices &amp; Quality Checks</a><ul><li><a href="#before-you-start" class="table-of-contents__link toc-highlight">Before You Start</a></li><li><a href="#as-you-build" class="table-of-contents__link toc-highlight">As You Build</a></li><li><a href="#sanity-checks" class="table-of-contents__link toc-highlight">Sanity Checks</a></li><li><a href="#common-mistakes-to-avoid" class="table-of-contents__link toc-highlight">Common Mistakes to Avoid</a></li></ul></li><li><a href="#section-6-advanced-features" class="table-of-contents__link toc-highlight">Section 6: Advanced Features</a><ul><li><a href="#dynamic-headers" class="table-of-contents__link toc-highlight">Dynamic Headers</a></li><li><a href="#quartile-analysis-benefits" class="table-of-contents__link toc-highlight">Quartile Analysis Benefits</a></li><li><a href="#industry-specific-modifications" class="table-of-contents__link toc-highlight">Industry-Specific Modifications</a></li></ul></li><li><a href="#section-7-workflow--practical-tips" class="table-of-contents__link toc-highlight">Section 7: Workflow &amp; Practical Tips</a><ul><li><a href="#step-by-step-process" class="table-of-contents__link toc-highlight">Step-by-Step Process</a></li><li><a href="#pro-tips" class="table-of-contents__link toc-highlight">Pro Tips</a></li><li><a href="#excel-formatting-checklist-optional---adapt-to-user-preferences" class="table-of-contents__link toc-highlight">Excel Formatting Checklist (Optional - adapt to user preferences)</a></li></ul></li><li><a href="#section-8-example-template-layout" class="table-of-contents__link toc-highlight">Section 8: Example Template Layout</a></li><li><a href="#section-9-industry-specific-additions-optional" class="table-of-contents__link toc-highlight">Section 9: Industry-Specific Additions (Optional)</a></li><li><a href="#section-10-red-flags--warning-signs" class="table-of-contents__link toc-highlight">Section 10: Red Flags &amp; Warning Signs</a><ul><li><a href="#data-quality-issues" class="table-of-contents__link toc-highlight">Data Quality Issues</a></li><li><a href="#valuation-red-flags" class="table-of-contents__link toc-highlight">Valuation Red Flags</a></li><li><a href="#comparability-issues" class="table-of-contents__link toc-highlight">Comparability Issues</a></li></ul></li><li><a href="#section-11-formulas-reference-guide" class="table-of-contents__link toc-highlight">Section 11: Formulas Reference Guide</a><ul><li><a href="#essential-excel-formulas" class="table-of-contents__link toc-highlight">Essential Excel Formulas</a></li><li><a href="#common-ratio-formulas" class="table-of-contents__link toc-highlight">Common Ratio Formulas</a></li></ul></li><li><a href="#key-principles-summary" class="table-of-contents__link toc-highlight">Key Principles Summary</a></li><li><a href="#output-checklist" class="table-of-contents__link toc-highlight">Output Checklist</a></li><li><a href="#continuous-improvement" class="table-of-contents__link toc-highlight">Continuous Improvement</a></li><li><a href="#data-sources--mcp-first-web-fallback" class="table-of-contents__link toc-highlight">Data sources — MCP first, web fallback</a></li><li><a href="#attribution" class="table-of-contents__link toc-highlight">Attribution</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/getting-started/quickstart">Getting Started</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/user-guide/cli">User Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/developer-guide/architecture">Developer Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/reference/cli-commands">Reference</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent/discussions" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub Discussions<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://agentskills.io" target="_blank" rel="noopener noreferrer" class="footer__link-item">Skills Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://nousresearch.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Nous Research<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Built by <a href="https://nousresearch.com">Nous Research</a> · MIT License · 2026</div></div></div></footer></div>
+</body>
+</html>

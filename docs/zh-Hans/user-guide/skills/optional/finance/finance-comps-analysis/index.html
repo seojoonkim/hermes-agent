@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="zh-Hans" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-user-guide/skills/optional/finance/finance-comps-analysis" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">可比公司分析 | Hermes Agent</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/img/hermes-agent-banner.png"><meta data-rh="true" name="twitter:image" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/img/hermes-agent-banner.png"><meta data-rh="true" property="og:url" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="可比公司分析 | Hermes Agent"><meta data-rh="true" name="description" content="在 Excel 中构建可比公司分析——运营指标、估值倍数、与同行集合的统计基准对比"><meta data-rh="true" property="og:description" content="在 Excel 中构建可比公司分析——运营指标、估值倍数、与同行集合的统计基准对比"><link data-rh="true" rel="icon" href="/hermes-agent/docs/zh-Hans/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis" hreflang="en"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"可比公司分析","item":"https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis"}]}</script><link rel="stylesheet" href="/hermes-agent/docs/zh-Hans/assets/css/styles.68258a75.css">
+<script src="/hermes-agent/docs/zh-Hans/assets/js/runtime~main.66205d72.js" defer="defer"></script>
+<script src="/hermes-agent/docs/zh-Hans/assets/js/main.99aec22d.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/hermes-agent/docs/zh-Hans/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/hermes-agent/docs/zh-Hans/"><div class="navbar__logo"><img src="/hermes-agent/docs/zh-Hans/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/hermes-agent/docs/zh-Hans/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Hermes Agent</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/hermes-agent/docs/zh-Hans/user-stories">Docs</a><a class="navbar__item navbar__link" href="/hermes-agent/docs/zh-Hans/skills">Skills</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="iconLanguage_nlXk"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"></path></svg>简体中文</a><ul class="dropdown__menu"><li><a href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="en">English</a></li><li><a href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis" target="_self" rel="noopener noreferrer" class="dropdown__link dropdown__link--active" lang="zh-Hans">简体中文</a></li></ul></div><a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Home<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="搜索" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/hermes-agent/docs/zh-Hans/user-stories"><span title="用户故事与使用案例" class="linkLabel_WmDU">用户故事与使用案例</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/getting-started/quickstart"><span title="Getting Started" class="categoryLinkLabel_W154">Getting Started</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/user-guide/cli"><span title="Using Hermes" class="categoryLinkLabel_W154">Using Hermes</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/hermes-agent/docs/zh-Hans/user-guide/features/overview"><span title="Features" class="categoryLinkLabel_W154">Features</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/overview"><span title="概览" class="linkLabel_WmDU">概览</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/tool-gateway"><span title="Tool Gateway" class="linkLabel_WmDU">Tool Gateway</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/tools"><span title="Core" class="categoryLinkLabel_W154">Core</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/cron"><span title="Automation" class="categoryLinkLabel_W154">Automation</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/voice-mode"><span title="Media &amp; Web" class="categoryLinkLabel_W154">Media &amp; Web</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/web-dashboard"><span title="Management" class="categoryLinkLabel_W154">Management</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/zh-Hans/reference/skills-catalog"><span title="Skills" class="categoryLinkLabel_W154">Skills</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/reference/skills-catalog"><span title="内置技能目录" class="linkLabel_WmDU">内置技能目录</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/reference/optional-skills-catalog"><span title="可选技能目录" class="linkLabel_WmDU">可选技能目录</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/bundled/apple/apple-apple-notes"><span title="Bundled" class="categoryLinkLabel_W154">Bundled</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="Optional" class="categoryLinkLabel_W154">Optional</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="autonomous-ai-agents" class="categoryLinkLabel_W154">autonomous-ai-agents</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/blockchain/blockchain-evm"><span title="blockchain" class="categoryLinkLabel_W154">blockchain</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/communication/communication-one-three-one-rule"><span title="communication" class="categoryLinkLabel_W154">communication</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/creative/creative-blender-mcp"><span title="creative" class="categoryLinkLabel_W154">creative</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/devops/devops-cli"><span title="devops" class="categoryLinkLabel_W154">devops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/dogfood/dogfood-adversarial-ux-test"><span title="dogfood" class="categoryLinkLabel_W154">dogfood</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/email/email-agentmail"><span title="email" class="categoryLinkLabel_W154">email</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"><span title="finance" class="categoryLinkLabel_W154">finance</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"><span title="三表模型" class="linkLabel_WmDU">三表模型</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis"><span title="可比公司分析" class="linkLabel_WmDU">可比公司分析</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model"><span title="Dcf Model" class="linkLabel_WmDU">Dcf Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-excel-author"><span title="Excel Author" class="linkLabel_WmDU">Excel Author</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-lbo-model"><span title="Lbo Model" class="linkLabel_WmDU">Lbo Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-merger-model"><span title="Merger Model" class="linkLabel_WmDU">Merger Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-pptx-author"><span title="Pptx Author" class="linkLabel_WmDU">Pptx Author</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-stocks"><span title="Stocks" class="linkLabel_WmDU">Stocks</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/health/health-fitness-nutrition"><span title="health" class="categoryLinkLabel_W154">health</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/mcp/mcp-fastmcp"><span title="mcp" class="categoryLinkLabel_W154">mcp</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/migration/migration-openclaw-migration"><span title="migration" class="categoryLinkLabel_W154">migration</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/mlops/mlops-accelerate"><span title="mlops" class="categoryLinkLabel_W154">mlops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/productivity/productivity-canvas"><span title="productivity" class="categoryLinkLabel_W154">productivity</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/research/research-bioinformatics"><span title="research" class="categoryLinkLabel_W154">research</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/security/security-1password"><span title="security" class="categoryLinkLabel_W154">security</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/software-development/software-development-code-wiki"><span title="software-development" class="categoryLinkLabel_W154">software-development</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/web-development/web-development-page-agent"><span title="web-development" class="categoryLinkLabel_W154">web-development</span></a></div></li></ul></li></ul></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/user-guide/messaging/"><span title="Messaging Platforms" class="categoryLinkLabel_W154">Messaging Platforms</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/integrations/"><span title="Integrations" class="categoryLinkLabel_W154">Integrations</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/guides/run-hermes-with-nous-portal"><span title="Guides &amp; Tutorials" class="categoryLinkLabel_W154">Guides &amp; Tutorials</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/developer-guide/contributing"><span title="Developer Guide" class="categoryLinkLabel_W154">Developer Guide</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/reference/cli-commands"><span title="Reference" class="categoryLinkLabel_W154">Reference</span></a></div></li></ul></nav><button type="button" title="收起侧边栏" aria-label="收起侧边栏" class="button button--secondary button--outline collapseSidebarButton_PEFL"><svg width="20" height="20" aria-hidden="true" class="collapseSidebarButtonIcon_kv0_"><g fill="#7a7a7a"><path d="M9.992 10.023c0 .2-.062.399-.172.547l-4.996 7.492a.982.982 0 01-.828.454H1c-.55 0-1-.453-1-1 0-.2.059-.403.168-.551l4.629-6.942L.168 3.078A.939.939 0 010 2.528c0-.548.45-.997 1-.997h2.996c.352 0 .649.18.828.45L9.82 9.472c.11.148.172.347.172.55zm0 0"></path><path d="M19.98 10.023c0 .2-.058.399-.168.547l-4.996 7.492a.987.987 0 01-.828.454h-3c-.547 0-.996-.453-.996-1 0-.2.059-.403.168-.551l4.625-6.942-4.625-6.945a.939.939 0 01-.168-.55 1 1 0 01.996-.997h3c.348 0 .649.18.828.45l4.996 7.492c.11.148.168.347.168.55zm0 0"></path></g></svg></button></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/hermes-agent/docs/zh-Hans/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Features</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Skills</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Optional</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">finance</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">可比公司分析</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">本页总览</button></div><div class="theme-doc-markdown markdown">
+<header><h1>可比公司分析</h1></header>
+<p>在 Excel 中构建机构级可比公司分析——运营指标、估值倍数、与同行集合的统计基准对比。与 excel-author 配合使用。适用于上市公司估值、IPO 定价、行业基准对比或异常值检测。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="skill-元数据">Skill 元数据<a href="#skill-元数据" class="hash-link" aria-label="Skill 元数据的直接链接" title="Skill 元数据的直接链接" translate="no">​</a></h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>来源</td><td>可选——通过 <code>hermes skills install official/finance/comps-analysis</code> 安装</td></tr><tr><td>路径</td><td><code>optional-skills/finance/comps-analysis</code></td></tr><tr><td>版本</td><td><code>1.0.0</code></td></tr><tr><td>作者</td><td>Anthropic（由 Nous Research 改编）</td></tr><tr><td>许可证</td><td>Apache-2.0</td></tr><tr><td>平台</td><td>linux, macos, windows</td></tr><tr><td>标签</td><td><code>finance</code>, <code>valuation</code>, <code>comps</code>, <code>excel</code>, <code>openpyxl</code>, <code>modeling</code>, <code>investment-banking</code></td></tr><tr><td>相关 skills</td><td><a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-excel-author"><code>excel-author</code></a>, <a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-pptx-author"><code>pptx-author</code></a>, <a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model"><code>dcf-model</code></a>, <a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-lbo-model"><code>lbo-model</code></a></td></tr></tbody></table>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="参考完整-skillmd">参考：完整 SKILL.md<a href="#参考完整-skillmd" class="hash-link" aria-label="参考：完整 SKILL.md的直接链接" title="参考：完整 SKILL.md的直接链接" translate="no">​</a></h2>
+<div class="theme-admonition theme-admonition-info admonition_xJq3 alert alert--info"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg></span>信息</div><div class="admonitionContent_BuS1"><p>以下是 Hermes 在触发此 skill 时加载的完整 skill 定义。这是 agent 在 skill 激活时所看到的指令内容。</p></div></div>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="环境">环境<a href="#环境" class="hash-link" aria-label="环境的直接链接" title="环境的直接链接" translate="no">​</a></h2>
+<p>此 skill 假设使用<strong>无界面 openpyxl</strong>——你在磁盘上生成 .xlsx 文件。
+遵循 <code>excel-author</code> skill 关于单元格着色、公式、命名区域和敏感性表格的约定。
+交付前重新计算：<code>python /path/to/excel-author/scripts/recalc.py ./out/model.xlsx</code>。</p>
+<h1>可比公司分析</h1>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="️-关键数据来源优先级请先阅读">⚠️ 关键：数据来源优先级（请先阅读）<a href="#️-关键数据来源优先级请先阅读" class="hash-link" aria-label="⚠️ 关键：数据来源优先级（请先阅读）的直接链接" title="⚠️ 关键：数据来源优先级（请先阅读）的直接链接" translate="no">​</a></h2>
+<p><strong>始终遵循以下数据来源层级：</strong></p>
+<ol>
+<li class=""><strong>首先：检查 MCP 数据来源</strong> - 如果 S&amp;P Kensho MCP、FactSet MCP 或 Daloopa MCP 可用，则专门使用它们获取财务和交易信息</li>
+<li class=""><strong>如果上述 MCP 数据来源可用，则不要使用网络搜索</strong></li>
+<li class=""><strong>仅当 MCP 不可用时：</strong> 再使用 Bloomberg Terminal、SEC EDGAR 文件或其他机构来源</li>
+<li class=""><strong>绝不将网络搜索作为主要数据来源</strong> - 它缺乏机构级分析所需的准确性、审计追踪和可靠性</li>
+</ol>
+<p><strong>原因：</strong> MCP 来源提供经过验证的机构级数据，并附有适当引用。网络搜索结果可能过时、不准确，或对财务分析不可靠。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="概述">概述<a href="#概述" class="hash-link" aria-label="概述的直接链接" title="概述的直接链接" translate="no">​</a></h2>
+<p>此 skill 指导 agent 构建机构级可比公司分析，结合运营指标、估值倍数和统计基准对比。输出为结构化的 Excel/电子表格，通过同行比较支持有据可查的投资决策。</p>
+<p><strong>参考材料与情境化：</strong></p>
+<p>示例可比公司分析文件位于 <code>examples/comps_example.xlsx</code>。使用此 skill 目录中的示例文件时，请智慧地加以运用：</p>
+<p><strong>可以使用示例来：</strong></p>
+<ul>
+<li class="">理解结构层级（各部分如何流转）</li>
+<li class="">把握预期的严谨程度（统计深度、文档标准）</li>
+<li class="">学习原则（清晰的标题、透明的公式、审计追踪）</li>
+</ul>
+<p><strong>不要使用示例来：</strong></p>
+<ul>
+<li class="">精确复制格式或指标</li>
+<li class="">不考虑上下文地照搬布局</li>
+<li class="">不顾受众地套用相同视觉风格</li>
+</ul>
+<p><strong>始终先问自己：</strong></p>
+<ol>
+<li class=""><strong>&quot;你有偏好的格式，还是我应该调整模板风格？&quot;</strong></li>
+<li class=""><strong>&quot;受众是谁？&quot;</strong>（投资委员会、董事会演示、快速参考、详细备忘录）</li>
+<li class=""><strong>&quot;核心问题是什么？&quot;</strong>（估值、增长分析、竞争定位、效率）</li>
+<li class=""><strong>&quot;背景是什么？&quot;</strong>（并购评估、投资决策、行业基准对比、绩效回顾）</li>
+</ol>
+<p><strong>根据具体情况调整：</strong></p>
+<ul>
+<li class=""><strong>行业背景</strong>：大型科技巨头与新兴 SaaS 初创公司需要不同的指标</li>
+<li class=""><strong>行业特定需求</strong>：尽早添加相关指标（例如，科技行业的云 ARR、企业客户数、开发者生态）</li>
+<li class=""><strong>公司熟悉度</strong>：知名公司可能需要较少背景介绍，更多关注差异分析</li>
+<li class=""><strong>决策类型</strong>：并购与持续投资组合监控需要不同侧重</li>
+</ul>
+<p><strong>核心原则：</strong> 运用模板原则（清晰结构、统计严谨性、透明公式），但根据上下文灵活执行。目标是机构级质量的分析，而非机构级外观的模板。</p>
+<p>用户提供的示例和明确偏好始终优先于默认设置。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="核心理念">核心理念<a href="#核心理念" class="hash-link" aria-label="核心理念的直接链接" title="核心理念的直接链接" translate="no">​</a></h2>
+<p><strong>&quot;先构建正确的结构，再让数据讲述故事。&quot;</strong></p>
+<p>从迫使战略思考的标题开始，输入干净的数据，构建透明的公式，让统计结果自动呈现。一份好的可比分析应该让没有参与构建的人也能立即读懂。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="️-关键公式优先于硬编码--逐步验证">⚠️ 关键：公式优先于硬编码 + 逐步验证<a href="#️-关键公式优先于硬编码--逐步验证" class="hash-link" aria-label="⚠️ 关键：公式优先于硬编码 + 逐步验证的直接链接" title="⚠️ 关键：公式优先于硬编码 + 逐步验证的直接链接" translate="no">​</a></h2>
+<p><strong>公式，而非硬编码：</strong></p>
+<ul>
+<li class="">每个派生值（利润率、倍数、统计数据）都必须是引用输入单元格的 Excel 公式——绝不粘贴预先计算的数字</li>
+<li class="">使用 Python/openpyxl 构建表格时：写入 <code>cell.value = &quot;=E7/C7&quot;</code>（公式字符串），而非 <code>cell.value = 0.687</code>（计算结果）</li>
+<li class="">唯一可以硬编码的值是原始输入数据（收入、EBITDA、股价等）——每一个都需要附带来源的单元格注释</li>
+<li class="">原因：模型必须在输入变化时自动更新。硬编码的利润率是潜伏的静默错误。</li>
+</ul>
+<p><strong>与用户逐步验证：</strong></p>
+<ul>
+<li class="">设置结构后 → 在填充数据前向用户展示标题布局</li>
+<li class="">输入原始数据后 → 向用户展示输入块，在构建公式前确认来源/期间</li>
+<li class="">构建运营指标公式后 → 展示计算出的利润率，在进入估值前与用户进行合理性检查</li>
+<li class="">构建估值倍数后 → 展示倍数，在添加统计数据前确认其合理性</li>
+<li class="">不要端到端地构建整个表格后再呈现——通过逐节确认尽早发现错误</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-1-节文档结构与设置">第 1 节：文档结构与设置<a href="#第-1-节文档结构与设置" class="hash-link" aria-label="第 1 节：文档结构与设置的直接链接" title="第 1 节：文档结构与设置的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="标题块第-1-3-行">标题块（第 1-3 行）<a href="#标题块第-1-3-行" class="hash-link" aria-label="标题块（第 1-3 行）的直接链接" title="标题块（第 1-3 行）的直接链接" translate="no">​</a></h3>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">第 1 行：[分析标题] - 可比公司分析</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">第 2 行：[公司列表及代码] • [公司 1 (TICK1)] • [公司 2 (TICK2)] • [公司 3 (TICK3)]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">第 3 行：截至 [期间] | 所有数据单位为 [百万/十亿美元]，每股金额和比率除外</span><br></span></code></pre></div></div>
+<p><strong>重要性：</strong> 立即建立背景。任何打开此文件的人都能知道分析内容、创建时间以及如何解读数字。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="视觉约定标准可选用户偏好和上传的模板始终优先">视觉约定标准（可选——用户偏好和上传的模板始终优先）<a href="#视觉约定标准可选用户偏好和上传的模板始终优先" class="hash-link" aria-label="视觉约定标准（可选——用户偏好和上传的模板始终优先）的直接链接" title="视觉约定标准（可选——用户偏好和上传的模板始终优先）的直接链接" translate="no">​</a></h3>
+<p><strong>重要：这些仅为建议的默认值。始终优先考虑：</strong></p>
+<ol>
+<li class="">用户的明确格式偏好</li>
+<li class="">任何上传模板文件中的格式</li>
+<li class="">公司/团队风格指南</li>
+<li class="">这些默认值（仅在没有其他指导时使用）</li>
+</ol>
+<p><strong>建议字体与排版：</strong></p>
+<ul>
+<li class=""><strong>字体系列</strong>：Times New Roman（专业、易读、行业标准）</li>
+<li class=""><strong>字体大小</strong>：数据单元格 11pt，标题 12pt</li>
+<li class=""><strong>粗体文本</strong>：节标题、公司名称、统计标签</li>
+</ul>
+<p><strong>默认颜色与底纹——专业蓝/灰调色板（简洁为上）：</strong></p>
+<ul>
+<li class=""><strong>保持克制</strong>——只用蓝色和灰色。不要引入绿色、橙色、红色或多种强调色。一份干净的可比分析表格总共使用 3-4 种颜色。</li>
+<li class=""><strong>节标题</strong>（例如&quot;运营统计与财务指标&quot;）：<!-- -->
+<ul>
+<li class="">深蓝色背景（<code>#1F4E79</code> 或 <code>#17365D</code> 海军蓝）</li>
+<li class="">白色粗体文字</li>
+<li class="">跨所有列的整行底纹</li>
+</ul>
+</li>
+<li class=""><strong>列标题</strong>（例如&quot;公司&quot;、&quot;收入&quot;、&quot;利润率&quot;）：<!-- -->
+<ul>
+<li class="">浅蓝色背景（<code>#D9E1F2</code> 或类似淡蓝色）</li>
+<li class="">黑色粗体文字</li>
+<li class="">居中对齐</li>
+</ul>
+</li>
+<li class=""><strong>数据行</strong>：<!-- -->
+<ul>
+<li class="">公司数据白色背景</li>
+<li class="">公式用黑色文字；硬编码输入用蓝色文字</li>
+</ul>
+</li>
+<li class=""><strong>统计行</strong>（最大值、第 75 百分位等）：<!-- -->
+<ul>
+<li class="">浅灰色背景（<code>#F2F2F2</code>）</li>
+<li class="">黑色文字，标签左对齐</li>
+</ul>
+</li>
+<li class=""><strong>整个调色板就是这些</strong>：深蓝 + 浅蓝 + 浅灰 + 白色。除非用户模板另有说明，不添加其他颜色。</li>
+</ul>
+<p><strong>建议格式约定：</strong></p>
+<ul>
+<li class=""><strong>小数精度</strong>：<!-- -->
+<ul>
+<li class="">百分比：1 位小数（12.3%）</li>
+<li class="">倍数：1 位小数（13.5x）</li>
+<li class="">美元金额：无小数，千位分隔符（69,632）</li>
+<li class="">以百分比显示的利润率：1 位小数（68.7%）</li>
+</ul>
+</li>
+<li class=""><strong>边框</strong>：无边框（简洁、极简外观）</li>
+<li class=""><strong>对齐</strong>：所有指标居中对齐，外观整洁统一</li>
+<li class=""><strong>单元格尺寸</strong>：所有列宽统一/均匀，所有行高一致（形成整洁、专业的网格）</li>
+</ul>
+<p><strong>注意：</strong> 如果用户提供模板文件或指定不同格式，请使用该格式。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-2-节运营统计与财务指标">第 2 节：运营统计与财务指标<a href="#第-2-节运营统计与财务指标" class="hash-link" aria-label="第 2 节：运营统计与财务指标的直接链接" title="第 2 节：运营统计与财务指标的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="核心列从这些开始">核心列（从这些开始）<a href="#核心列从这些开始" class="hash-link" aria-label="核心列（从这些开始）的直接链接" title="核心列（从这些开始）的直接链接" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>公司</strong> - 格式一致的名称</li>
+<li class=""><strong>收入</strong> - 规模指标（可以是 LTM、季度或年度，视情况而定）</li>
+<li class=""><strong>收入增长</strong> - 同比百分比变化</li>
+<li class=""><strong>毛利润</strong> - 收入减去销售成本</li>
+<li class=""><strong>毛利率</strong> - 毛利润/收入（基本盈利能力）</li>
+<li class=""><strong>EBITDA</strong> - 息税折旧摊销前利润</li>
+<li class=""><strong>EBITDA 利润率</strong> - EBITDA/收入（运营效率）</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="可选补充根据行业目的选择">可选补充（根据行业/目的选择）<a href="#可选补充根据行业目的选择" class="hash-link" aria-label="可选补充（根据行业/目的选择）的直接链接" title="可选补充（根据行业/目的选择）的直接链接" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>季度与 LTM</strong> - 如果季节性重要，两者都包含</li>
+<li class=""><strong>自由现金流</strong> - 适用于资本密集型或 SaaS 业务</li>
+<li class=""><strong>FCF 利润率</strong> - FCF/收入（现金生成效率）</li>
+<li class=""><strong>净利润</strong> - 适用于成熟的盈利公司</li>
+<li class=""><strong>营业利润</strong> - 适用于折旧摊销差异较大的业务</li>
+<li class=""><strong>资本支出指标</strong> - 适用于重资产行业</li>
+<li class=""><strong>Rule of 40（40 法则）</strong> - 专门针对 SaaS（增长率 % + 利润率 %）</li>
+<li class=""><strong>FCF 转化率</strong> - 用于盈利质量分析（高级）</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="公式示例以第-7-行为例">公式示例（以第 7 行为例）<a href="#公式示例以第-7-行为例" class="hash-link" aria-label="公式示例（以第 7 行为例）的直接链接" title="公式示例（以第 7 行为例）的直接链接" translate="no">​</a></h3>
+<div class="language-excel codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-excel codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">// 核心比率——始终计算这些</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">毛利率 (F7): =E7/C7</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBITDA 利润率 (H7): =G7/C7</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// 可选比率——如相关则包含</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF 利润率: =[FCF]/[Revenue]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">净利率: =[Net Income]/[Revenue]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Rule of 40: =[Growth %]+[FCF Margin %]</span><br></span></code></pre></div></div>
+<p><strong>黄金法则：</strong> 每个比率应为 [某项] / [收入] 或 [某项] / [本表中的某项]。保持简单。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="统计块公司数据之后">统计块（公司数据之后）<a href="#统计块公司数据之后" class="hash-link" aria-label="统计块（公司数据之后）的直接链接" title="统计块（公司数据之后）的直接链接" translate="no">​</a></h3>
+<p><strong>关键：为所有可比指标（比率、利润率、增长率、倍数）添加统计公式。</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">[留一个空行用于视觉分隔]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- 最大值：=MAX(B7:B9)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- 第 75 百分位：=QUARTILE(B7:B9,3)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- 中位数：=MEDIAN(B7:B9)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- 第 25 百分位：=QUARTILE(B7:B9,1)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- 最小值：=MIN(B7:B9)</span><br></span></code></pre></div></div>
+<p><strong>需要统计数据的列（可比指标）：</strong></p>
+<ul>
+<li class="">收入增长率 %、毛利率 %、EBITDA 利润率 %、每股收益</li>
+<li class="">EV/收入、EV/EBITDA、市盈率、股息收益率 %、Beta</li>
+</ul>
+<p><strong>不需要统计数据的列（规模指标）：</strong></p>
+<ul>
+<li class="">收入、EBITDA、净利润（绝对规模因公司体量而异）</li>
+<li class="">市值、企业价值（不同规模公司之间不可比）</li>
+</ul>
+<p><strong>注意：</strong> 在公司数据和统计行之间添加一个空行用于视觉分隔。不要添加&quot;行业统计&quot;或&quot;估值统计&quot;标题行。</p>
+<p><strong>四分位数的重要性：</strong> 它们显示分布情况，而非仅仅是平均值。第 75 百分位倍数告诉你&quot;优质&quot;公司的交易水平。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-3-节估值倍数与投资指标">第 3 节：估值倍数与投资指标<a href="#第-3-节估值倍数与投资指标" class="hash-link" aria-label="第 3 节：估值倍数与投资指标的直接链接" title="第 3 节：估值倍数与投资指标的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="核心估值列从这些开始">核心估值列（从这些开始）<a href="#核心估值列从这些开始" class="hash-link" aria-label="核心估值列（从这些开始）的直接链接" title="核心估值列（从这些开始）的直接链接" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>公司</strong> - 与运营部分顺序相同</li>
+<li class=""><strong>市值</strong> - 当前市场估值</li>
+<li class=""><strong>企业价值</strong> - 市值 ± 净债务/现金</li>
+<li class=""><strong>EV/收入</strong> - 市场为每美元销售额支付的价格</li>
+<li class=""><strong>EV/EBITDA</strong> - 市场为每美元利润支付的价格</li>
+<li class=""><strong>市盈率</strong> - 相对于净利润的价格</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="可选估值指标根据情况选择">可选估值指标（根据情况选择）<a href="#可选估值指标根据情况选择" class="hash-link" aria-label="可选估值指标（根据情况选择）的直接链接" title="可选估值指标（根据情况选择）的直接链接" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>FCF 收益率</strong> - FCF/市值（用于以现金为中心的分析）</li>
+<li class=""><strong>PEG 比率</strong> - 市盈率/增长率（用于成长型公司）</li>
+<li class=""><strong>市净率</strong> - 市场价值与账面价值之比（用于重资产业务）</li>
+<li class=""><strong>ROE/ROA</strong> - 回报指标（用于盈利能力比较）</li>
+<li class=""><strong>收入/EBITDA 复合年增长率</strong> - 历史增长率（用于趋势分析）</li>
+<li class=""><strong>资产周转率</strong> - 收入/资产（用于运营效率分析）</li>
+<li class=""><strong>债务/权益比</strong> - 杠杆率（用于资本结构分析）</li>
+</ul>
+<p><strong>关键原则：</strong> 包含 3-5 个对你所在行业重要的核心倍数。不要仅仅因为可以就包含所有可能的指标。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="公式示例">公式示例<a href="#公式示例" class="hash-link" aria-label="公式示例的直接链接" title="公式示例的直接链接" translate="no">​</a></h3>
+<div class="language-excel codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-excel codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">// 核心倍数——始终包含这些</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EV/收入: =[Enterprise Value]/[LTM Revenue]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EV/EBITDA: =[Enterprise Value]/[LTM EBITDA]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">市盈率: =[Market Cap]/[Net Income]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// 可选倍数——如数据可用则包含</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF 收益率: =[LTM FCF]/[Market Cap]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PEG 比率: =[P/E]/[Growth Rate %]</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="交叉引用规则">交叉引用规则<a href="#交叉引用规则" class="hash-link" aria-label="交叉引用规则的直接链接" title="交叉引用规则的直接链接" translate="no">​</a></h3>
+<p><strong>关键：</strong> 估值倍数必须引用运营指标部分。绝不两次输入相同的原始数据。如果收入在 C7，则 EV/收入公式应引用 C7。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="统计块">统计块<a href="#统计块" class="hash-link" aria-label="统计块的直接链接" title="统计块的直接链接" translate="no">​</a></h3>
+<p>与运营部分结构相同：每个指标的最大值、第 75 百分位、中位数、第 25 百分位、最小值。在公司数据和统计行之间添加一个空行用于视觉分隔。不要添加&quot;估值统计&quot;标题行。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-4-节注释与方法论文档">第 4 节：注释与方法论文档<a href="#第-4-节注释与方法论文档" class="hash-link" aria-label="第 4 节：注释与方法论文档的直接链接" title="第 4 节：注释与方法论文档的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="必要组成部分">必要组成部分<a href="#必要组成部分" class="hash-link" aria-label="必要组成部分的直接链接" title="必要组成部分的直接链接" translate="no">​</a></h3>
+<p><strong>数据来源与质量：</strong></p>
+<ul>
+<li class="">数据来自哪里？（S&amp;P Kensho MCP、FactSet MCP、Daloopa MCP、Bloomberg、SEC 文件）</li>
+<li class="">涵盖哪个期间？（2024 年第四季度，经审计数据）</li>
+<li class="">如何验证？（与 10-K/10-Q 交叉核对）</li>
+<li class="">注意：如可用，优先使用 MCP 数据来源（S&amp;P Kensho、FactSet、Daloopa）以获得更好的准确性和可追溯性</li>
+</ul>
+<p><strong>关键定义：</strong></p>
+<ul>
+<li class="">EBITDA 计算方法（毛利润 + 折旧摊销，或营业利润 + 折旧摊销）</li>
+<li class="">自由现金流公式（经营性现金流 - 资本支出）</li>
+<li class="">特殊指标说明（Rule of 40、FCF 转化率）</li>
+<li class="">时间期间定义（LTM、复合年增长率计算期间）</li>
+</ul>
+<p><strong>估值方法论：</strong></p>
+<ul>
+<li class="">企业价值如何计算？（市值 + 净债务）</li>
+<li class="">使用了哪些增长率？（历史复合年增长率、前瞻性预测）</li>
+<li class="">做了哪些调整？（排除一次性项目、标准化利润率）</li>
+</ul>
+<p><strong>分析框架：</strong></p>
+<ul>
+<li class="">投资论点是什么？（云/SaaS 效率）</li>
+<li class="">哪些指标最重要？（现金生成、资本效率）</li>
+<li class="">读者应如何解读统计数据？（四分位数提供背景）</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-5-节选择正确的指标决策框架">第 5 节：选择正确的指标（决策框架）<a href="#第-5-节选择正确的指标决策框架" class="hash-link" aria-label="第 5 节：选择正确的指标（决策框架）的直接链接" title="第 5 节：选择正确的指标（决策框架）的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="从我要回答什么问题开始">从&quot;我要回答什么问题？&quot;开始<a href="#从我要回答什么问题开始" class="hash-link" aria-label="从&quot;我要回答什么问题？&quot;开始的直接链接" title="从&quot;我要回答什么问题？&quot;开始的直接链接" translate="no">​</a></h3>
+<p><strong>&quot;哪家公司被低估了？&quot;</strong>
+→ 重点关注：EV/收入、EV/EBITDA、市盈率、市值
+→ 跳过：运营细节、增长指标</p>
+<p><strong>&quot;哪家公司最高效？&quot;</strong>
+→ 重点关注：毛利率、EBITDA 利润率、FCF 利润率、资产周转率
+→ 跳过：规模指标、绝对美元金额</p>
+<p><strong>&quot;哪家公司增长最快？&quot;</strong>
+→ 重点关注：收入增长率 %、EBITDA 复合年增长率、用户/客户增长
+→ 跳过：利润率指标、杠杆比率</p>
+<p><strong>&quot;哪家公司是最佳现金生成者？&quot;</strong>
+→ 重点关注：FCF、FCF 利润率、FCF 转化率、资本支出强度
+→ 跳过：EBITDA、市盈率</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="行业特定指标选择">行业特定指标选择<a href="#行业特定指标选择" class="hash-link" aria-label="行业特定指标选择的直接链接" title="行业特定指标选择的直接链接" translate="no">​</a></h3>
+<p><strong>软件/SaaS：</strong>
+必须有：收入增长、毛利率、Rule of 40
+可选：ARR、净美元留存率、CAC 回收期
+跳过：资产周转率、库存指标</p>
+<p><strong>制造业/工业：</strong>
+必须有：EBITDA 利润率、资产周转率、资本支出/收入
+可选：ROA、库存周转率、积压订单
+跳过：Rule of 40、SaaS 指标</p>
+<p><strong>金融服务：</strong>
+必须有：ROE、ROA、效率比率、市盈率
+可选：净息差、贷款损失准备金
+跳过：毛利率、EBITDA（对银行无意义）</p>
+<p><strong>零售/电商：</strong>
+必须有：收入增长、毛利率、库存周转率
+可选：同店销售额、客户获取成本
+跳过：重度研发或资本支出指标</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="5-10-法则">&quot;5-10 法则&quot;<a href="#5-10-法则" class="hash-link" aria-label="&quot;5-10 法则&quot;的直接链接" title="&quot;5-10 法则&quot;的直接链接" translate="no">​</a></h3>
+<p><strong>5 个运营指标</strong> - 收入、增长、2-3 个利润率/效率指标
+<strong>5 个估值指标</strong> - 市值、企业价值、3 个倍数
+<strong>= 共 10 列</strong> - 足以讲述故事，又不至于迷失方向</p>
+<p>如果你有超过 15 个指标，可能包含了噪音。大刀阔斧地删减。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-6-节最佳实践与质量检查">第 6 节：最佳实践与质量检查<a href="#第-6-节最佳实践与质量检查" class="hash-link" aria-label="第 6 节：最佳实践与质量检查的直接链接" title="第 6 节：最佳实践与质量检查的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="开始之前">开始之前<a href="#开始之前" class="hash-link" aria-label="开始之前的直接链接" title="开始之前的直接链接" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>定义同行组</strong> - 公司必须真正可比（相似的商业模式、规模、地域）</li>
+<li class=""><strong>选择正确的期间</strong> - LTM 平滑季节性；季度数据显示趋势</li>
+<li class=""><strong>预先统一单位</strong> - 百万与十亿的决定影响一切</li>
+<li class=""><strong>规划数据来源</strong> - 知道每个数字来自哪里</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="构建过程中">构建过程中<a href="#构建过程中" class="hash-link" aria-label="构建过程中的直接链接" title="构建过程中的直接链接" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>先输入所有原始数据</strong> - 在编写公式之前完成蓝色文字部分</p>
+</li>
+<li class="">
+<p><strong>为所有硬编码输入添加单元格注释</strong> - 右键单击单元格 → 插入注释 → 记录来源或假设</p>
+<p><strong>对于有来源的数据，精确引用来源：</strong></p>
+<ul>
+<li class="">示例：&quot;Bloomberg Terminal - MSFT Equity DES，访问于 2024-10-02&quot;</li>
+<li class="">示例：&quot;2024 年第四季度 10-K 文件，第 42 页，行项目&#x27;总收入&#x27;&quot;</li>
+<li class="">示例：&quot;FactSet 截至 2024-10-02 的一致性预测&quot;</li>
+<li class=""><strong>尽可能包含超链接</strong>：右键单击单元格 → 链接 → 粘贴 SEC 文件、数据来源或报告的 URL</li>
+</ul>
+<p><strong>对于假设，解释推理：</strong></p>
+<ul>
+<li class="">示例：&quot;基于同行中位数假设 15% EBITDA 利润率，公司未披露&quot;</li>
+<li class="">示例：&quot;企业价值估算为市值 + 5000 万美元净债务（来自第三季度资产负债表，第四季度尚未公布）&quot;</li>
+<li class="">示例：&quot;前瞻性市盈率基于市场一致性每股收益 3.45 美元（12 位分析师预测的平均值）&quot;</li>
+</ul>
+<p><strong>重要性</strong>：支持审计追踪、数据验证、假设透明度和未来更新</p>
+</li>
+<li class="">
+<p><strong>逐行构建公式</strong> - 在继续之前测试每个计算</p>
+</li>
+<li class="">
+<p><strong>对标题使用绝对引用</strong> - <code>$C$6</code> 锁定标题行</p>
+</li>
+<li class="">
+<p><strong>格式一致</strong> - 百分比显示为百分比，而非小数</p>
+</li>
+<li class="">
+<p><strong>添加条件格式</strong> - 自动突出显示异常值</p>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="合理性检查">合理性检查<a href="#合理性检查" class="hash-link" aria-label="合理性检查的直接链接" title="合理性检查的直接链接" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>利润率测试</strong>：毛利率 &gt; EBITDA 利润率 &gt; 净利率（根据定义始终成立）</li>
+<li class=""><strong>倍数合理性</strong>：<!-- -->
+<ul>
+<li class="">EV/收入：通常 0.5-20x（因行业差异较大）</li>
+<li class="">EV/EBITDA：通常 8-25x（跨行业相对一致）</li>
+<li class="">市盈率：通常 10-50x（取决于增长率）</li>
+</ul>
+</li>
+<li class=""><strong>增长-倍数相关性</strong>：增长越高通常意味着倍数越高</li>
+<li class=""><strong>规模-效率权衡</strong>：较大公司通常有更好的利润率（规模效益）</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="常见错误">常见错误<a href="#常见错误" class="hash-link" aria-label="常见错误的直接链接" title="常见错误的直接链接" translate="no">​</a></h3>
+<p>❌ 在公式中混用市值和企业价值
+❌ 分子和分母使用不同时间期间（LTM 与季度）
+❌ 在公式中硬编码数字而非使用单元格引用
+❌ <strong>硬编码输入没有引用来源或解释假设的单元格注释</strong>
+❌ 在可用时缺少 SEC 文件或数据来源的超链接
+❌ 包含过多指标而无明确目的
+❌ 包含不可比公司（不同商业模式）
+❌ 使用过时数据而未披露
+❌ 错误计算百分比的平均值（应使用中位数）</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-6-节高级功能">第 6 节：高级功能<a href="#第-6-节高级功能" class="hash-link" aria-label="第 6 节：高级功能的直接链接" title="第 6 节：高级功能的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="动态标题">动态标题<a href="#动态标题" class="hash-link" aria-label="动态标题的直接链接" title="动态标题的直接链接" translate="no">​</a></h3>
+<p>对于显示计算结果的列，使用清晰的单位标签：</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">收入增长（同比）% | EBITDA 利润率 | FCF 利润率 | Rule of 40</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="四分位数分析的优势">四分位数分析的优势<a href="#四分位数分析的优势" class="hash-link" aria-label="四分位数分析的优势的直接链接" title="四分位数分析的优势的直接链接" translate="no">​</a></h3>
+<p>相比仅使用均值/中位数，四分位数显示：</p>
+<ul>
+<li class=""><strong>第 75 百分位</strong> = &quot;优质&quot;公司在此交易</li>
+<li class=""><strong>中位数</strong> = 典型市场估值</li>
+<li class=""><strong>第 25 百分位</strong> = &quot;折价&quot;区间</li>
+</ul>
+<p>这有助于回答：&quot;我们的目标公司相对于同行是交易溢价还是折价？&quot;</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="行业特定修改">行业特定修改<a href="#行业特定修改" class="hash-link" aria-label="行业特定修改的直接链接" title="行业特定修改的直接链接" translate="no">​</a></h3>
+<p><strong>软件/SaaS：</strong></p>
+<ul>
+<li class="">添加：ARR、净美元留存率、CAC 回收期</li>
+<li class="">强调：Rule of 40、FCF 利润率、毛利率 &gt;70%</li>
+</ul>
+<p><strong>医疗健康：</strong></p>
+<ul>
+<li class="">添加：研发/收入、管线价值、监管状态</li>
+<li class="">强调：EBITDA 利润率、增长率、报销风险</li>
+</ul>
+<p><strong>工业：</strong></p>
+<ul>
+<li class="">添加：积压订单、订单趋势、地域构成</li>
+<li class="">强调：ROIC、资产周转率、周期性调整</li>
+</ul>
+<p><strong>消费品：</strong></p>
+<ul>
+<li class="">添加：同店销售额、客户获取成本、品牌价值</li>
+<li class="">强调：收入增长、毛利率、库存周转率</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-7-节工作流程与实用技巧">第 7 节：工作流程与实用技巧<a href="#第-7-节工作流程与实用技巧" class="hash-link" aria-label="第 7 节：工作流程与实用技巧的直接链接" title="第 7 节：工作流程与实用技巧的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="分步流程">分步流程<a href="#分步流程" class="hash-link" aria-label="分步流程的直接链接" title="分步流程的直接链接" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>设置结构</strong>（30 分钟）</p>
+<ul>
+<li class="">创建所有标题</li>
+<li class="">格式化单元格（输入用蓝色，公式用黑色）</li>
+<li class="">确定单位和日期引用</li>
+</ul>
+</li>
+<li class="">
+<p><strong>收集数据</strong>（60-90 分钟）</p>
+<ul>
+<li class="">从主要来源获取（如可用，优先使用 S&amp;P Kensho MCP、FactSet MCP、Daloopa MCP；否则使用 Bloomberg、SEC）</li>
+<li class="">以蓝色输入所有原始数字</li>
+<li class="">在注释部分记录来源</li>
+</ul>
+</li>
+<li class="">
+<p><strong>构建公式</strong>（30 分钟）</p>
+<ul>
+<li class="">从简单比率开始（利润率）</li>
+<li class="">进阶到倍数（EV/收入）</li>
+<li class="">添加交叉检查（利润率是否合理？）</li>
+</ul>
+</li>
+<li class="">
+<p><strong>添加统计数据</strong>（15 分钟）</p>
+<ul>
+<li class="">复制所有列的公式结构</li>
+<li class="">验证范围正确（B7<!-- -->:B9<!-- -->，而非 B7<!-- -->:B10<!-- -->）</li>
+<li class="">检查四分位数逻辑</li>
+</ul>
+</li>
+<li class="">
+<p><strong>质量控制</strong>（30 分钟）</p>
+<ul>
+<li class="">运行合理性检查</li>
+<li class="">验证公式引用</li>
+<li class="">检查 #DIV/0! 或 #REF! 错误</li>
+<li class="">与已知基准对比</li>
+</ul>
+</li>
+<li class="">
+<p><strong>文档记录</strong>（15 分钟）</p>
+<ul>
+<li class="">完成注释部分</li>
+<li class="">添加数据来源</li>
+<li class="">定义方法论</li>
+<li class="">为分析添加日期戳</li>
+</ul>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="专业技巧">专业技巧<a href="#专业技巧" class="hash-link" aria-label="专业技巧的直接链接" title="专业技巧的直接链接" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>保存模板</strong>：构建一次，永久复用</li>
+<li class=""><strong>对异常值进行颜色编码</strong>：对超过 2 个标准差的值使用条件格式</li>
+<li class=""><strong>链接到源文件</strong>：超链接到 Bloomberg 截图或 SEC 文件</li>
+<li class=""><strong>版本控制</strong>：保存为&quot;Comps_v1_2024-12-15&quot;并清晰标注日期</li>
+<li class=""><strong>协作审查</strong>：让他人检查你的公式</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="excel-格式检查清单可选根据用户偏好调整">Excel 格式检查清单（可选——根据用户偏好调整）<a href="#excel-格式检查清单可选根据用户偏好调整" class="hash-link" aria-label="Excel 格式检查清单（可选——根据用户偏好调整）的直接链接" title="Excel 格式检查清单（可选——根据用户偏好调整）的直接链接" translate="no">​</a></h3>
+<ul class="contains-task-list containsTaskList_mC6p">
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->字体设置为用户偏好的样式（默认：Times New Roman，数据 11pt，标题 12pt）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->节标题按用户模板格式化（默认：深蓝色 #17365D，白色粗体文字）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->列标题按用户模板格式化（默认：浅蓝/灰色 #D9E2F3，黑色粗体文字）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->统计行按用户模板格式化（默认：浅灰色 #F2F2F2）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->未应用边框（简洁、极简外观）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>列宽设置为统一/均匀宽度</strong>（形成整洁、专业的外观）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>行高设置为一致高度</strong>（数据行通常为 20-25pt）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->数字格式具有适当的小数精度和千位分隔符</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>所有指标居中对齐</strong>，外观整洁统一</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>公司数据和统计行之间有一个空行用于分隔</strong></li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>没有单独的&quot;行业统计&quot;或&quot;估值统计&quot;标题行</strong></li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>每个硬编码输入单元格都有注释，包含：(1) 精确数据来源，或 (2) 假设说明</strong></li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>在适用的单元格中添加了超链接</strong>（SEC EDGAR 文件、数据提供商页面、报告）</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-8-节示例模板布局">第 8 节：示例模板布局<a href="#第-8-节示例模板布局" class="hash-link" aria-label="第 8 节：示例模板布局的直接链接" title="第 8 节：示例模板布局的直接链接" translate="no">​</a></h2>
+<p><strong>简单版本（从这里开始）：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">┌─────────────────────────────────────────────────────────────┐</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 科技行业 - 可比公司分析                                      │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ Microsoft • Alphabet • Amazon                               │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 截至 2024 年第四季度 | 所有数据单位为百万美元               │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├─────────────────────────────────────────────────────────────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 运营指标                                                     │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├──────────┬─────────┬─────────┬──────────┬──────────────────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 公司     │ 收入    │ 增长    │ 毛利率   │ EBITDA  │ EBITDA │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│          │ (LTM)   │ (同比)  │          │ (LTM)   │ 利润率 │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├──────────┼─────────┼─────────┼──────────┼─────────┼────────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ MSFT     │ 261,400 │ 12.3%   │ 68.7%    │ 205,100 │ 78.4%  │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ GOOGL    │ 349,800 │ 11.8%   │ 57.9%    │ 239,300 │ 68.4%  │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ AMZN     │ 638,100 │ 10.5%   │ 47.3%    │ 152,600 │ 23.9%  │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│          │         │         │          │         │        │ [空行]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 中位数   │ =MEDIAN │ =MEDIAN │ =MEDIAN  │ =MEDIAN │=MEDIAN │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 第 75%   │ =QUART  │ =QUART  │ =QUART   │ =QUART  │=QUART  │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 第 25%   │ =QUART  │ =QUART  │ =QUART   │ =QUART  │=QUART  │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├─────────────────────────────────────────────────────────────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 估值倍数                                                     │</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├──────────┬──────────┬──────────┬──────────┬────────────────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 公司     │ 市值     │ 企业价值 │ EV/收入  │ EV/EBITDA │ 市盈率│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">├──────────┼──────────┼──────────┼──────────┼───────────┼────┤</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ MSFT     │3,550,000 │3,530,000 │ 13.5x    │ 17.2x     │36.0│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ GOOGL    │2,030,000 │1,960,000 │  5.6x    │  8.2x     │24.5│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ AMZN     │2,226,000 │2,320,000 │  3.6x    │ 15.2x     │58.3│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│          │          │          │          │           │    │ [空行]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 中位数   │ =MEDIAN  │ =MEDIAN  │ =MEDIAN  │ =MEDIAN   │=MED│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 第 75%   │ =QUART   │ =QUART   │ =QUART   │ =QUART    │=QRT│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">│ 第 25%   │ =QUART   │ =QUART   │ =QUART   │ =QUART    │=QRT│</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">└──────────┴──────────┴──────────┴──────────┴───────────┴────┘</span><br></span></code></pre></div></div>
+<p><strong>仅在需要时增加复杂度：</strong></p>
+<ul>
+<li class="">如果季节性重要，同时包含季度和 LTM 数据</li>
+<li class="">如果现金生成是核心故事，添加 FCF 指标</li>
+<li class="">包含行业特定指标（SaaS 的 Rule of 40 等）</li>
+<li class="">如果公司数量超过 5 家，添加更多统计行</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-9-节行业特定补充可选">第 9 节：行业特定补充（可选）<a href="#第-9-节行业特定补充可选" class="hash-link" aria-label="第 9 节：行业特定补充（可选）的直接链接" title="第 9 节：行业特定补充（可选）的直接链接" translate="no">​</a></h2>
+<p>仅在对分析至关重要时添加这些内容。大多数可比分析仅使用核心指标即可。</p>
+<p><strong>软件/SaaS：</strong>
+如相关则添加：ARR、净美元留存率、Rule of 40</p>
+<p><strong>金融服务：</strong>
+如相关则添加：ROE、净息差、效率比率</p>
+<p><strong>电商：</strong>
+如相关则添加：GMV、佣金率、活跃买家数</p>
+<p><strong>医疗健康：</strong>
+如相关则添加：研发/收入、管线价值、专利时间线</p>
+<p><strong>制造业：</strong>
+如相关则添加：资产周转率、库存周转率、积压订单</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-10-节红旗与警示信号">第 10 节：红旗与警示信号<a href="#第-10-节红旗与警示信号" class="hash-link" aria-label="第 10 节：红旗与警示信号的直接链接" title="第 10 节：红旗与警示信号的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="数据质量问题">数据质量问题<a href="#数据质量问题" class="hash-link" aria-label="数据质量问题的直接链接" title="数据质量问题的直接链接" translate="no">​</a></h3>
+<p>🚩 时间期间不一致（混用季度和年度数据）
+🚩 数据缺失且无说明
+🚩 数据来源之间存在显著差异（&gt;10% 偏差）</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="估值红旗">估值红旗<a href="#估值红旗" class="hash-link" aria-label="估值红旗的直接链接" title="估值红旗的直接链接" translate="no">​</a></h3>
+<p>🚩 EBITDA 为负的公司使用 EBITDA 倍数估值（改用收入倍数）
+🚩 市盈率 &gt;100x 且无超高增长故事支撑
+🚩 利润率对该行业不合理</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="可比性问题">可比性问题<a href="#可比性问题" class="hash-link" aria-label="可比性问题的直接链接" title="可比性问题的直接链接" translate="no">​</a></h3>
+<p>🚩 不同财年结束日期（导致时间问题）
+🚩 混用纯粹业务公司和综合企业集团
+🚩 商业模式存在实质性差异却被标记为&quot;可比公司&quot;</p>
+<p><strong>有疑问时，排除该公司。</strong> 3 家完美的可比公司胜过 6 家存疑的公司。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-11-节公式参考指南">第 11 节：公式参考指南<a href="#第-11-节公式参考指南" class="hash-link" aria-label="第 11 节：公式参考指南的直接链接" title="第 11 节：公式参考指南的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="基本-excel-公式">基本 Excel 公式<a href="#基本-excel-公式" class="hash-link" aria-label="基本 Excel 公式的直接链接" title="基本 Excel 公式的直接链接" translate="no">​</a></h3>
+<div class="language-excel codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-excel codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">// 统计函数</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=AVERAGE(range)          // 简单均值</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=MEDIAN(range)           // 中间值</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=QUARTILE(range, 1)      // 第 25 百分位</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=QUARTILE(range, 3)      // 第 75 百分位</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=MAX(range)              // 最大值</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=MIN(range)              // 最小值</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=STDEV.P(range)          // 标准差</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// 财务计算</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=B7/C7                   // 简单比率（利润率）</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=SUM(B7:B9)/3            // 多家公司的平均值</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=IF(B7&gt;0, C7/B7, &quot;N/A&quot;)  // 条件计算</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=IFERROR(C7/D7, 0)       // 处理除以零</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// 跨表引用</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=&#x27;Sheet1&#x27;!B7             // 引用另一个工作表</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=VLOOKUP(A7, Table1, 2)  // 从数据表查找</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=INDEX(MATCH())          // 高级查找</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// 格式化</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=TEXT(B7, &quot;0.0%&quot;)        // 格式化为百分比</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">=TEXT(C7, &quot;#,##0&quot;)       // 千位分隔符</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="常用比率公式">常用比率公式<a href="#常用比率公式" class="hash-link" aria-label="常用比率公式的直接链接" title="常用比率公式的直接链接" translate="no">​</a></h3>
+<div class="language-excel codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-excel codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">毛利率 = 毛利润 / 收入</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBITDA 利润率 = EBITDA / 收入</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF 利润率 = 自由现金流 / 收入</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF 转化率 = FCF / 经营性现金流</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">ROE = 净利润 / 股东权益</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">ROA = 净利润 / 总资产</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">资产周转率 = 收入 / 总资产</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">债务/权益比 = 总债务 / 股东权益</span><br></span></code></pre></div></div>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="关键原则总结">关键原则总结<a href="#关键原则总结" class="hash-link" aria-label="关键原则总结的直接链接" title="关键原则总结的直接链接" translate="no">​</a></h2>
+<ol>
+<li class=""><strong>结构驱动洞察</strong> - 正确的标题迫使正确的思考</li>
+<li class=""><strong>少即是多</strong> - 5-10 个重要指标胜过 20 个无关紧要的指标</li>
+<li class=""><strong>为你的问题选择指标</strong> - 估值分析 ≠ 效率分析</li>
+<li class=""><strong>统计揭示规律</strong> - 中位数/四分位数比平均值揭示更多</li>
+<li class=""><strong>透明胜于复杂</strong> - 每个人都能理解的简单公式</li>
+<li class=""><strong>可比性为王</strong> - 宁可排除也不要强行纳入不合适的可比公司</li>
+<li class=""><strong>记录你的选择</strong> - 在注释部分解释选择了哪些指标及原因</li>
+</ol>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="输出检查清单">输出检查清单<a href="#输出检查清单" class="hash-link" aria-label="输出检查清单的直接链接" title="输出检查清单的直接链接" translate="no">​</a></h2>
+<p>交付可比分析前，验证：</p>
+<ul class="contains-task-list containsTaskList_mC6p">
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->所有公司真正可比</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->数据来自一致的时间期间</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->单位清晰标注（百万/十亿）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->公式引用单元格，而非硬编码值</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>所有硬编码输入单元格都有注释，包含：(1) 精确数据来源及引用，或 (2) 清晰的假设说明</strong></li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <strong>在相关位置添加了超链接</strong>（SEC EDGAR 文件、Bloomberg 页面、研究报告）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->统计数据至少包含 5 个指标（最大值、第 75 百分位、中位数、第 25 百分位、最小值）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->注释部分记录了来源和方法论</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->视觉格式遵循约定（蓝色 = 输入，黑色 = 公式）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->合理性检查通过（利润率合理，倍数合理）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->日期戳为当前日期（&quot;截至 [日期]&quot;）</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <!-- -->公式审计显示无错误（#DIV/0!、#REF!、#N/A）</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="持续改进">持续改进<a href="#持续改进" class="hash-link" aria-label="持续改进的直接链接" title="持续改进的直接链接" translate="no">​</a></h2>
+<p>完成可比分析后，思考：</p>
+<ol>
+<li class="">统计数据是否揭示了意外洞察？</li>
+<li class="">是否存在限制分析的数据缺口？</li>
+<li class="">利益相关者是否询问了你未包含的指标？</li>
+<li class="">实际花费时间与应花费时间相比如何？</li>
+<li class="">下次如何让分析更有用？</li>
+</ol>
+<p>最好的可比分析随每次迭代而进化。保存模板，从反馈中学习，并根据决策者实际使用的内容完善结构。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="数据来源mcp-优先网络作为备选">数据来源——MCP 优先，网络作为备选<a href="#数据来源mcp-优先网络作为备选" class="hash-link" aria-label="数据来源——MCP 优先，网络作为备选的直接链接" title="数据来源——MCP 优先，网络作为备选的直接链接" translate="no">​</a></h2>
+<p>以下许多段落提到&quot;使用 S&amp;P Kensho MCP / Daloopa MCP / FactSet MCP&quot;。这些是原始 Cowork 插件背景下的商业金融数据 MCP。在 Hermes 中：</p>
+<ul>
+<li class=""><strong>如果你配置了任何结构化金融数据 MCP</strong>（Hermes 支持 MCP——参见 <code>native-mcp</code> skill），优先使用它获取时点可比数据、先例交易和文件。</li>
+<li class=""><strong>否则</strong>，回退到：<!-- -->
+<ul>
+<li class="">针对 SEC EDGAR（<code>https://www.sec.gov/cgi-bin/browse-edgar</code>）使用 <code>web_search</code> / <code>web_extract</code> 获取美国文件</li>
+<li class="">公司投资者关系页面获取新闻稿、财报演示文稿</li>
+<li class="">使用 <code>browser_navigate</code> 访问交互式数据门户</li>
+<li class="">用户提供的数据（当上下文中没有时，明确询问）</li>
+</ul>
+</li>
+<li class=""><strong>绝不捏造数据</strong>。如果某个倍数、先例或文件数字无法溯源，将该单元格标记为 <code>[UNSOURCED]</code> 并向用户说明。</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="归属">归属<a href="#归属" class="hash-link" aria-label="归属的直接链接" title="归属的直接链接" translate="no">​</a></h2>
+<p>此 skill 改编自 Anthropic 的 Claude 金融服务插件套件（Apache-2.0）。Office-JS / Cowork 实时 Excel 路径已移除；此版本通过 <code>excel-author</code> skill 的约定面向无界面 openpyxl。原始来源：<a href="https://github.com/anthropics/financial-services" target="_blank" rel="noopener noreferrer" class="">https://github.com/anthropics/financial-services</a></p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/NousResearch/hermes-agent/edit/main/website/docs/user-guide/skills/optional/finance/finance-comps-analysis.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑此页</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">三表模型</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">Dcf Model</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#skill-元数据" class="table-of-contents__link toc-highlight">Skill 元数据</a></li><li><a href="#参考完整-skillmd" class="table-of-contents__link toc-highlight">参考：完整 SKILL.md</a></li><li><a href="#环境" class="table-of-contents__link toc-highlight">环境</a></li><li><a href="#️-关键数据来源优先级请先阅读" class="table-of-contents__link toc-highlight">⚠️ 关键：数据来源优先级（请先阅读）</a></li><li><a href="#概述" class="table-of-contents__link toc-highlight">概述</a></li><li><a href="#核心理念" class="table-of-contents__link toc-highlight">核心理念</a></li><li><a href="#️-关键公式优先于硬编码--逐步验证" class="table-of-contents__link toc-highlight">⚠️ 关键：公式优先于硬编码 + 逐步验证</a></li><li><a href="#第-1-节文档结构与设置" class="table-of-contents__link toc-highlight">第 1 节：文档结构与设置</a><ul><li><a href="#标题块第-1-3-行" class="table-of-contents__link toc-highlight">标题块（第 1-3 行）</a></li><li><a href="#视觉约定标准可选用户偏好和上传的模板始终优先" class="table-of-contents__link toc-highlight">视觉约定标准（可选——用户偏好和上传的模板始终优先）</a></li></ul></li><li><a href="#第-2-节运营统计与财务指标" class="table-of-contents__link toc-highlight">第 2 节：运营统计与财务指标</a><ul><li><a href="#核心列从这些开始" class="table-of-contents__link toc-highlight">核心列（从这些开始）</a></li><li><a href="#可选补充根据行业目的选择" class="table-of-contents__link toc-highlight">可选补充（根据行业/目的选择）</a></li><li><a href="#公式示例以第-7-行为例" class="table-of-contents__link toc-highlight">公式示例（以第 7 行为例）</a></li><li><a href="#统计块公司数据之后" class="table-of-contents__link toc-highlight">统计块（公司数据之后）</a></li></ul></li><li><a href="#第-3-节估值倍数与投资指标" class="table-of-contents__link toc-highlight">第 3 节：估值倍数与投资指标</a><ul><li><a href="#核心估值列从这些开始" class="table-of-contents__link toc-highlight">核心估值列（从这些开始）</a></li><li><a href="#可选估值指标根据情况选择" class="table-of-contents__link toc-highlight">可选估值指标（根据情况选择）</a></li><li><a href="#公式示例" class="table-of-contents__link toc-highlight">公式示例</a></li><li><a href="#交叉引用规则" class="table-of-contents__link toc-highlight">交叉引用规则</a></li><li><a href="#统计块" class="table-of-contents__link toc-highlight">统计块</a></li></ul></li><li><a href="#第-4-节注释与方法论文档" class="table-of-contents__link toc-highlight">第 4 节：注释与方法论文档</a><ul><li><a href="#必要组成部分" class="table-of-contents__link toc-highlight">必要组成部分</a></li></ul></li><li><a href="#第-5-节选择正确的指标决策框架" class="table-of-contents__link toc-highlight">第 5 节：选择正确的指标（决策框架）</a><ul><li><a href="#从我要回答什么问题开始" class="table-of-contents__link toc-highlight">从&quot;我要回答什么问题？&quot;开始</a></li><li><a href="#行业特定指标选择" class="table-of-contents__link toc-highlight">行业特定指标选择</a></li><li><a href="#5-10-法则" class="table-of-contents__link toc-highlight">&quot;5-10 法则&quot;</a></li></ul></li><li><a href="#第-6-节最佳实践与质量检查" class="table-of-contents__link toc-highlight">第 6 节：最佳实践与质量检查</a><ul><li><a href="#开始之前" class="table-of-contents__link toc-highlight">开始之前</a></li><li><a href="#构建过程中" class="table-of-contents__link toc-highlight">构建过程中</a></li><li><a href="#合理性检查" class="table-of-contents__link toc-highlight">合理性检查</a></li><li><a href="#常见错误" class="table-of-contents__link toc-highlight">常见错误</a></li></ul></li><li><a href="#第-6-节高级功能" class="table-of-contents__link toc-highlight">第 6 节：高级功能</a><ul><li><a href="#动态标题" class="table-of-contents__link toc-highlight">动态标题</a></li><li><a href="#四分位数分析的优势" class="table-of-contents__link toc-highlight">四分位数分析的优势</a></li><li><a href="#行业特定修改" class="table-of-contents__link toc-highlight">行业特定修改</a></li></ul></li><li><a href="#第-7-节工作流程与实用技巧" class="table-of-contents__link toc-highlight">第 7 节：工作流程与实用技巧</a><ul><li><a href="#分步流程" class="table-of-contents__link toc-highlight">分步流程</a></li><li><a href="#专业技巧" class="table-of-contents__link toc-highlight">专业技巧</a></li><li><a href="#excel-格式检查清单可选根据用户偏好调整" class="table-of-contents__link toc-highlight">Excel 格式检查清单（可选——根据用户偏好调整）</a></li></ul></li><li><a href="#第-8-节示例模板布局" class="table-of-contents__link toc-highlight">第 8 节：示例模板布局</a></li><li><a href="#第-9-节行业特定补充可选" class="table-of-contents__link toc-highlight">第 9 节：行业特定补充（可选）</a></li><li><a href="#第-10-节红旗与警示信号" class="table-of-contents__link toc-highlight">第 10 节：红旗与警示信号</a><ul><li><a href="#数据质量问题" class="table-of-contents__link toc-highlight">数据质量问题</a></li><li><a href="#估值红旗" class="table-of-contents__link toc-highlight">估值红旗</a></li><li><a href="#可比性问题" class="table-of-contents__link toc-highlight">可比性问题</a></li></ul></li><li><a href="#第-11-节公式参考指南" class="table-of-contents__link toc-highlight">第 11 节：公式参考指南</a><ul><li><a href="#基本-excel-公式" class="table-of-contents__link toc-highlight">基本 Excel 公式</a></li><li><a href="#常用比率公式" class="table-of-contents__link toc-highlight">常用比率公式</a></li></ul></li><li><a href="#关键原则总结" class="table-of-contents__link toc-highlight">关键原则总结</a></li><li><a href="#输出检查清单" class="table-of-contents__link toc-highlight">输出检查清单</a></li><li><a href="#持续改进" class="table-of-contents__link toc-highlight">持续改进</a></li><li><a href="#数据来源mcp-优先网络作为备选" class="table-of-contents__link toc-highlight">数据来源——MCP 优先，网络作为备选</a></li><li><a href="#归属" class="table-of-contents__link toc-highlight">归属</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/getting-started/quickstart">Getting Started</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/user-guide/cli">User Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/developer-guide/architecture">Developer Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/reference/cli-commands">Reference</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent/discussions" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub Discussions<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://agentskills.io" target="_blank" rel="noopener noreferrer" class="footer__link-item">Skills Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://nousresearch.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Nous Research<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Built by <a href="https://nousresearch.com">Nous Research</a> · MIT License · 2026</div></div></div></footer></div>
+</body>
+</html>

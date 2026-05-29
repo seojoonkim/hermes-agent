@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-user-guide/skills/optional/finance/finance-dcf-model" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">Dcf Model | Hermes Agent</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://seojoonkim.github.io/hermes-agent/docs/img/hermes-agent-banner.png"><meta data-rh="true" name="twitter:image" content="https://seojoonkim.github.io/hermes-agent/docs/img/hermes-agent-banner.png"><meta data-rh="true" property="og:url" content="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Dcf Model | Hermes Agent"><meta data-rh="true" name="description" content="Build institutional-quality DCF valuation models in Excel — revenue projections, FCF build, WACC, terminal value, Bear/Base/Bull scenarios, 5x5 sensitivity t..."><meta data-rh="true" property="og:description" content="Build institutional-quality DCF valuation models in Excel — revenue projections, FCF build, WACC, terminal value, Bear/Base/Bull scenarios, 5x5 sensitivity t..."><link data-rh="true" rel="icon" href="/hermes-agent/docs/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model" hreflang="en"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Dcf Model","item":"https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model"}]}</script><link rel="stylesheet" href="/hermes-agent/docs/assets/css/styles.68258a75.css">
+<script src="/hermes-agent/docs/assets/js/runtime~main.4d90e967.js" defer="defer"></script>
+<script src="/hermes-agent/docs/assets/js/main.b3762a77.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/hermes-agent/docs/img/logo.png"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/hermes-agent/docs/"><div class="navbar__logo"><img src="/hermes-agent/docs/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/hermes-agent/docs/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Hermes Agent</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/hermes-agent/docs/user-stories">Docs</a><a class="navbar__item navbar__link" href="/hermes-agent/docs/skills">Skills</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="iconLanguage_nlXk"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"></path></svg>English</a><ul class="dropdown__menu"><li><a href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model" target="_self" rel="noopener noreferrer" class="dropdown__link dropdown__link--active" lang="en">English</a></li><li><a href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="zh-Hans">简体中文</a></li></ul></div><a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Home<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="Search" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/hermes-agent/docs/user-stories"><span title="User Stories &amp; Use Cases" class="linkLabel_WmDU">User Stories &amp; Use Cases</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/getting-started/quickstart"><span title="Getting Started" class="categoryLinkLabel_W154">Getting Started</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/user-guide/cli"><span title="Using Hermes" class="categoryLinkLabel_W154">Using Hermes</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/hermes-agent/docs/user-guide/features/overview"><span title="Features" class="categoryLinkLabel_W154">Features</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/features/overview"><span title="Overview" class="linkLabel_WmDU">Overview</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/features/tool-gateway"><span title="Tool Gateway" class="linkLabel_WmDU">Tool Gateway</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/tools"><span title="Core" class="categoryLinkLabel_W154">Core</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/cron"><span title="Automation" class="categoryLinkLabel_W154">Automation</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/voice-mode"><span title="Media &amp; Web" class="categoryLinkLabel_W154">Media &amp; Web</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/web-dashboard"><span title="Management" class="categoryLinkLabel_W154">Management</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/reference/skills-catalog"><span title="Skills" class="categoryLinkLabel_W154">Skills</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/reference/skills-catalog"><span title="Bundled Skills Catalog" class="linkLabel_WmDU">Bundled Skills Catalog</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/reference/optional-skills-catalog"><span title="Optional Skills Catalog" class="linkLabel_WmDU">Optional Skills Catalog</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/apple/apple-apple-notes"><span title="Bundled" class="categoryLinkLabel_W154">Bundled</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="Optional" class="categoryLinkLabel_W154">Optional</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="autonomous-ai-agents" class="categoryLinkLabel_W154">autonomous-ai-agents</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/blockchain/blockchain-evm"><span title="blockchain" class="categoryLinkLabel_W154">blockchain</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/communication/communication-one-three-one-rule"><span title="communication" class="categoryLinkLabel_W154">communication</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/creative/creative-blender-mcp"><span title="creative" class="categoryLinkLabel_W154">creative</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/devops/devops-cli"><span title="devops" class="categoryLinkLabel_W154">devops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/dogfood/dogfood-adversarial-ux-test"><span title="dogfood" class="categoryLinkLabel_W154">dogfood</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/email/email-agentmail"><span title="email" class="categoryLinkLabel_W154">email</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-3-statement-model"><span title="finance" class="categoryLinkLabel_W154">finance</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-3-statement-model"><span title="3 Statement Model" class="linkLabel_WmDU">3 Statement Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis"><span title="Comps Analysis" class="linkLabel_WmDU">Comps Analysis</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model"><span title="Dcf Model" class="linkLabel_WmDU">Dcf Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-excel-author"><span title="Excel Author" class="linkLabel_WmDU">Excel Author</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-lbo-model"><span title="Lbo Model" class="linkLabel_WmDU">Lbo Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-merger-model"><span title="Merger Model" class="linkLabel_WmDU">Merger Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-pptx-author"><span title="Pptx Author" class="linkLabel_WmDU">Pptx Author</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-stocks"><span title="Stocks" class="linkLabel_WmDU">Stocks</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/health/health-fitness-nutrition"><span title="health" class="categoryLinkLabel_W154">health</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/mcp/mcp-fastmcp"><span title="mcp" class="categoryLinkLabel_W154">mcp</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/migration/migration-openclaw-migration"><span title="migration" class="categoryLinkLabel_W154">migration</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/mlops/mlops-accelerate"><span title="mlops" class="categoryLinkLabel_W154">mlops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/productivity/productivity-canvas"><span title="productivity" class="categoryLinkLabel_W154">productivity</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/research/research-bioinformatics"><span title="research" class="categoryLinkLabel_W154">research</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/security/security-1password"><span title="security" class="categoryLinkLabel_W154">security</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/software-development/software-development-code-wiki"><span title="software-development" class="categoryLinkLabel_W154">software-development</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/web-development/web-development-page-agent"><span title="web-development" class="categoryLinkLabel_W154">web-development</span></a></div></li></ul></li></ul></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/user-guide/messaging/"><span title="Messaging Platforms" class="categoryLinkLabel_W154">Messaging Platforms</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/integrations/"><span title="Integrations" class="categoryLinkLabel_W154">Integrations</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/guides/run-hermes-with-nous-portal"><span title="Guides &amp; Tutorials" class="categoryLinkLabel_W154">Guides &amp; Tutorials</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/developer-guide/contributing"><span title="Developer Guide" class="categoryLinkLabel_W154">Developer Guide</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/reference/cli-commands"><span title="Reference" class="categoryLinkLabel_W154">Reference</span></a></div></li></ul></nav><button type="button" title="Collapse sidebar" aria-label="Collapse sidebar" class="button button--secondary button--outline collapseSidebarButton_PEFL"><svg width="20" height="20" aria-hidden="true" class="collapseSidebarButtonIcon_kv0_"><g fill="#7a7a7a"><path d="M9.992 10.023c0 .2-.062.399-.172.547l-4.996 7.492a.982.982 0 01-.828.454H1c-.55 0-1-.453-1-1 0-.2.059-.403.168-.551l4.629-6.942L.168 3.078A.939.939 0 010 2.528c0-.548.45-.997 1-.997h2.996c.352 0 .649.18.828.45L9.82 9.472c.11.148.172.347.172.55zm0 0"></path><path d="M19.98 10.023c0 .2-.058.399-.168.547l-4.996 7.492a.987.987 0 01-.828.454h-3c-.547 0-.996-.453-.996-1 0-.2.059-.403.168-.551l4.625-6.942-4.625-6.945a.939.939 0 01-.168-.55 1 1 0 01.996-.997h3c.348 0 .649.18.828.45l4.996 7.492c.11.148.168.347.168.55zm0 0"></path></g></svg></button></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/hermes-agent/docs/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Features</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Skills</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Optional</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">finance</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Dcf Model</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown">
+<header><h1>Dcf Model</h1></header>
+<p>Build institutional-quality DCF valuation models in Excel — revenue projections, FCF build, WACC, terminal value, Bear/Base/Bull scenarios, 5x5 sensitivity tables. Pairs with excel-author. Use for intrinsic-value equity analysis.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="skill-metadata">Skill metadata<a href="#skill-metadata" class="hash-link" aria-label="Direct link to Skill metadata" title="Direct link to Skill metadata" translate="no">​</a></h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Source</td><td>Optional — install with <code>hermes skills install official/finance/dcf-model</code></td></tr><tr><td>Path</td><td><code>optional-skills/finance/dcf-model</code></td></tr><tr><td>Version</td><td><code>1.0.0</code></td></tr><tr><td>Author</td><td>Anthropic (adapted by Nous Research)</td></tr><tr><td>License</td><td>Apache-2.0</td></tr><tr><td>Platforms</td><td>linux, macos, windows</td></tr><tr><td>Tags</td><td><code>finance</code>, <code>valuation</code>, <code>dcf</code>, <code>excel</code>, <code>openpyxl</code>, <code>modeling</code>, <code>investment-banking</code></td></tr><tr><td>Related skills</td><td><a class="" href="/hermes-agent/docs/docs/user-guide/skills/optional/finance/finance-excel-author"><code>excel-author</code></a>, <a class="" href="/hermes-agent/docs/docs/user-guide/skills/optional/finance/finance-pptx-author"><code>pptx-author</code></a>, <a class="" href="/hermes-agent/docs/docs/user-guide/skills/optional/finance/finance-comps-analysis"><code>comps-analysis</code></a>, <a class="" href="/hermes-agent/docs/docs/user-guide/skills/optional/finance/finance-lbo-model"><code>lbo-model</code></a>, <a class="" href="/hermes-agent/docs/docs/user-guide/skills/optional/finance/finance-3-statement-model"><code>3-statement-model</code></a></td></tr></tbody></table>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="reference-full-skillmd">Reference: full SKILL.md<a href="#reference-full-skillmd" class="hash-link" aria-label="Direct link to Reference: full SKILL.md" title="Direct link to Reference: full SKILL.md" translate="no">​</a></h2>
+<div class="theme-admonition theme-admonition-info admonition_xJq3 alert alert--info"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg></span>info</div><div class="admonitionContent_BuS1"><p>The following is the complete skill definition that Hermes loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.</p></div></div>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="environment">Environment<a href="#environment" class="hash-link" aria-label="Direct link to Environment" title="Direct link to Environment" translate="no">​</a></h2>
+<p>This skill assumes <strong>headless openpyxl</strong> — you are producing an .xlsx file on disk.
+Follow the <code>excel-author</code> skill&#x27;s conventions for cell coloring, formulas, named ranges, and sensitivity tables.
+Recalculate before delivery: <code>python /path/to/excel-author/scripts/recalc.py ./out/model.xlsx</code>.</p>
+<h1>DCF Model Builder</h1>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="overview">Overview<a href="#overview" class="hash-link" aria-label="Direct link to Overview" title="Direct link to Overview" translate="no">​</a></h2>
+<p>This skill creates institutional-quality DCF models for equity valuation following investment banking standards. Each analysis produces a detailed Excel model (with sensitivity analysis included at the bottom of the DCF sheet).</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="tools">Tools<a href="#tools" class="hash-link" aria-label="Direct link to Tools" title="Direct link to Tools" translate="no">​</a></h2>
+<ul>
+<li class="">Default to using all of the information provided by the user and MCP servers available for data sourcing.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="critical-constraints---read-these-first">Critical Constraints - Read These First<a href="#critical-constraints---read-these-first" class="hash-link" aria-label="Direct link to Critical Constraints - Read These First" title="Direct link to Critical Constraints - Read These First" translate="no">​</a></h2>
+<p>These constraints apply throughout all DCF model building. Review before starting:</p>
+<p><strong>Formulas Over Hardcodes (NON-NEGOTIABLE):</strong></p>
+<ul>
+<li class="">Every projection, margin, discount factor, PV, and sensitivity cell MUST be a live Excel formula — never a value computed in Python and written as a number</li>
+<li class="">When using openpyxl: <code>ws[&quot;D20&quot;] = &quot;=D19*(1+$B$8)&quot;</code> is correct; <code>ws[&quot;D20&quot;] = calculated_revenue</code> is WRONG</li>
+<li class="">The only hardcoded numbers permitted are: (1) raw historical inputs, (2) assumption drivers (growth rates, WACC inputs, terminal g), (3) current market data (share price, debt balance)</li>
+<li class="">If you catch yourself computing something in Python and writing the result — STOP. The model must flex when the user changes an assumption.</li>
+</ul>
+<p><strong>Verify Step-by-Step With the User (DO NOT build end-to-end):</strong></p>
+<ul>
+<li class="">After data retrieval → show the user the raw inputs block (revenue, margins, shares, net debt) and confirm before projecting</li>
+<li class="">After revenue projections → show the projected top line and growth rates, confirm before building margin build</li>
+<li class="">After FCF build → show the full FCF schedule, confirm logic before computing WACC</li>
+<li class="">After WACC → show the calculation and inputs, confirm before discounting</li>
+<li class="">After terminal value + PV → show the equity bridge (EV → equity value → per share), confirm before sensitivity tables</li>
+<li class="">Catch errors at each stage — a wrong margin assumption discovered after sensitivity tables are built means rebuilding everything downstream</li>
+</ul>
+<p><strong>Sensitivity Tables:</strong></p>
+<ul>
+<li class=""><strong>Use an ODD number of rows and columns</strong> (standard: 5×5, sometimes 7×7) — this guarantees a true center cell</li>
+<li class=""><strong>Center cell = base case.</strong> Build the axis values so the middle row header and middle column header exactly equal the model&#x27;s actual assumptions (e.g., if base WACC = 9.0%, the middle row is 9.0%; if terminal g = 3.0%, the middle column is 3.0%). The center cell&#x27;s output must therefore equal the model&#x27;s actual implied share price — this is the sanity check that the table is built correctly.</li>
+<li class=""><strong>Highlight the center cell</strong> with the medium-blue fill (<code>#BDD7EE</code>) + bold font so it&#x27;s immediately visible which cell is the base case.</li>
+<li class="">Populate ALL cells (typically 3 tables × 25 cells = 75) with full DCF recalculation formulas</li>
+<li class="">Use openpyxl loops to write formulas programmatically</li>
+<li class="">NO placeholder text, NO linear approximations, NO manual steps required</li>
+<li class="">Each cell must recalculate full DCF for that assumption combination</li>
+</ul>
+<p><strong>Cell Comments:</strong></p>
+<ul>
+<li class="">Add cell comments AS each hardcoded value is created</li>
+<li class="">Format: &quot;Source: [System/Document], [Date], [Reference], [URL if applicable]&quot;</li>
+<li class="">Every blue input must have a comment before moving to next section</li>
+<li class="">Do not defer to end or write &quot;TODO: add source&quot;</li>
+</ul>
+<p><strong>Model Layout Planning:</strong></p>
+<ul>
+<li class="">Define ALL section row positions BEFORE writing any formulas</li>
+<li class="">Write ALL headers and labels first</li>
+<li class="">Write ALL section dividers and blank rows second</li>
+<li class="">THEN write formulas using the locked row positions</li>
+<li class="">Test formulas immediately after creation</li>
+</ul>
+<p><strong>Formula Recalculation:</strong></p>
+<ul>
+<li class="">Run <code>python recalc.py model.xlsx 30</code> before delivery</li>
+<li class="">Fix ALL errors until status is &quot;success&quot;</li>
+<li class="">Zero formula errors required (#REF!, #DIV/0!, #VALUE!, etc.)</li>
+</ul>
+<p><strong>Scenario Blocks:</strong></p>
+<ul>
+<li class="">Create separate blocks for Bear/Base/Bull cases</li>
+<li class="">Show assumptions horizontally across projection years within each block</li>
+<li class="">Use IF formulas: <code>=IF($B$6=1,[Bear cell],IF($B$6=2,[Base cell],[Bull cell]))</code></li>
+<li class="">Verify formulas reference correct scenario block cells</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="dcf-process-workflow">DCF Process Workflow<a href="#dcf-process-workflow" class="hash-link" aria-label="Direct link to DCF Process Workflow" title="Direct link to DCF Process Workflow" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-1-data-retrieval-and-validation">Step 1: Data Retrieval and Validation<a href="#step-1-data-retrieval-and-validation" class="hash-link" aria-label="Direct link to Step 1: Data Retrieval and Validation" title="Direct link to Step 1: Data Retrieval and Validation" translate="no">​</a></h3>
+<p>Fetch data from MCP servers, user provided data, and the web.</p>
+<p><strong>Data Sources Priority:</strong></p>
+<ol>
+<li class=""><strong>MCP Servers</strong> (if configured) - Structured financial data from providers like Daloopa</li>
+<li class=""><strong>User-Provided Data</strong> - Historical financials from their research</li>
+<li class=""><strong>Web Search/Fetch</strong> - Current prices, beta, debt and cash when needed</li>
+</ol>
+<p><strong>Validation Checklist:</strong></p>
+<ul>
+<li class="">Verify net debt vs net cash (critical for valuation)</li>
+<li class="">Confirm diluted shares outstanding (check for recent buybacks/issuances)</li>
+<li class="">Validate historical margins are consistent with business model</li>
+<li class="">Cross-check revenue growth rates with industry benchmarks</li>
+<li class="">Verify tax rate is reasonable (typically 21-28%)</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-2-historical-analysis-3-5-years">Step 2: Historical Analysis (3-5 years)<a href="#step-2-historical-analysis-3-5-years" class="hash-link" aria-label="Direct link to Step 2: Historical Analysis (3-5 years)" title="Direct link to Step 2: Historical Analysis (3-5 years)" translate="no">​</a></h3>
+<p>Analyze and document:</p>
+<ul>
+<li class=""><strong>Revenue growth trends</strong>: Calculate CAGR, identify drivers</li>
+<li class=""><strong>Margin progression</strong>: Track gross margin, EBIT margin, FCF margin</li>
+<li class=""><strong>Capital intensity</strong>: D&amp;A and CapEx as % of revenue</li>
+<li class=""><strong>Working capital efficiency</strong>: NWC changes as % of revenue growth</li>
+<li class=""><strong>Return metrics</strong>: ROIC, ROE trends</li>
+</ul>
+<p>Create summary tables showing:</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Historical Metrics (LTM):</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue: $X million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue growth: X% CAGR</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Gross margin: X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT margin: X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">D&amp;A % of revenue: X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">CapEx % of revenue: X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF margin: X%</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-3-build-revenue-projections">Step 3: Build Revenue Projections<a href="#step-3-build-revenue-projections" class="hash-link" aria-label="Direct link to Step 3: Build Revenue Projections" title="Direct link to Step 3: Build Revenue Projections" translate="no">​</a></h3>
+<p><strong>Methodology:</strong></p>
+<ol>
+<li class="">Start with latest actual revenue (LTM or most recent fiscal year)</li>
+<li class="">Apply growth rates for each projection year</li>
+<li class="">Show both dollar amounts AND calculated growth %</li>
+</ol>
+<p><strong>Growth Rate Framework:</strong></p>
+<ul>
+<li class="">Year 1-2: Higher growth reflecting near-term visibility</li>
+<li class="">Year 3-4: Gradual moderation toward industry average</li>
+<li class="">Year 5+: Approaching terminal growth rate</li>
+</ul>
+<p><strong>Formula structure:</strong></p>
+<ul>
+<li class="">Revenue(Year N) = Revenue(Year N-1) × (1 + Growth Rate)</li>
+<li class="">Growth %(Year N) = Revenue(Year N) / Revenue(Year N-1) - 1</li>
+</ul>
+<p><strong>Three-scenario approach:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Bear Case: Conservative growth (e.g., 8-12%)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Base Case: Most likely scenario (e.g., 12-16%)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Bull Case: Optimistic growth (e.g., 16-20%)</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-4-operating-expense-modeling">Step 4: Operating Expense Modeling<a href="#step-4-operating-expense-modeling" class="hash-link" aria-label="Direct link to Step 4: Operating Expense Modeling" title="Direct link to Step 4: Operating Expense Modeling" translate="no">​</a></h3>
+<p><strong>Fixed/Variable Cost Analysis:</strong></p>
+<p>Operating expenses should model realistic operating leverage:</p>
+<ul>
+<li class=""><strong>Sales &amp; Marketing</strong>: Typically 15-40% of revenue depending on business model</li>
+<li class=""><strong>Research &amp; Development</strong>: Typically 10-30% for technology companies</li>
+<li class=""><strong>General &amp; Administrative</strong>: Typically 8-15% of revenue, shows leverage as company scales</li>
+</ul>
+<p><strong>Key principles:</strong></p>
+<ul>
+<li class="">ALL percentages based on REVENUE, not gross profit</li>
+<li class="">Model operating leverage: % should decline as revenue scales</li>
+<li class="">Maintain separate line items for S&amp;M, R&amp;D, G&amp;A</li>
+<li class="">Calculate EBIT = Gross Profit - Total OpEx</li>
+</ul>
+<p><strong>Margin expansion framework:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current State → Target State (Year 5)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Gross Margin: X% → Y% (justify based on scale, efficiency)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin: X% → Y% (result of revenue growth + opex leverage)</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-5-free-cash-flow-calculation">Step 5: Free Cash Flow Calculation<a href="#step-5-free-cash-flow-calculation" class="hash-link" aria-label="Direct link to Step 5: Free Cash Flow Calculation" title="Direct link to Step 5: Free Cash Flow Calculation" translate="no">​</a></h3>
+<p><strong>Build FCF in proper sequence:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Taxes (EBIT × Tax Rate)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">= NOPAT (Net Operating Profit After Tax)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(+) D&amp;A (non-cash expense, % of revenue)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) CapEx (% of revenue, typically 4-8%)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Δ NWC (change in working capital)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">= Unlevered Free Cash Flow</span><br></span></code></pre></div></div>
+<p><strong>Working Capital Modeling:</strong></p>
+<ul>
+<li class="">Calculate as % of revenue change (delta revenue)</li>
+<li class="">Typical range: -2% to +2% of revenue change</li>
+<li class="">Negative number = source of cash (working capital release)</li>
+<li class="">Positive number = use of cash (working capital build)</li>
+</ul>
+<p><strong>Maintenance vs Growth CapEx:</strong></p>
+<ul>
+<li class="">Maintenance CapEx: Sustains current operations (~2-3% revenue)</li>
+<li class="">Growth CapEx: Supports expansion (additional 2-5% revenue)</li>
+<li class="">Total CapEx should align with company&#x27;s growth strategy</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-6-cost-of-capital-wacc-research">Step 6: Cost of Capital (WACC) Research<a href="#step-6-cost-of-capital-wacc-research" class="hash-link" aria-label="Direct link to Step 6: Cost of Capital (WACC) Research" title="Direct link to Step 6: Cost of Capital (WACC) Research" translate="no">​</a></h3>
+<p><strong>CAPM Methodology for Cost of Equity:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Cost of Equity = Risk-Free Rate + Beta × Equity Risk Premium</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Where:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Risk-Free Rate = Current 10-Year Treasury Yield</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Beta = 5-year monthly stock beta vs market index</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Equity Risk Premium = 5.0-6.0% (market standard)</span><br></span></code></pre></div></div>
+<p><strong>Cost of Debt Calculation:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">After-Tax Cost of Debt = Pre-Tax Cost of Debt × (1 - Tax Rate)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Determine Pre-Tax Cost of Debt from:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Credit rating (if available)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Current yield on company bonds</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Interest expense / Total Debt from financials</span><br></span></code></pre></div></div>
+<p><strong>Capital Structure Weights:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Market Value Equity = Current Stock Price × Shares Outstanding</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Net Debt = Total Debt - Cash &amp; Equivalents</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Enterprise Value = Market Cap + Net Debt</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity Weight = Market Cap / Enterprise Value</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Debt Weight = Net Debt / Enterprise Value</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC = (Cost of Equity × Equity Weight) + (After-Tax Cost of Debt × Debt Weight)</span><br></span></code></pre></div></div>
+<p><strong>Special Cases:</strong></p>
+<ul>
+<li class=""><strong>Net Cash Position</strong>: If Cash &gt; Debt, Net Debt is NEGATIVE<!-- -->
+<ul>
+<li class="">Debt Weight may be negative</li>
+<li class="">WACC calculation adjusts accordingly</li>
+</ul>
+</li>
+<li class=""><strong>No Debt</strong>: WACC = Cost of Equity</li>
+</ul>
+<p><strong>Typical WACC Ranges:</strong></p>
+<ul>
+<li class="">Large Cap, Stable: 7-9%</li>
+<li class="">Growth Companies: 9-12%</li>
+<li class="">High Growth/Risk: 12-15%</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-7-discount-rate-application-5-10-year-forecast">Step 7: Discount Rate Application (5-10 Year Forecast)<a href="#step-7-discount-rate-application-5-10-year-forecast" class="hash-link" aria-label="Direct link to Step 7: Discount Rate Application (5-10 Year Forecast)" title="Direct link to Step 7: Discount Rate Application (5-10 Year Forecast)" translate="no">​</a></h3>
+<p><strong>Mid-Year Convention:</strong></p>
+<ul>
+<li class="">Cash flows assumed to occur mid-year</li>
+<li class="">Discount Period: 0.5, 1.5, 2.5, 3.5, 4.5, etc.</li>
+<li class="">Discount Factor = 1 / (1 + WACC)^Period</li>
+</ul>
+<p><strong>Present Value Calculation:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">For each projection year:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV of FCF = Unlevered FCF × Discount Factor</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Example (Year 1):</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF = $1,000</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC = 10%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Period = 0.5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Discount Factor = 1 / (1.10)^0.5 = 0.9535</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV = $1,000 × 0.9535 = $954</span><br></span></code></pre></div></div>
+<p><strong>Projection Period Selection:</strong></p>
+<ul>
+<li class=""><strong>5 years</strong>: Standard for most analyses</li>
+<li class=""><strong>7-10 years</strong>: High growth companies with longer runway</li>
+<li class=""><strong>3 years</strong>: Mature, stable businesses</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-8-terminal-value-calculation">Step 8: Terminal Value Calculation<a href="#step-8-terminal-value-calculation" class="hash-link" aria-label="Direct link to Step 8: Terminal Value Calculation" title="Direct link to Step 8: Terminal Value Calculation" translate="no">​</a></h3>
+<p><strong>Perpetuity Growth Method (Preferred):</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal FCF = Final Year FCF × (1 + Terminal Growth Rate)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Value = Terminal FCF / (WACC - Terminal Growth Rate)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Critical Constraint: Terminal Growth &lt; WACC (otherwise infinite value)</span><br></span></code></pre></div></div>
+<p><strong>Terminal Growth Rate Selection:</strong></p>
+<ul>
+<li class="">Conservative: 2.0-2.5% (GDP growth rate)</li>
+<li class="">Moderate: 2.5-3.5%</li>
+<li class="">Aggressive: 3.5-5.0% (only for market leaders)</li>
+</ul>
+<p><strong>Do not exceed</strong>: Risk-free rate or long-term GDP growth</p>
+<p><strong>Exit Multiple Method (Alternative):</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Value = Final Year EBITDA × Exit Multiple</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Where Exit Multiple comes from:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Industry comparable trading multiples</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Precedent transaction multiples</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Typical range: 8-15x EBITDA</span><br></span></code></pre></div></div>
+<p><strong>Present Value of Terminal Value:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV of Terminal Value = Terminal Value / (1 + WACC)^Final Period</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Where Final Period accounts for timing:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">5-year model with mid-year convention: Period = 4.5</span><br></span></code></pre></div></div>
+<p><strong>Terminal Value Sanity Check:</strong></p>
+<ul>
+<li class="">Should represent 50-70% of Enterprise Value</li>
+<li class="">If &gt;75%, model may be over-reliant on terminal assumptions</li>
+<li class="">If &lt;40%, check if terminal assumptions are too conservative</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-9-enterprise-to-equity-value-bridge">Step 9: Enterprise to Equity Value Bridge<a href="#step-9-enterprise-to-equity-value-bridge" class="hash-link" aria-label="Direct link to Step 9: Enterprise to Equity Value Bridge" title="Direct link to Step 9: Enterprise to Equity Value Bridge" translate="no">​</a></h3>
+<p><strong>Valuation Summary Structure:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">(+) Sum of PV of Projected FCFs = $X million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(+) PV of Terminal Value = $Y million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">= Enterprise Value = $Z million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Net Debt [or + Net Cash if negative] = $A million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">= Equity Value = $B million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">÷ Diluted Shares Outstanding = C million shares</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">= Implied Price per Share = $XX.XX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current Stock Price = $YY.YY</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Implied Return = (Implied Price / Current Price) - 1 = XX%</span><br></span></code></pre></div></div>
+<p><strong>Critical Adjustments:</strong></p>
+<ul>
+<li class=""><strong>Net Debt = Total Debt - Cash &amp; Equivalents</strong>
+<ul>
+<li class="">If positive: Subtract from EV (reduces equity value)</li>
+<li class="">If negative (Net Cash): Add to EV (increases equity value)</li>
+</ul>
+</li>
+<li class=""><strong>Use Diluted Shares</strong>: Includes options, RSUs, convertible securities</li>
+<li class=""><strong>Other adjustments</strong> (if applicable):<!-- -->
+<ul>
+<li class="">Minority interests</li>
+<li class="">Pension liabilities</li>
+<li class="">Operating lease obligations</li>
+</ul>
+</li>
+</ul>
+<p><strong>Valuation Output Format:</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Valuation Component,Amount ($M)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV Explicit FCFs,X.X</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV Terminal Value,Y.Y</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Enterprise Value,Z.Z</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Net Debt,A.A</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity Value,B.B</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Shares Outstanding (M),C.C</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Implied Price per Share,$XX.XX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current Share Price,$YY.YY</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Implied Upside/(Downside),+XX%</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-10-sensitivity-analysis">Step 10: Sensitivity Analysis<a href="#step-10-sensitivity-analysis" class="hash-link" aria-label="Direct link to Step 10: Sensitivity Analysis" title="Direct link to Step 10: Sensitivity Analysis" translate="no">​</a></h3>
+<p>Build <strong>three sensitivity tables</strong> at the bottom of the DCF sheet showing how valuation changes with different assumptions:</p>
+<ol>
+<li class=""><strong>WACC vs Terminal Growth</strong> - Shows enterprise value sensitivity to discount rate and perpetuity growth</li>
+<li class=""><strong>Revenue Growth vs EBIT Margin</strong> - Shows impact of top-line growth and operating leverage</li>
+<li class=""><strong>Beta vs Risk-Free Rate</strong> - Shows sensitivity to cost of equity components</li>
+</ol>
+<p><strong>Implementation</strong>: These are simple 2D grids (NOT Excel&#x27;s &quot;Data Table&quot; feature) with formulas in each cell. Each cell must contain a full DCF recalculation for that specific assumption combination. See Critical Constraints section for detailed requirements on populating all 75 cells programmatically using openpyxl.</p>
+<p>&lt;correct_patterns&gt;</p>
+<p>This section contains all the CORRECT patterns to follow when building DCF models.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="scenario-block-selection-pattern---follow-this-approach">Scenario Block Selection Pattern - Follow This Approach<a href="#scenario-block-selection-pattern---follow-this-approach" class="hash-link" aria-label="Direct link to Scenario Block Selection Pattern - Follow This Approach" title="Direct link to Scenario Block Selection Pattern - Follow This Approach" translate="no">​</a></h3>
+<p><strong>Assumptions are organized in separate blocks for each scenario:</strong></p>
+<p><strong>CRITICAL STRUCTURE - Three rows per section header:</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">BEAR CASE ASSUMPTIONS (section header, merge cells across)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),12%,10%,9%,8%,7%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),45%,44%,43%,42%,41%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">BASE CASE ASSUMPTIONS (section header, merge cells across)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),16%,14%,12%,10%,9%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),48%,49%,50%,51%,52%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">BULL CASE ASSUMPTIONS (section header, merge cells across)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),20%,18%,15%,13%,11%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),50%,51%,52%,53%,54%</span><br></span></code></pre></div></div>
+<p><strong>Each scenario block MUST have a column header row</strong> showing the projection years (FY2025E, FY2026E, etc.) immediately below the section title. Without this, users cannot tell which assumption value corresponds to which year.</p>
+<p><strong>How to reference assumptions - Create a consolidation column:</strong></p>
+<ol>
+<li class="">Case selector cell (e.g., B6) contains 1=Bear, 2=Base, or 3=Bull</li>
+<li class="">Create a consolidation column with INDEX or OFFSET formulas to pull from the correct scenario block</li>
+<li class="">Projection formulas reference the consolidation column (clean cell references)</li>
+<li class="">Each scenario block contains full set of DCF assumptions across projection years</li>
+</ol>
+<p><strong>Recommended consolidation column pattern (using INDEX):</strong>
+<code>=INDEX(B10:D10, 1, $B$6)</code></p>
+<p><strong>NOT this - scattered IF statements throughout:</strong>
+<code>=IF($B$6=1,[Bear block cell],IF($B$6=2,[Base block cell],[Bull block cell]))</code></p>
+<p>The consolidation column approach centralizes logic and makes the model easier to audit.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="correct-revenue-projection-pattern">Correct Revenue Projection Pattern<a href="#correct-revenue-projection-pattern" class="hash-link" aria-label="Direct link to Correct Revenue Projection Pattern" title="Direct link to Correct Revenue Projection Pattern" translate="no">​</a></h3>
+<p><strong>Create a consolidation column with INDEX formulas, then reference it in projections:</strong></p>
+<p><strong>Step 1 - Consolidation column for FY1 growth:</strong>
+<code>=INDEX([Bear FY1 growth]:[Bull FY1 growth], 1, $B$6)</code></p>
+<p><strong>Step 2 - Revenue projection references the consolidation column:</strong>
+<code>Revenue Year 1: =D29*(1+$E$10)</code></p>
+<p>Where:</p>
+<ul>
+<li class="">D29 = Prior year revenue</li>
+<li class="">$E$10 = Consolidation column cell for FY1 growth (contains INDEX formula)</li>
+<li class="">$B$6 = Case selector (1=Bear, 2=Base, 3=Bull)</li>
+</ul>
+<p><strong>This approach is cleaner than embedding IF statements in every projection formula</strong> and makes it much easier to audit which scenario assumptions are being used.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="correct-fcf-formula-pattern">Correct FCF Formula Pattern<a href="#correct-fcf-formula-pattern" class="hash-link" aria-label="Direct link to Correct FCF Formula Pattern" title="Direct link to Correct FCF Formula Pattern" translate="no">​</a></h3>
+<p><strong>Use consolidation columns with INDEX formulas, then reference them in FCF calculations:</strong></p>
+<p><strong>Consolidation column approach:</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Item,Formula,Reference</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">D&amp;A,=E29*$E$21,$E$21 = consolidation column for D&amp;A %</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">CapEx,=E29*$E$22,$E$22 = consolidation column for CapEx %</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Δ NWC,=(E29-D29)*$E$23,$E$23 = consolidation column for NWC %</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Unlevered FCF,=E57+E58-E60-E62,E57=NOPAT E58=D&amp;A E60=CapEx E62=Δ NWC</span><br></span></code></pre></div></div>
+<p><strong>Each consolidation column cell contains an INDEX formula</strong> that pulls from the appropriate scenario block based on case selector. This keeps projection formulas clean and auditable.</p>
+<p>Before writing formulas, confirm scenario block row locations and set up consolidation columns.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="correct-cell-comment-format">Correct Cell Comment Format<a href="#correct-cell-comment-format" class="hash-link" aria-label="Direct link to Correct Cell Comment Format" title="Direct link to Correct Cell Comment Format" translate="no">​</a></h3>
+<p><strong>Every hardcoded value needs this format:</strong></p>
+<p>&quot;Source: [System/Document], [Date], [Reference], [URL if applicable]&quot;</p>
+<p><strong>Examples:</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Item,Source Comment</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Stock price,Source: Market data script 2025-10-12 Close price</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Shares outstanding,Source: 10-K FY2024 Page 45 Note 12</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Historical revenue,Source: 10-K FY2024 Page 32 Consolidated Statements</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Beta,Source: Market data script 2025-10-12 5-year monthly beta</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Consensus estimates,Source: Management guidance Q3 2024 earnings call</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="correct-assumption-table-structure">Correct Assumption Table Structure<a href="#correct-assumption-table-structure" class="hash-link" aria-label="Direct link to Correct Assumption Table Structure" title="Direct link to Correct Assumption Table Structure" translate="no">​</a></h3>
+<p><strong>CRITICAL: Each scenario block requires THREE structural elements:</strong></p>
+<ol>
+<li class=""><strong>Section header row</strong> (merged cells): e.g., &quot;BEAR CASE ASSUMPTIONS&quot;</li>
+<li class=""><strong>Column header row</strong> showing years - THIS IS REQUIRED, DO NOT SKIP</li>
+<li class=""><strong>Data rows</strong> with assumption values</li>
+</ol>
+<p><strong>Structure:</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">BEAR CASE ASSUMPTIONS (section header - merge across columns A:G)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Growth,X%,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC,X%,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">BASE CASE ASSUMPTIONS (section header - merge across columns A:G)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Growth,X%,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC,X%,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">BULL CASE ASSUMPTIONS (section header - merge across columns A:G)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Growth,X%,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC,X%,,,,</span><br></span></code></pre></div></div>
+<p><strong>WITHOUT the column header row showing projection years (FY2025E, FY2026E, etc.), users cannot tell which assumption value corresponds to which year. This row is MANDATORY.</strong></p>
+<p><strong>Then create a consolidation column</strong> (typically the next column to the right) that uses INDEX formulas to pull from the selected scenario block based on the case selector. This consolidation column is what your projection formulas reference.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="correct-row-planning-process">Correct Row Planning Process<a href="#correct-row-planning-process" class="hash-link" aria-label="Direct link to Correct Row Planning Process" title="Direct link to Correct Row Planning Process" translate="no">​</a></h3>
+<p><strong>1. Write ALL headers and labels FIRST:</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Row,Content</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">1,[Company Name] DCF Model</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">2,Ticker | Date | Year End</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">4,Case Selector</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">7,KEY ASSUMPTIONS</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">26,Assumption headers</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">27-31,Growth assumptions</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">...,...</span><br></span></code></pre></div></div>
+<p><strong>2. Write ALL section dividers and blank rows</strong></p>
+<p><strong>3. THEN write formulas using the locked row positions</strong></p>
+<p><strong>4. Test formulas immediately after creation</strong></p>
+<p><strong>Think of it like construction:</strong></p>
+<ul>
+<li class="">Good: Pour foundation, then build walls (stable structure)</li>
+<li class="">Bad: Build walls, then pour foundation (walls collapse)</li>
+</ul>
+<p><strong>Excel version:</strong></p>
+<ul>
+<li class="">Good: Add headers, then write formulas (formulas stable)</li>
+<li class="">Bad: Write formulas, then add headers (formulas break)</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="correct-sensitivity-table-implementation">Correct Sensitivity Table Implementation<a href="#correct-sensitivity-table-implementation" class="hash-link" aria-label="Direct link to Correct Sensitivity Table Implementation" title="Direct link to Correct Sensitivity Table Implementation" translate="no">​</a></h3>
+<p><strong>IMPORTANT</strong>: These are NOT Excel&#x27;s &quot;Data Table&quot; feature. These are simple grids where you write regular formulas using openpyxl. Yes, this means ~75 formulas total (3 tables × 25 cells each), but this is straightforward and required.</p>
+<p><strong>Programmatic Population with Formulas:</strong></p>
+<p>Each sensitivity table must be fully populated with formulas that recalculate the implied share price for each combination of assumptions. <strong>Do not use Excel&#x27;s Data Table feature</strong> (it requires manual intervention and cannot be automated via openpyxl).</p>
+<p><strong>Implementation approach - CONCRETE EXAMPLE:</strong></p>
+<p><strong>Table Structure — 5×5 grid (ODD dimensions, base case centered):</strong></p>
+<p>If the model&#x27;s base WACC = 9.0% and base terminal growth = 3.0%, build the axes symmetrically around those values:</p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC vs Terminal Growth,  2.0%,  2.5%,  3.0%,  3.5%,  4.0%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">              8.0%,       [fml], [fml], [fml], [fml], [fml]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">              8.5%,       [fml], [fml], [fml], [fml], [fml]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">              9.0%,       [fml], [fml], [★  ], [fml], [fml]   ← middle row = base WACC</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">              9.5%,       [fml], [fml], [fml], [fml], [fml]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">             10.0%,       [fml], [fml], [fml], [fml], [fml]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">                                   ↑</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">                          middle col = base terminal g</span><br></span></code></pre></div></div>
+<p><strong>★ = the center cell.</strong> Its formula output MUST equal the model&#x27;s actual implied share price (from the valuation summary). Apply the medium-blue fill (<code>#BDD7EE</code>) and bold font to this cell so the base case is visually anchored.</p>
+<p><strong>Rule for axis values:</strong> <code>axis_values = [base - 2*step, base - step, base, base + step, base + 2*step]</code> — symmetric around the base, odd count guarantees a center.</p>
+<p><strong>Formula Pattern - Cell B88 (WACC=8.0%, Terminal Growth=2.0%):</strong></p>
+<p>The formula in B88 should recalculate the implied price using:</p>
+<ul>
+<li class="">WACC from row header: <code>$A88</code> (8.0%)</li>
+<li class="">Terminal Growth from column header: <code>B$87</code> (2.0%)</li>
+</ul>
+<p><strong>Recommended approach:</strong> Reference the main DCF calculation but substitute these values.</p>
+<p><strong>Example formula structure:</strong>
+<code>=([SUM of PV FCFs using $A88 as discount rate] + [Terminal Value using B$87 as growth rate and $A88 as WACC] - [Net Debt]) / [Shares]</code></p>
+<p><strong>CRITICAL - Write a formula for EVERY cell in the 5x5 grid (25 cells per table, 75 cells total).</strong> Use openpyxl to write these formulas programmatically in a loop. Do NOT skip this step or leave placeholder text.</p>
+<p><strong>Python implementation pattern:</strong></p>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token comment" style="color:rgb(98, 114, 164)"># Pseudocode for populating sensitivity table</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">for</span><span class="token plain"> row_idx</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> wacc_value </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">in</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">enumerate</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">wacc_range</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">for</span><span class="token plain"> col_idx</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> term_growth_value </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">in</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">enumerate</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">term_growth_range</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        </span><span class="token comment" style="color:rgb(98, 114, 164)"># Build formula that uses wacc_value and term_growth_value</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        formula </span><span class="token operator">=</span><span class="token plain"> </span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)">f&quot;=&lt;DCF recalc using </span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token string-interpolation interpolation">wacc_value</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)"> and </span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token string-interpolation interpolation">term_growth_value</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)">&gt;&quot;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        ws</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">cell</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">row</span><span class="token operator">=</span><span class="token plain">start_row</span><span class="token operator">+</span><span class="token plain">row_idx</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> column</span><span class="token operator">=</span><span class="token plain">start_col</span><span class="token operator">+</span><span class="token plain">col_idx</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">value </span><span class="token operator">=</span><span class="token plain"> formula</span><br></span></code></pre></div></div>
+<p><strong>The sensitivity tables must work immediately when the model is opened, with no manual steps required from the user.</strong></p>
+<p>&lt;/correct_patterns&gt;</p>
+<p>&lt;common_mistakes&gt;</p>
+<p>This section contains all the WRONG patterns to avoid when building DCF models.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wrong-simplified-sensitivity-table-approximations-or-placeholder-text">WRONG: Simplified Sensitivity Table Approximations or Placeholder Text<a href="#wrong-simplified-sensitivity-table-approximations-or-placeholder-text" class="hash-link" aria-label="Direct link to WRONG: Simplified Sensitivity Table Approximations or Placeholder Text" title="Direct link to WRONG: Simplified Sensitivity Table Approximations or Placeholder Text" translate="no">​</a></h3>
+<p><strong>Don&#x27;t use linear approximations:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">// WRONG - Linear approximation</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">B97: =B88*(1+(0.096-0.116))    // Assumes linear relationship</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// WRONG - Division shortcut</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">B105: =B88/(1+(E48-0.07))      // Doesn&#x27;t recalculate full DCF</span><br></span></code></pre></div></div>
+<p><strong>Don&#x27;t leave placeholder text:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">// WRONG - Placeholder note</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">&quot;Note: Use Excel Data Table feature (Data → What-If Analysis → Data Table) to populate sensitivity tables.&quot;</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// WRONG - Empty cells</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">[leaving cells blank because &quot;this is complex&quot;]</span><br></span></code></pre></div></div>
+<p><strong>Don&#x27;t confuse terminology:</strong></p>
+<ul>
+<li class="">❌ &quot;Sensitivity tables need Excel&#x27;s Data Table feature&quot; (NO - that&#x27;s a specific Excel tool we can&#x27;t use)</li>
+<li class="">✅ &quot;Sensitivity tables are simple grids with formulas in each cell&quot; (YES - this is what we build)</li>
+</ul>
+<p><strong>Why these shortcuts are wrong:</strong></p>
+<ul>
+<li class="">Linear approximation formulas don&#x27;t actually recalculate the DCF - they just apply simple math adjustments</li>
+<li class="">The relationships are not linear, so the results will be inaccurate</li>
+<li class="">Placeholder text requires manual user intervention</li>
+<li class="">Model is not immediately usable when delivered</li>
+<li class="">Not professional or client-ready</li>
+<li class="">Empty cells = incomplete deliverable</li>
+</ul>
+<p><strong>Common rationalization to REJECT:</strong>
+&quot;Writing 75+ formulas feels complex, so I&#x27;ll leave a note for the user to complete it manually.&quot;</p>
+<p><strong>Reality:</strong> Writing 75 formulas is straightforward when you use a loop in Python with openpyxl. Each formula follows the same pattern - just substitute the row/column values. This is a required part of the deliverable.</p>
+<p><strong>Instead:</strong> Populate every sensitivity cell with formulas that recalculate the full DCF for that specific combination of assumptions</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wrong-missing-cell-comments">WRONG: Missing Cell Comments<a href="#wrong-missing-cell-comments" class="hash-link" aria-label="Direct link to WRONG: Missing Cell Comments" title="Direct link to WRONG: Missing Cell Comments" translate="no">​</a></h3>
+<p><strong>Don&#x27;t do this:</strong></p>
+<ul>
+<li class="">Create all hardcoded inputs without comments</li>
+<li class="">Think &quot;I&#x27;ll add them later&quot;</li>
+<li class="">Write &quot;TODO: add source&quot;</li>
+<li class="">Leave blue inputs without documentation</li>
+</ul>
+<p><strong>Why it&#x27;s wrong:</strong></p>
+<ul>
+<li class="">Can&#x27;t verify where data came from</li>
+<li class="">Fails xlsx skill requirements</li>
+<li class="">Not audit-ready</li>
+<li class="">Wastes time fixing later</li>
+</ul>
+<p><strong>Instead:</strong> Add cell comment AS EACH hardcoded value is created</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wrong-formula-row-references-off">WRONG: Formula Row References Off<a href="#wrong-formula-row-references-off" class="hash-link" aria-label="Direct link to WRONG: Formula Row References Off" title="Direct link to WRONG: Formula Row References Off" translate="no">​</a></h3>
+<p><strong>Symptom:</strong>
+The FCF section references wrong assumption rows:
+<code>D&amp;A:  =E29*$E$34    // Should be $E$21, but referencing wrong row</code>
+<code>CapEx: =E29*$E$41   // Should be $E$22, but row shifted</code></p>
+<p><strong>Why this happens:</strong></p>
+<ol>
+<li class="">Formulas written first</li>
+<li class="">Then headers inserted</li>
+<li class="">All row references shifted</li>
+<li class="">Now formulas point to wrong cells → #REF! errors</li>
+</ol>
+<p><strong>Instead:</strong> Lock row layout FIRST, then write formulas</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wrong-single-row-for-each-assumption-across-scenarios">WRONG: Single Row for Each Assumption Across Scenarios<a href="#wrong-single-row-for-each-assumption-across-scenarios" class="hash-link" aria-label="Direct link to WRONG: Single Row for Each Assumption Across Scenarios" title="Direct link to WRONG: Single Row for Each Assumption Across Scenarios" translate="no">​</a></h3>
+<p><strong>Don&#x27;t structure assumptions like this:</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,Bear,Base,Bull</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth FY1,10%,13%,16%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth FY2,9%,12%,15%</span><br></span></code></pre></div></div>
+<p>This vertical layout makes it hard to see the progression across years within each scenario.</p>
+<p><strong>Why it&#x27;s wrong:</strong></p>
+<ul>
+<li class="">Makes it difficult to see assumptions evolving across years within each scenario</li>
+<li class="">Harder to compare scenario assumptions across full projection period</li>
+<li class="">Less intuitive for reviewing scenario logic</li>
+</ul>
+<p><strong>Instead:</strong></p>
+<ul>
+<li class="">Create separate blocks for each scenario (Bear, Base, Bull)</li>
+<li class="">Within each block, show assumptions horizontally across projection years</li>
+<li class="">This makes each scenario&#x27;s assumptions easier to review as a cohesive set</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wrong-no-borders">WRONG: No Borders<a href="#wrong-no-borders" class="hash-link" aria-label="Direct link to WRONG: No Borders" title="Direct link to WRONG: No Borders" translate="no">​</a></h3>
+<p><strong>Don&#x27;t deliver a model without borders:</strong></p>
+<ul>
+<li class="">No section delineation</li>
+<li class="">All cells blend together</li>
+<li class="">Hard to read and unprofessional</li>
+</ul>
+<p><strong>Why it&#x27;s wrong:</strong></p>
+<ul>
+<li class="">Not client-ready</li>
+<li class="">Difficult to navigate</li>
+<li class="">Looks amateur</li>
+</ul>
+<p><strong>Instead:</strong> Add borders around all major sections</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wrong-wrong-font-colors-or-no-font-color-distinction">WRONG: Wrong Font Colors or No Font Color Distinction<a href="#wrong-wrong-font-colors-or-no-font-color-distinction" class="hash-link" aria-label="Direct link to WRONG: Wrong Font Colors or No Font Color Distinction" title="Direct link to WRONG: Wrong Font Colors or No Font Color Distinction" translate="no">​</a></h3>
+<p><strong>Don&#x27;t do this:</strong></p>
+<ul>
+<li class="">All text is black</li>
+<li class="">Only use fill colors (no font color changes)</li>
+<li class="">Mix up which cells are blue vs black</li>
+</ul>
+<p><strong>Why it&#x27;s wrong:</strong></p>
+<ul>
+<li class="">Can&#x27;t distinguish inputs from formulas</li>
+<li class="">Auditing becomes impossible</li>
+<li class="">Violates xlsx skill requirements</li>
+</ul>
+<p><strong>Instead:</strong> Blue text for ALL hardcoded inputs, black text for ALL formulas, green for sheet links</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wrong-operating-expenses-based-on-gross-profit">WRONG: Operating Expenses Based on Gross Profit<a href="#wrong-operating-expenses-based-on-gross-profit" class="hash-link" aria-label="Direct link to WRONG: Operating Expenses Based on Gross Profit" title="Direct link to WRONG: Operating Expenses Based on Gross Profit" translate="no">​</a></h3>
+<p><strong>Don&#x27;t do this:</strong>
+<code>S&amp;M: =E33*0.15    // E33 = Gross Profit (WRONG)</code></p>
+<p><strong>Why it&#x27;s wrong:</strong></p>
+<ul>
+<li class="">Operating expenses scale with revenue, not gross profit</li>
+<li class="">Produces unrealistic margin progression</li>
+<li class="">Not how businesses actually operate</li>
+</ul>
+<p><strong>Instead:</strong>
+<code>S&amp;M: =E29*0.15    // E29 = Revenue (CORRECT)</code></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="top-5-errors-summary">TOP 5 ERRORS SUMMARY<a href="#top-5-errors-summary" class="hash-link" aria-label="Direct link to TOP 5 ERRORS SUMMARY" title="Direct link to TOP 5 ERRORS SUMMARY" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>Formula row references off</strong> → Define ALL row positions BEFORE writing formulas</li>
+<li class=""><strong>Missing cell comments</strong> → Add comments AS cells are created, not at end</li>
+<li class=""><strong>Simplified sensitivity tables</strong> → Populate all cells with full DCF recalc formulas, not approximations</li>
+<li class=""><strong>Scenario block references wrong</strong> → Ensure IF formulas pull from correct Bear/Base/Bull blocks</li>
+<li class=""><strong>No borders</strong> → Add professional section borders for client-ready appearance</li>
+</ol>
+<p>In addition, be aware of these errors:</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wacc-calculation-errors">WACC Calculation Errors<a href="#wacc-calculation-errors" class="hash-link" aria-label="Direct link to WACC Calculation Errors" title="Direct link to WACC Calculation Errors" translate="no">​</a></h3>
+<ul>
+<li class="">Mixing book and market values in capital structure</li>
+<li class="">Using equity beta instead of asset/unlevered beta incorrectly</li>
+<li class="">Wrong tax rate application to cost of debt</li>
+<li class="">Incorrect risk-free rate (must use current 10Y Treasury)</li>
+<li class="">Failure to adjust for net debt vs net cash position</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="growth-assumption-flaws">Growth Assumption Flaws<a href="#growth-assumption-flaws" class="hash-link" aria-label="Direct link to Growth Assumption Flaws" title="Direct link to Growth Assumption Flaws" translate="no">​</a></h3>
+<ul>
+<li class="">Terminal growth &gt; WACC (creates infinite value)</li>
+<li class="">Projection growth rates inconsistent with historical performance</li>
+<li class="">Ignoring industry growth constraints</li>
+<li class="">Revenue growth not aligned with unit economics</li>
+<li class="">Margin expansion without operational justification</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="terminal-value-mistakes">Terminal Value Mistakes<a href="#terminal-value-mistakes" class="hash-link" aria-label="Direct link to Terminal Value Mistakes" title="Direct link to Terminal Value Mistakes" translate="no">​</a></h3>
+<ul>
+<li class="">Using wrong growth method (perpetuity vs exit multiple)</li>
+<li class="">Terminal value &gt;80% of enterprise value (suggests over-reliance)</li>
+<li class="">Inconsistent terminal margins with steady state assumptions</li>
+<li class="">Wrong discount period for terminal value</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cash-flow-projection-errors">Cash Flow Projection Errors<a href="#cash-flow-projection-errors" class="hash-link" aria-label="Direct link to Cash Flow Projection Errors" title="Direct link to Cash Flow Projection Errors" translate="no">​</a></h3>
+<ul>
+<li class="">Operating expenses based on gross profit instead of revenue</li>
+<li class="">D&amp;A/CapEx percentages misaligned with business model</li>
+<li class="">Working capital changes not properly calculated</li>
+<li class="">Tax rate inconsistency between years</li>
+<li class="">NOPAT calculation errors</li>
+</ul>
+<p><strong>These errors are the most common. Re-read this section before starting any DCF build.</strong></p>
+<p>&lt;/common_mistakes&gt;</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="excel-file-creation">Excel File Creation<a href="#excel-file-creation" class="hash-link" aria-label="Direct link to Excel File Creation" title="Direct link to Excel File Creation" translate="no">​</a></h2>
+<p><strong>This skill uses the <code>xlsx</code> skill for all spreadsheet operations.</strong> The xlsx skill provides:</p>
+<ul>
+<li class="">Standardized formula construction rules</li>
+<li class="">Number formatting conventions</li>
+<li class="">Automated formula recalculation via <code>recalc.py</code> script</li>
+<li class="">Comprehensive error checking and validation</li>
+</ul>
+<p>All Excel files created by this skill must follow xlsx skill requirements, including zero formula errors and proper recalculation.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="quality-rubric">Quality Rubric<a href="#quality-rubric" class="hash-link" aria-label="Direct link to Quality Rubric" title="Direct link to Quality Rubric" translate="no">​</a></h2>
+<p>Every DCF model must maximize for:</p>
+<ol>
+<li class=""><strong>Realistic revenue and margin assumptions</strong> based on historical performance</li>
+<li class=""><strong>Appropriate cost of capital calculation</strong> with proper CAPM methodology</li>
+<li class=""><strong>Comprehensive sensitivity analysis</strong> showing valuation ranges</li>
+<li class=""><strong>Clear terminal value calculation</strong> with supporting rationale</li>
+<li class=""><strong>Professional model structure</strong> enabling scenario analysis</li>
+<li class=""><strong>Transparent documentation</strong> of all key assumptions</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="input-requirements">Input Requirements<a href="#input-requirements" class="hash-link" aria-label="Direct link to Input Requirements" title="Direct link to Input Requirements" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="minimum-required-inputs">Minimum Required Inputs<a href="#minimum-required-inputs" class="hash-link" aria-label="Direct link to Minimum Required Inputs" title="Direct link to Minimum Required Inputs" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>Company identifier</strong>: Ticker symbol or company name</li>
+<li class=""><strong>Growth assumptions</strong>: Revenue growth rates for projection period (or &quot;use consensus&quot;)</li>
+<li class=""><strong>Optional parameters</strong>:<!-- -->
+<ul>
+<li class="">Projection period (default: 5 years)</li>
+<li class="">Scenario cases (Bear/Base/Bull growth and margin assumptions)</li>
+<li class="">Terminal growth rate (default: 2.5-3.0%)</li>
+<li class="">Specific WACC inputs if not using CAPM</li>
+</ul>
+</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="excel-model-structure">Excel Model Structure<a href="#excel-model-structure" class="hash-link" aria-label="Direct link to Excel Model Structure" title="Direct link to Excel Model Structure" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="sheet-architecture">Sheet Architecture<a href="#sheet-architecture" class="hash-link" aria-label="Direct link to Sheet Architecture" title="Direct link to Sheet Architecture" translate="no">​</a></h3>
+<p>Create <strong>two sheets</strong>:</p>
+<ol>
+<li class=""><strong>DCF</strong> - Main valuation model with sensitivity analysis at bottom</li>
+<li class=""><strong>WACC</strong> - Cost of capital calculation</li>
+</ol>
+<p><strong>CRITICAL</strong>: Sensitivity tables go at the BOTTOM of the DCF sheet (not on a separate sheet). This keeps all valuation outputs together.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="formula-recalculation-mandatory">Formula Recalculation (MANDATORY)<a href="#formula-recalculation-mandatory" class="hash-link" aria-label="Direct link to Formula Recalculation (MANDATORY)" title="Direct link to Formula Recalculation (MANDATORY)" translate="no">​</a></h3>
+<p>After creating or modifying the Excel model, <strong>recalculate all formulas</strong> using the <code>recalc.py</code> script from the <code>excel-author</code> skill:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">python recalc.py </span><span class="token punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token plain">path_to_excel_file</span><span class="token punctuation" style="color:rgb(248, 248, 242)">]</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token plain">timeout_seconds</span><span class="token punctuation" style="color:rgb(248, 248, 242)">]</span><br></span></code></pre></div></div>
+<p>Example:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">python recalc.py AAPL_DCF_Model_2025-10-12.xlsx </span><span class="token number">30</span><br></span></code></pre></div></div>
+<p>The script will:</p>
+<ul>
+<li class="">Recalculate all formulas in all sheets using LibreOffice</li>
+<li class="">Scan ALL cells for Excel errors (#REF!, #DIV/0!, #VALUE!, #NAME?, #NULL!, #NUM!, #N/A)</li>
+<li class="">Return detailed JSON with error locations and counts</li>
+</ul>
+<p><strong>Expected output format:</strong></p>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;status&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">&quot;success&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain">           </span><span class="token comment" style="color:rgb(98, 114, 164)">// or &quot;errors_found&quot;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;total_errors&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token number">0</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain">              </span><span class="token comment" style="color:rgb(98, 114, 164)">// Total error count</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;total_formulas&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token number">42</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain">           </span><span class="token comment" style="color:rgb(98, 114, 164)">// Number of formulas in file</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;error_summary&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token plain">             </span><span class="token comment" style="color:rgb(98, 114, 164)">// Only present if errors found</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><br></span></code></pre></div></div>
+<p><strong>If errors are found</strong>, the output will include details:</p>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;status&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">&quot;errors_found&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;total_errors&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token number">2</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;total_formulas&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token number">42</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;error_summary&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token property">&quot;#REF!&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">      </span><span class="token property">&quot;count&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token number">2</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">      </span><span class="token property">&quot;locations&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;DCF!B25&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">&quot;DCF!C25&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">]</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><br></span></code></pre></div></div>
+<p><strong>Fix all errors</strong> and re-run recalc.py until status is &quot;success&quot; before delivering the model.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="formatting-standards">Formatting Standards<a href="#formatting-standards" class="hash-link" aria-label="Direct link to Formatting Standards" title="Direct link to Formatting Standards" translate="no">​</a></h3>
+<p><strong>IMPORTANT</strong>: Follow the xlsx skill for formula construction rules and number formatting conventions. The DCF skill adds specific visual presentation standards.</p>
+<p><strong>Color Scheme - Two Layers</strong>:</p>
+<p><strong>Layer 1: Font Colors (MANDATORY from xlsx skill)</strong></p>
+<ul>
+<li class=""><strong>Blue text (RGB: 0,0,255)</strong>: ALL hardcoded inputs (stock price, shares, historical data, assumptions)</li>
+<li class=""><strong>Black text (RGB: 0,0,0)</strong>: ALL formulas and calculations</li>
+<li class=""><strong>Green text (RGB: 0,128,0)</strong>: Links to other sheets (WACC sheet references)</li>
+</ul>
+<p><strong>Layer 2: Fill Colors — Professional Blue/Grey Palette (Default unless user specifies otherwise)</strong></p>
+<ul>
+<li class=""><strong>Keep it minimal</strong> — use only blues and greys for fills. Do NOT introduce greens, yellows, oranges, or multiple accent colors. A model with too many colors looks amateurish.</li>
+<li class=""><strong>Default fill palette:</strong>
+<ul>
+<li class=""><strong>Section headers</strong>: Dark blue (RGB: 31,78,121 / <code>#1F4E79</code>) background with white bold text</li>
+<li class=""><strong>Sub-headers/column headers</strong>: Light blue (RGB: 217,225,242 / <code>#D9E1F2</code>) background with black bold text</li>
+<li class=""><strong>Input cells</strong>: Light grey (RGB: 242,242,242 / <code>#F2F2F2</code>) background with blue font — or just white with blue font if you want maximum minimalism</li>
+<li class=""><strong>Calculated cells</strong>: White background with black font</li>
+<li class=""><strong>Output/summary rows</strong> (per-share value, EV, etc.): Medium blue (RGB: 189,215,238 / <code>#BDD7EE</code>) background with black bold font</li>
+</ul>
+</li>
+<li class=""><strong>That&#x27;s it — 3 blues + 1 grey + white.</strong> Resist the urge to add more.</li>
+<li class="">User-provided templates or explicit color preferences ALWAYS override these defaults.</li>
+</ul>
+<p><strong>How the layers work together:</strong></p>
+<ul>
+<li class="">Input cell: Blue font + light grey fill = &quot;Hardcoded input&quot;</li>
+<li class="">Formula cell: Black font + white background = &quot;Calculated value&quot;</li>
+<li class="">Sheet link: Green font + white background = &quot;Reference from another sheet&quot;</li>
+<li class="">Key output: Black bold font + medium blue fill = &quot;This is the answer&quot;</li>
+</ul>
+<p><strong>Font color tells you WHAT it is (input/formula/link). Fill color tells you WHERE you are (header/data/output).</strong></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="border-standards-required-for-professional-appearance">Border Standards (REQUIRED for Professional Appearance)<a href="#border-standards-required-for-professional-appearance" class="hash-link" aria-label="Direct link to Border Standards (REQUIRED for Professional Appearance)" title="Direct link to Border Standards (REQUIRED for Professional Appearance)" translate="no">​</a></h3>
+<p><strong>Thick borders</strong> (1.5pt) around major sections:</p>
+<ul>
+<li class="">KEY INPUTS section</li>
+<li class="">PROJECTION ASSUMPTIONS section</li>
+<li class="">5-YEAR CASH FLOW PROJECTION section</li>
+<li class="">TERMINAL VALUE section</li>
+<li class="">VALUATION SUMMARY section</li>
+<li class="">Each SENSITIVITY ANALYSIS table</li>
+</ul>
+<p><strong>Medium borders</strong> (1pt) between sub-sections:</p>
+<ul>
+<li class="">Company Details vs Historical Performance</li>
+<li class="">Growth Assumptions vs EBIT Margin vs FCF Parameters</li>
+</ul>
+<p><strong>Thin borders</strong> (0.5pt) around data tables:</p>
+<ul>
+<li class="">Scenario assumption tables (Bear | Base | Bull | Selected)</li>
+<li class="">Historical vs projected financials matrix</li>
+</ul>
+<p><strong>No borders:</strong> Individual cells within tables (keep clean, scannable)</p>
+<p><strong>Borders are mandatory</strong> - models without professional borders are not client-ready.</p>
+<p><strong>Number Formats</strong> (follows xlsx skill standards):</p>
+<ul>
+<li class=""><strong>Years</strong>: Format as text strings (e.g., &quot;2024&quot; not &quot;2,024&quot;)</li>
+<li class=""><strong>Percentages</strong>: <code>0.0%</code> (one decimal place)</li>
+<li class=""><strong>Currency</strong>: <code>$#,##0</code> for millions; <code>$#,##0.00</code> for per-share - ALWAYS specify units in headers (&quot;Revenue ($mm)&quot;)</li>
+<li class=""><strong>Zeros</strong>: Use number formatting to make all zeros &quot;-&quot; (e.g., <code>$#,##0;($#,##0);-</code>)</li>
+<li class=""><strong>Large numbers</strong>: <code>#,##0</code> with thousands separator</li>
+<li class=""><strong>Negative numbers</strong>: <code>(#,##0)</code> in parentheses (NOT minus sign)</li>
+</ul>
+<p><strong>Cell Comments (MANDATORY for all hardcoded inputs)</strong>:</p>
+<p>Per the xlsx skill, ALL hardcoded values must have cell comments documenting the source. Format: &quot;Source: [System/Document], [Date], [Reference], [URL if applicable]&quot;</p>
+<p><strong>CRITICAL</strong>: Add comments AS CELLS ARE CREATED. Do not defer to the end.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="dcf-sheet-detailed-structure">DCF Sheet Detailed Structure<a href="#dcf-sheet-detailed-structure" class="hash-link" aria-label="Direct link to DCF Sheet Detailed Structure" title="Direct link to DCF Sheet Detailed Structure" translate="no">​</a></h3>
+<p><strong>Section 1: Header</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Row,Content</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">1,[Company Name] DCF Model</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">2,Ticker: [XXX] | Date: [Date] | Year End: [FYE]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">3,Blank</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">4,Case Selector Cell (1=Bear 2=Base 3=Bull)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">5,Case Name Display (formula: =IF([Selector]=1&quot;Bear&quot;IF([Selector]=2&quot;Base&quot;&quot;Bull&quot;)))</span><br></span></code></pre></div></div>
+<p><strong>Section 2: Market Data (NOT case dependent)</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Item,Value</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current Stock Price,$XX.XX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Shares Outstanding (M),XX.X</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Market Cap ($M),[Formula]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Net Debt ($M),XXX [or Net Cash if negative]</span><br></span></code></pre></div></div>
+<p><strong>Section 3: DCF Scenario Assumptions</strong></p>
+<p>Create separate assumption blocks for each scenario (Bear, Base, Bull) with DCF-specific assumptions (Revenue Growth %, EBIT Margin %, Tax Rate %, D&amp;A % of Revenue, CapEx % of Revenue, NWC Change % of ΔRev, Terminal Growth Rate, WACC) laid out horizontally across projection years. Each block must include section header, column header row showing the projection years (FY1, FY2, etc.), and data rows. See <code>&lt;correct_patterns&gt;</code> section &quot;Correct Assumption Table Structure&quot; for the exact layout.</p>
+<p><strong>Section 4: Historical &amp; Projected Financials</strong></p>
+<p><strong>Reference a consolidation column (e.g., &quot;Selected Case&quot;) that pulls from scenario blocks</strong>, not scattered IF formulas in every projection row.</p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Income Statement ($M),2020A,2021A,2022A,2023A,2024E,2025E,2026E</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue,XXX,XXX,XXX,XXX,[=E29*(1+$E$10)],[=F29*(1+$E$11)],[=G29*(1+$E$12)]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  % growth,XX%,XX%,XX%,XX%,[=E29/D29-1],[=F29/E29-1],[=G29/F29-1]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Gross Profit,XXX,XXX,XXX,XXX,[=E29*E33],[=F29*F33],[=G29*G33]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  % margin,XX%,XX%,XX%,XX%,[=E33/E29],[=F33/F29],[=G33/G29]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Operating Expenses:,,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  S&amp;M,XXX,XXX,XXX,XXX,[=E29*0.15],[=F29*0.14],[=G29*0.13]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  R&amp;D,XXX,XXX,XXX,XXX,[=E29*0.12],[=F29*0.11],[=G29*0.10]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  G&amp;A,XXX,XXX,XXX,XXX,[=E29*0.08],[=F29*0.07],[=G29*0.07]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  Total OpEx,XXX,XXX,XXX,XXX,[=E36+E37+E38],[=F36+F37+F38],[=G36+G37+G38]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT,XXX,XXX,XXX,XXX,[=E33-E39],[=F33-F39],[=G33-G39]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  % margin,XX%,XX%,XX%,XX%,[=E41/E29],[=F41/F29],[=G41/G29]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Taxes,(XX),(XX),(XX),(XX),[=E41*$E$24],[=F41*$E$24],[=G41*$E$24]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  Tax rate,XX%,XX%,XX%,XX%,[=E43/E41],[=F43/F41],[=G43/G41]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">NOPAT,XXX,XXX,XXX,XXX,[=E41-E43],[=F41-F43],[=G41-G43]</span><br></span></code></pre></div></div>
+<p><strong>Key Formula Pattern</strong>:</p>
+<ul>
+<li class="">Revenue growth: <code>=E29*(1+$E$10)</code> where $E$10 is consolidation column for Year 1 growth</li>
+<li class="">NOT: <code>=E29*(1+IF($B$6=1,$B$10,IF($B$6=2,$C$10,$D$10)))</code></li>
+</ul>
+<p>This approach is cleaner, easier to audit, and prevents formula errors by centralizing the scenario logic.</p>
+<p><strong>Section 5: Free Cash Flow Build</strong></p>
+<p><strong>CRITICAL</strong>: Verify row references point to the CORRECT assumption rows. Test formulas immediately after creation.</p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Cash Flow ($M),2020A,2021A,2022A,2023A,2024E,2025E,2026E</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">NOPAT,XXX,XXX,XXX,XXX,[=E45],[=F45],[=G45]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(+) D&amp;A,XXX,XXX,XXX,XXX,[=E29*$E$21],[=F29*$E$21],[=G29*$E$21]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    % of Rev,XX%,XX%,XX%,XX%,[=E58/E29],[=F58/F29],[=G58/G29]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) CapEx,(XX),(XX),(XX),(XX),[=E29*$E$22],[=F29*$E$22],[=G29*$E$22]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    % of Rev,XX%,XX%,XX%,XX%,[=E60/E29],[=F60/F29],[=G60/G29]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Δ NWC,(XX),(XX),(XX),(XX),[=(E29-D29)*$E$23],[=(F29-E29)*$E$23],[=(G29-F29)*$E$23]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    % of Δ Rev,XX%,XX%,XX%,XX%,[=E62/(E29-D29)],[=F62/(F29-E29)],[=G62/(G29-F29)]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Unlevered FCF,XXX,XXX,XXX,XXX,[=E57+E58-E60-E62],[=F57+F58-F60-F62],[=G57+G58-G60-G62]</span><br></span></code></pre></div></div>
+<p><strong>Row reference examples</strong> (based on layout planning):</p>
+<ul>
+<li class="">$E$21 = D&amp;A % assumption (consolidation column, row 21)</li>
+<li class="">$E$22 = CapEx % assumption (consolidation column, row 22)</li>
+<li class="">$E$23 = NWC % assumption (consolidation column, row 23)</li>
+<li class="">E29 = Revenue for year (row 29)</li>
+<li class="">E45 = NOPAT for year (row 45)</li>
+</ul>
+<p><strong>Before writing formulas</strong>: Confirm these row numbers match the actual layout. Test one column, then copy across.</p>
+<p><strong>Section 6: Discounting &amp; Valuation</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">DCF Valuation,2024E,2025E,2026E,2027E,2028E,Terminal</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Unlevered FCF ($M),XXX,XXX,XXX,XXX,XXX,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Period,0.5,1.5,2.5,3.5,4.5,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Discount Factor,0.XX,0.XX,0.XX,0.XX,0.XX,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV of FCF ($M),XXX,XXX,XXX,XXX,XXX,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal FCF ($M),,,,,,,XXX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Value ($M),,,,,,,XXX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV Terminal Value ($M),,,,,,,XXX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Valuation Summary ($M),,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Sum of PV FCFs,XXX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV Terminal Value,XXX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Enterprise Value,XXX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Net Debt,(XX),,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity Value,XXX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Shares Outstanding (M),XX.X,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">IMPLIED PRICE PER SHARE,$XX.XX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current Stock Price,$XX.XX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Implied Upside/(Downside),XX%,,,,,</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wacc-sheet-structure">WACC Sheet Structure<a href="#wacc-sheet-structure" class="hash-link" aria-label="Direct link to WACC Sheet Structure" title="Direct link to WACC Sheet Structure" translate="no">​</a></h3>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">COST OF EQUITY CALCULATION,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Risk-Free Rate (10Y Treasury),X.XX%,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Beta (5Y monthly),X.XX,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity Risk Premium,X.XX%,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Cost of Equity,X.XX%,[Calculated blue]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">COST OF DEBT CALCULATION,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Credit Rating,AA-,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Pre-Tax Cost of Debt,X.XX%,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Tax Rate,XX.X%,[Link to DCF sheet]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">After-Tax Cost of Debt,X.XX%,[Calculated blue]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">CAPITAL STRUCTURE,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current Stock Price,$XX.XX,[Link to DCF]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Shares Outstanding (M),XX.X,[Link to DCF]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Market Capitalization ($M),&quot;X,XXX&quot;,[Calculated]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Total Debt ($M),XXX,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Cash &amp; Equivalents ($M),XXX,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Net Debt ($M),XXX,[Calculated]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Enterprise Value ($M),&quot;X,XXX&quot;,[Calculated]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC CALCULATION,Weight,Cost,Contribution</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity,XX.X%,X.X%,X.XX%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Debt,XX.X%,X.X%,X.XX%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WEIGHTED AVERAGE COST OF CAPITAL,X.XX%,[Green output]</span><br></span></code></pre></div></div>
+<p><strong>Key WACC Formulas:</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Market Cap = Price × Shares</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Net Debt = Total Debt - Cash</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Enterprise Value = Market Cap + Net Debt</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity Weight = Market Cap / EV</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Debt Weight = Net Debt / EV</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC = (Cost of Equity × Equity Weight) + (After-tax Cost of Debt × Debt Weight)</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="sensitivity-analysis-bottom-of-dcf-sheet">Sensitivity Analysis (Bottom of DCF Sheet)<a href="#sensitivity-analysis-bottom-of-dcf-sheet" class="hash-link" aria-label="Direct link to Sensitivity Analysis (Bottom of DCF Sheet)" title="Direct link to Sensitivity Analysis (Bottom of DCF Sheet)" translate="no">​</a></h3>
+<p><strong>TERMINOLOGY REMINDER</strong>: &quot;Sensitivity tables&quot; = simple 2D grids with row headers, column headers, and formulas in each data cell. NOT Excel&#x27;s &quot;Data Table&quot; feature (Data → What-If Analysis → Data Table). You will use openpyxl to write regular Excel formulas into each cell.</p>
+<p><strong>Location</strong>: Rows 87+ on DCF sheet (NOT a separate sheet)</p>
+<p><strong>Three sensitivity tables, vertically stacked:</strong></p>
+<ol>
+<li class=""><strong>WACC vs Terminal Growth</strong> (rows 87-100) - 5x5 grid = 25 cells with formulas</li>
+<li class=""><strong>Revenue Growth vs EBIT Margin</strong> (rows 102-115) - 5x5 grid = 25 cells with formulas</li>
+<li class=""><strong>Beta vs Risk-Free Rate</strong> (rows 117-130) - 5x5 grid = 25 cells with formulas</li>
+</ol>
+<p><strong>Total formulas to write: 75</strong> (this is required, not optional)</p>
+<p><strong>CRITICAL</strong>: All sensitivity table cells must be populated programmatically with formulas using openpyxl. DO NOT use linear approximation shortcuts. DO NOT leave placeholder text or notes about manual steps. DO NOT rationalize leaving cells empty because &quot;it&#x27;s complex&quot; - use a Python loop to generate the formulas.</p>
+<p><strong>Table Setup:</strong></p>
+<ol>
+<li class="">Create table structure with row/column headers (the assumption values to test)</li>
+<li class="">Populate EVERY data cell with a formula that:<!-- -->
+<ul>
+<li class="">Uses the row header value (e.g., WACC = 9.0%)</li>
+<li class="">Uses the column header value (e.g., Terminal Growth = 3.0%)</li>
+<li class="">Recalculates the full DCF with those specific assumptions</li>
+<li class="">Returns the implied share price for that scenario</li>
+</ul>
+</li>
+<li class="">All cells must contain working formulas when delivered</li>
+<li class="">Format cells with conditional formatting: Green scale for higher values, red scale for lower values</li>
+<li class="">Bold the base case cell</li>
+<li class="">Leave 1-2 blank rows between tables</li>
+</ol>
+<p><strong>No manual intervention required</strong> - the sensitivity tables must be fully functional when the user opens the file.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="case-selector-implementation">Case Selector Implementation<a href="#case-selector-implementation" class="hash-link" aria-label="Direct link to Case Selector Implementation" title="Direct link to Case Selector Implementation" translate="no">​</a></h2>
+<p><strong>Three-Case Framework:</strong></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="bear-case">Bear Case<a href="#bear-case" class="hash-link" aria-label="Direct link to Bear Case" title="Direct link to Bear Case" translate="no">​</a></h3>
+<ul>
+<li class="">Conservative revenue growth (low end of historical range)</li>
+<li class="">Margin compression or no expansion</li>
+<li class="">Higher WACC (risk premium increase)</li>
+<li class="">Lower terminal growth rate</li>
+<li class="">Higher CapEx assumptions</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="base-case">Base Case<a href="#base-case" class="hash-link" aria-label="Direct link to Base Case" title="Direct link to Base Case" translate="no">​</a></h3>
+<ul>
+<li class="">Consensus or management guidance revenue growth</li>
+<li class="">Moderate margin expansion based on operating leverage</li>
+<li class="">Current market-implied WACC</li>
+<li class="">GDP-aligned terminal growth (2.5-3.0%)</li>
+<li class="">Standard CapEx assumptions</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="bull-case">Bull Case<a href="#bull-case" class="hash-link" aria-label="Direct link to Bull Case" title="Direct link to Bull Case" translate="no">​</a></h3>
+<ul>
+<li class="">Optimistic revenue growth (high end of projections)</li>
+<li class="">Significant margin expansion</li>
+<li class="">Lower WACC (reduced risk premium)</li>
+<li class="">Higher terminal growth (3.5-5.0%)</li>
+<li class="">Reduced CapEx intensity</li>
+</ul>
+<p><strong>Formula Implementation:</strong></p>
+<p><strong>DO NOT use nested IF formulas scattered throughout.</strong> Instead, create a consolidation column that uses INDEX or OFFSET formulas to pull from the appropriate scenario block.</p>
+<p><strong>Recommended pattern (using INDEX):</strong>
+<code>=INDEX(B10:D10, 1, $B$6)</code> where <code>B10:D10</code> = Bear/Base/Bull values, <code>1</code> = row offset, <code>$B$6</code> = case selector cell (1, 2, or 3)</p>
+<p><strong>Then reference the consolidation column</strong> in all projections:
+<code>Revenue Year 1: =D29*(1+$E$10)</code> where $E$10 is the consolidation column value for Year 1 growth.</p>
+<p>This approach centralizes scenario logic, making the model easier to audit and maintain.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="deliverables-structure">Deliverables Structure<a href="#deliverables-structure" class="hash-link" aria-label="Direct link to Deliverables Structure" title="Direct link to Deliverables Structure" translate="no">​</a></h2>
+<p><strong>File naming</strong>: <code>[Ticker]_DCF_Model_[Date].xlsx</code></p>
+<p><strong>Two sheets</strong>:</p>
+<ol>
+<li class=""><strong>DCF</strong> - Complete model with Bear/Base/Bull cases + three sensitivity tables at bottom (WACC vs Terminal Growth, Revenue Growth vs EBIT Margin, Beta vs Risk-Free Rate)</li>
+<li class=""><strong>WACC</strong> - Cost of capital calculation</li>
+</ol>
+<p><strong>Key features</strong>: Case selector (1/2/3), consolidation column with INDEX/OFFSET formulas, color-coded cells, cell comments on all inputs, professional borders</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="best-practices">Best Practices<a href="#best-practices" class="hash-link" aria-label="Direct link to Best Practices" title="Direct link to Best Practices" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="model-construction">Model Construction<a href="#model-construction" class="hash-link" aria-label="Direct link to Model Construction" title="Direct link to Model Construction" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>Build incrementally</strong>: Complete each section before moving to next</li>
+<li class=""><strong>Test as building</strong>: Enter sample numbers to verify formulas</li>
+<li class=""><strong>Use consistent structure</strong>: Similar calculations follow similar patterns</li>
+<li class=""><strong>Comment complex formulas</strong>: Add notes for unusual calculations</li>
+<li class=""><strong>Build in checks</strong>: Sum checks and balance checks where applicable</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="documentation">Documentation<a href="#documentation" class="hash-link" aria-label="Direct link to Documentation" title="Direct link to Documentation" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>Document all assumptions</strong>: Explain reasoning behind key inputs</li>
+<li class=""><strong>Cite data sources</strong>: Note where each data point came from</li>
+<li class=""><strong>Explain methodology</strong>: Describe any non-standard approaches</li>
+<li class=""><strong>Flag uncertainties</strong>: Highlight areas with limited visibility</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="quality-control">Quality Control<a href="#quality-control" class="hash-link" aria-label="Direct link to Quality Control" title="Direct link to Quality Control" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>Cross-check calculations</strong>: Verify math in multiple ways</li>
+<li class=""><strong>Stress test assumptions</strong>: Run sensitivity to ensure model is robust</li>
+<li class=""><strong>Peer review</strong>: Have someone else check formulas</li>
+<li class=""><strong>Version control</strong>: Save versions as work progresses</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="common-variations">Common Variations<a href="#common-variations" class="hash-link" aria-label="Direct link to Common Variations" title="Direct link to Common Variations" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="high-growth-technology-companies">High-Growth Technology Companies<a href="#high-growth-technology-companies" class="hash-link" aria-label="Direct link to High-Growth Technology Companies" title="Direct link to High-Growth Technology Companies" translate="no">​</a></h3>
+<ul>
+<li class="">Longer projection period (7-10 years)</li>
+<li class="">Higher initial growth rates (20-30%)</li>
+<li class="">Significant margin expansion over time</li>
+<li class="">Higher WACC (12-15%)</li>
+<li class="">Model unit economics (users, ARPU, etc.)</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="maturestable-companies">Mature/Stable Companies<a href="#maturestable-companies" class="hash-link" aria-label="Direct link to Mature/Stable Companies" title="Direct link to Mature/Stable Companies" translate="no">​</a></h3>
+<ul>
+<li class="">Shorter projection period (3-5 years)</li>
+<li class="">Modest growth rates (GDP +1-3%)</li>
+<li class="">Stable margins</li>
+<li class="">Lower WACC (7-9%)</li>
+<li class="">Focus on cash generation and capital allocation</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cyclical-companies">Cyclical Companies<a href="#cyclical-companies" class="hash-link" aria-label="Direct link to Cyclical Companies" title="Direct link to Cyclical Companies" translate="no">​</a></h3>
+<ul>
+<li class="">Model through economic cycle</li>
+<li class="">Normalize margins at mid-cycle</li>
+<li class="">Consider trough and peak scenarios</li>
+<li class="">Adjust beta for cyclicality</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="multi-segment-companies">Multi-Segment Companies<a href="#multi-segment-companies" class="hash-link" aria-label="Direct link to Multi-Segment Companies" title="Direct link to Multi-Segment Companies" translate="no">​</a></h3>
+<ul>
+<li class="">Separate DCFs for each business unit</li>
+<li class="">Different growth rates and margins by segment</li>
+<li class="">Sum-of-parts valuation</li>
+<li class="">Consider synergies</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="troubleshooting">Troubleshooting<a href="#troubleshooting" class="hash-link" aria-label="Direct link to Troubleshooting" title="Direct link to Troubleshooting" translate="no">​</a></h2>
+<p><strong>If you encounter errors or unreasonable results, read <a href="https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/finance/dcf-model/TROUBLESHOOTING.md" target="_blank" rel="noopener noreferrer" class="">TROUBLESHOOTING.md</a> for detailed debugging guidance.</strong></p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="workflow-integration">Workflow Integration<a href="#workflow-integration" class="hash-link" aria-label="Direct link to Workflow Integration" title="Direct link to Workflow Integration" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="at-start-of-dcf-build">At Start of DCF Build<a href="#at-start-of-dcf-build" class="hash-link" aria-label="Direct link to At Start of DCF Build" title="Direct link to At Start of DCF Build" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>Gather market data</strong>:</p>
+<ul>
+<li class="">Check for available MCP servers for current market data</li>
+<li class="">Use web search/fetch for stock prices, beta, and other market metrics</li>
+<li class="">Request from user if specific data is needed</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Gather historical financials</strong>:</p>
+<ul>
+<li class="">Check for available MCP servers (Daloopa, etc.)</li>
+<li class="">Request from user if not available via MCP</li>
+<li class="">Manual extraction from 10-Ks if necessary</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Begin model construction</strong> using the DCF methodology detailed in this skill</p>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="during-model-construction">During Model Construction<a href="#during-model-construction" class="hash-link" aria-label="Direct link to During Model Construction" title="Direct link to During Model Construction" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>Build Excel model</strong> using openpyxl with formulas (not hardcoded values)</li>
+<li class=""><strong>Follow xlsx skill conventions</strong> for formula construction and formatting</li>
+<li class=""><strong>Apply fill colors only if requested</strong> by user or if specific brand guidelines are provided</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="before-delivering-model-mandatory">Before Delivering Model (MANDATORY)<a href="#before-delivering-model-mandatory" class="hash-link" aria-label="Direct link to Before Delivering Model (MANDATORY)" title="Direct link to Before Delivering Model (MANDATORY)" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>Verify structure</strong>:</p>
+<ul>
+<li class="">Scenario blocks for Bear/Base/Bull with assumptions across projection years</li>
+<li class="">Case selector functional with formulas referencing correct scenario blocks</li>
+<li class="">Sensitivity tables at bottom of DCF sheet (not separate sheet)</li>
+<li class="">Font colors: Blue inputs, black formulas, green sheet links</li>
+<li class="">Cell comments on ALL hardcoded inputs</li>
+<li class="">Professional borders around major sections</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Recalculate formulas</strong>: Run <code>python recalc.py model.xlsx 30</code></p>
+</li>
+<li class="">
+<p><strong>Check output</strong>:</p>
+<ul>
+<li class="">If <code>status</code> is <code>&quot;success&quot;</code> → Continue to step 4</li>
+<li class="">If <code>status</code> is <code>&quot;errors_found&quot;</code> → Check <code>error_summary</code> and read <a href="https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/finance/dcf-model/TROUBLESHOOTING.md" target="_blank" rel="noopener noreferrer" class="">TROUBLESHOOTING.md</a> for debugging guidance</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Fix errors and re-run recalc.py</strong> until status is &quot;success&quot;</p>
+</li>
+<li class="">
+<p><strong>Spot-check formulas</strong>:</p>
+<ul>
+<li class="">Test one FCF formula - does it reference the correct assumption rows?</li>
+<li class="">Change case selector - does the consolidation column update properly?</li>
+<li class="">Verify revenue formulas reference consolidation column (not nested IF formulas)</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Deliver model</strong></p>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="available-data-sources">Available Data Sources<a href="#available-data-sources" class="hash-link" aria-label="Direct link to Available Data Sources" title="Direct link to Available Data Sources" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>MCP servers</strong>: If configured (Daloopa for historical financials)</li>
+<li class=""><strong>Web search/fetch</strong>: For current stock prices, beta, and market data</li>
+<li class=""><strong>User-provided data</strong>: Historical financials, consensus estimates</li>
+<li class=""><strong>Manual extraction</strong>: SEC EDGAR filings as fallback</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="final-output-checklist">Final Output Checklist<a href="#final-output-checklist" class="hash-link" aria-label="Direct link to Final Output Checklist" title="Direct link to Final Output Checklist" translate="no">​</a></h2>
+<p>Before delivering DCF model:</p>
+<p><strong>Required:</strong></p>
+<ul>
+<li class="">Run <code>python recalc.py model.xlsx 30</code> until status is &quot;success&quot; (zero formula errors)</li>
+<li class="">Two sheets: DCF (with sensitivity at bottom), WACC</li>
+<li class="">Font colors: Blue=inputs, Black=formulas, Green=sheet links</li>
+<li class="">Cell comments on ALL hardcoded inputs</li>
+<li class="">Sensitivity tables fully populated with formulas</li>
+<li class="">Professional borders around major sections</li>
+</ul>
+<p><strong>Validation:</strong></p>
+<ul>
+<li class="">OpEx based on revenue (not gross profit)</li>
+<li class="">Terminal value 50-70% of EV</li>
+<li class="">Terminal growth &lt; WACC</li>
+<li class="">Tax rate 21-28%</li>
+<li class="">File naming: <code>[Ticker]_DCF_Model_[Date].xlsx</code></li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="data-sources--mcp-first-web-fallback">Data sources — MCP first, web fallback<a href="#data-sources--mcp-first-web-fallback" class="hash-link" aria-label="Direct link to Data sources — MCP first, web fallback" title="Direct link to Data sources — MCP first, web fallback" translate="no">​</a></h2>
+<p>Many passages below say &quot;use the S&amp;P Kensho MCP / Daloopa MCP / FactSet MCP&quot;. Those are commercial financial-data MCPs from the original Cowork plugin context. In Hermes:</p>
+<ul>
+<li class=""><strong>If you have any structured financial-data MCP configured</strong> (Hermes supports MCP — see <code>native-mcp</code> skill), prefer it for point-in-time comps, precedent transactions, and filings.</li>
+<li class=""><strong>Otherwise</strong>, fall back to:<!-- -->
+<ul>
+<li class=""><code>web_search</code> / <code>web_extract</code> against SEC EDGAR (<code>https://www.sec.gov/cgi-bin/browse-edgar</code>) for US filings</li>
+<li class="">Company IR pages for press releases, earnings decks</li>
+<li class=""><code>browser_navigate</code> for interactive data portals</li>
+<li class="">User-provided data (explicitly ask when the context doesn&#x27;t have it)</li>
+</ul>
+</li>
+<li class=""><strong>Never fabricate</strong>. If a multiple, precedent, or filing number can&#x27;t be sourced, flag the cell as <code>[UNSOURCED]</code> and surface it to the user.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="attribution">Attribution<a href="#attribution" class="hash-link" aria-label="Direct link to Attribution" title="Direct link to Attribution" translate="no">​</a></h2>
+<p>This skill is adapted from Anthropic&#x27;s Claude for Financial Services plugin suite (Apache-2.0). The Office-JS / Cowork live-Excel paths have been removed; this version targets headless openpyxl via the <code>excel-author</code> skill&#x27;s conventions. Original: <a href="https://github.com/anthropics/financial-services" target="_blank" rel="noopener noreferrer" class="">https://github.com/anthropics/financial-services</a></p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/NousResearch/hermes-agent/edit/main/website/docs/user-guide/skills/optional/finance/finance-dcf-model.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-comps-analysis"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Comps Analysis</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-excel-author"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Excel Author</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#skill-metadata" class="table-of-contents__link toc-highlight">Skill metadata</a></li><li><a href="#reference-full-skillmd" class="table-of-contents__link toc-highlight">Reference: full SKILL.md</a></li><li><a href="#environment" class="table-of-contents__link toc-highlight">Environment</a></li><li><a href="#overview" class="table-of-contents__link toc-highlight">Overview</a></li><li><a href="#tools" class="table-of-contents__link toc-highlight">Tools</a></li><li><a href="#critical-constraints---read-these-first" class="table-of-contents__link toc-highlight">Critical Constraints - Read These First</a></li><li><a href="#dcf-process-workflow" class="table-of-contents__link toc-highlight">DCF Process Workflow</a><ul><li><a href="#step-1-data-retrieval-and-validation" class="table-of-contents__link toc-highlight">Step 1: Data Retrieval and Validation</a></li><li><a href="#step-2-historical-analysis-3-5-years" class="table-of-contents__link toc-highlight">Step 2: Historical Analysis (3-5 years)</a></li><li><a href="#step-3-build-revenue-projections" class="table-of-contents__link toc-highlight">Step 3: Build Revenue Projections</a></li><li><a href="#step-4-operating-expense-modeling" class="table-of-contents__link toc-highlight">Step 4: Operating Expense Modeling</a></li><li><a href="#step-5-free-cash-flow-calculation" class="table-of-contents__link toc-highlight">Step 5: Free Cash Flow Calculation</a></li><li><a href="#step-6-cost-of-capital-wacc-research" class="table-of-contents__link toc-highlight">Step 6: Cost of Capital (WACC) Research</a></li><li><a href="#step-7-discount-rate-application-5-10-year-forecast" class="table-of-contents__link toc-highlight">Step 7: Discount Rate Application (5-10 Year Forecast)</a></li><li><a href="#step-8-terminal-value-calculation" class="table-of-contents__link toc-highlight">Step 8: Terminal Value Calculation</a></li><li><a href="#step-9-enterprise-to-equity-value-bridge" class="table-of-contents__link toc-highlight">Step 9: Enterprise to Equity Value Bridge</a></li><li><a href="#step-10-sensitivity-analysis" class="table-of-contents__link toc-highlight">Step 10: Sensitivity Analysis</a></li><li><a href="#scenario-block-selection-pattern---follow-this-approach" class="table-of-contents__link toc-highlight">Scenario Block Selection Pattern - Follow This Approach</a></li><li><a href="#correct-revenue-projection-pattern" class="table-of-contents__link toc-highlight">Correct Revenue Projection Pattern</a></li><li><a href="#correct-fcf-formula-pattern" class="table-of-contents__link toc-highlight">Correct FCF Formula Pattern</a></li><li><a href="#correct-cell-comment-format" class="table-of-contents__link toc-highlight">Correct Cell Comment Format</a></li><li><a href="#correct-assumption-table-structure" class="table-of-contents__link toc-highlight">Correct Assumption Table Structure</a></li><li><a href="#correct-row-planning-process" class="table-of-contents__link toc-highlight">Correct Row Planning Process</a></li><li><a href="#correct-sensitivity-table-implementation" class="table-of-contents__link toc-highlight">Correct Sensitivity Table Implementation</a></li><li><a href="#wrong-simplified-sensitivity-table-approximations-or-placeholder-text" class="table-of-contents__link toc-highlight">WRONG: Simplified Sensitivity Table Approximations or Placeholder Text</a></li><li><a href="#wrong-missing-cell-comments" class="table-of-contents__link toc-highlight">WRONG: Missing Cell Comments</a></li><li><a href="#wrong-formula-row-references-off" class="table-of-contents__link toc-highlight">WRONG: Formula Row References Off</a></li><li><a href="#wrong-single-row-for-each-assumption-across-scenarios" class="table-of-contents__link toc-highlight">WRONG: Single Row for Each Assumption Across Scenarios</a></li><li><a href="#wrong-no-borders" class="table-of-contents__link toc-highlight">WRONG: No Borders</a></li><li><a href="#wrong-wrong-font-colors-or-no-font-color-distinction" class="table-of-contents__link toc-highlight">WRONG: Wrong Font Colors or No Font Color Distinction</a></li><li><a href="#wrong-operating-expenses-based-on-gross-profit" class="table-of-contents__link toc-highlight">WRONG: Operating Expenses Based on Gross Profit</a></li><li><a href="#top-5-errors-summary" class="table-of-contents__link toc-highlight">TOP 5 ERRORS SUMMARY</a></li><li><a href="#wacc-calculation-errors" class="table-of-contents__link toc-highlight">WACC Calculation Errors</a></li><li><a href="#growth-assumption-flaws" class="table-of-contents__link toc-highlight">Growth Assumption Flaws</a></li><li><a href="#terminal-value-mistakes" class="table-of-contents__link toc-highlight">Terminal Value Mistakes</a></li><li><a href="#cash-flow-projection-errors" class="table-of-contents__link toc-highlight">Cash Flow Projection Errors</a></li></ul></li><li><a href="#excel-file-creation" class="table-of-contents__link toc-highlight">Excel File Creation</a></li><li><a href="#quality-rubric" class="table-of-contents__link toc-highlight">Quality Rubric</a></li><li><a href="#input-requirements" class="table-of-contents__link toc-highlight">Input Requirements</a><ul><li><a href="#minimum-required-inputs" class="table-of-contents__link toc-highlight">Minimum Required Inputs</a></li></ul></li><li><a href="#excel-model-structure" class="table-of-contents__link toc-highlight">Excel Model Structure</a><ul><li><a href="#sheet-architecture" class="table-of-contents__link toc-highlight">Sheet Architecture</a></li><li><a href="#formula-recalculation-mandatory" class="table-of-contents__link toc-highlight">Formula Recalculation (MANDATORY)</a></li><li><a href="#formatting-standards" class="table-of-contents__link toc-highlight">Formatting Standards</a></li><li><a href="#border-standards-required-for-professional-appearance" class="table-of-contents__link toc-highlight">Border Standards (REQUIRED for Professional Appearance)</a></li><li><a href="#dcf-sheet-detailed-structure" class="table-of-contents__link toc-highlight">DCF Sheet Detailed Structure</a></li><li><a href="#wacc-sheet-structure" class="table-of-contents__link toc-highlight">WACC Sheet Structure</a></li><li><a href="#sensitivity-analysis-bottom-of-dcf-sheet" class="table-of-contents__link toc-highlight">Sensitivity Analysis (Bottom of DCF Sheet)</a></li></ul></li><li><a href="#case-selector-implementation" class="table-of-contents__link toc-highlight">Case Selector Implementation</a><ul><li><a href="#bear-case" class="table-of-contents__link toc-highlight">Bear Case</a></li><li><a href="#base-case" class="table-of-contents__link toc-highlight">Base Case</a></li><li><a href="#bull-case" class="table-of-contents__link toc-highlight">Bull Case</a></li></ul></li><li><a href="#deliverables-structure" class="table-of-contents__link toc-highlight">Deliverables Structure</a></li><li><a href="#best-practices" class="table-of-contents__link toc-highlight">Best Practices</a><ul><li><a href="#model-construction" class="table-of-contents__link toc-highlight">Model Construction</a></li><li><a href="#documentation" class="table-of-contents__link toc-highlight">Documentation</a></li><li><a href="#quality-control" class="table-of-contents__link toc-highlight">Quality Control</a></li></ul></li><li><a href="#common-variations" class="table-of-contents__link toc-highlight">Common Variations</a><ul><li><a href="#high-growth-technology-companies" class="table-of-contents__link toc-highlight">High-Growth Technology Companies</a></li><li><a href="#maturestable-companies" class="table-of-contents__link toc-highlight">Mature/Stable Companies</a></li><li><a href="#cyclical-companies" class="table-of-contents__link toc-highlight">Cyclical Companies</a></li><li><a href="#multi-segment-companies" class="table-of-contents__link toc-highlight">Multi-Segment Companies</a></li></ul></li><li><a href="#troubleshooting" class="table-of-contents__link toc-highlight">Troubleshooting</a></li><li><a href="#workflow-integration" class="table-of-contents__link toc-highlight">Workflow Integration</a><ul><li><a href="#at-start-of-dcf-build" class="table-of-contents__link toc-highlight">At Start of DCF Build</a></li><li><a href="#during-model-construction" class="table-of-contents__link toc-highlight">During Model Construction</a></li><li><a href="#before-delivering-model-mandatory" class="table-of-contents__link toc-highlight">Before Delivering Model (MANDATORY)</a></li><li><a href="#available-data-sources" class="table-of-contents__link toc-highlight">Available Data Sources</a></li></ul></li><li><a href="#final-output-checklist" class="table-of-contents__link toc-highlight">Final Output Checklist</a></li><li><a href="#data-sources--mcp-first-web-fallback" class="table-of-contents__link toc-highlight">Data sources — MCP first, web fallback</a></li><li><a href="#attribution" class="table-of-contents__link toc-highlight">Attribution</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/getting-started/quickstart">Getting Started</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/user-guide/cli">User Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/developer-guide/architecture">Developer Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/reference/cli-commands">Reference</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent/discussions" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub Discussions<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://agentskills.io" target="_blank" rel="noopener noreferrer" class="footer__link-item">Skills Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://nousresearch.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Nous Research<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Built by <a href="https://nousresearch.com">Nous Research</a> · MIT License · 2026</div></div></div></footer></div>
+</body>
+</html>

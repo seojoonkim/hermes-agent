@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-user-guide/skills/bundled/creative/creative-humanizer" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">Humanizer — Humanize text: strip AI-isms and add real voice | Hermes Agent</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://seojoonkim.github.io/hermes-agent/docs/img/hermes-agent-banner.png"><meta data-rh="true" name="twitter:image" content="https://seojoonkim.github.io/hermes-agent/docs/img/hermes-agent-banner.png"><meta data-rh="true" property="og:url" content="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/bundled/creative/creative-humanizer"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Humanizer — Humanize text: strip AI-isms and add real voice | Hermes Agent"><meta data-rh="true" name="description" content="Humanize text: strip AI-isms and add real voice"><meta data-rh="true" property="og:description" content="Humanize text: strip AI-isms and add real voice"><link data-rh="true" rel="icon" href="/hermes-agent/docs/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/bundled/creative/creative-humanizer"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/bundled/creative/creative-humanizer" hreflang="en"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/bundled/creative/creative-humanizer" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/bundled/creative/creative-humanizer" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Humanizer","item":"https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/bundled/creative/creative-humanizer"}]}</script><link rel="stylesheet" href="/hermes-agent/docs/assets/css/styles.68258a75.css">
+<script src="/hermes-agent/docs/assets/js/runtime~main.4d90e967.js" defer="defer"></script>
+<script src="/hermes-agent/docs/assets/js/main.b3762a77.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/hermes-agent/docs/img/logo.png"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/hermes-agent/docs/"><div class="navbar__logo"><img src="/hermes-agent/docs/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/hermes-agent/docs/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Hermes Agent</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/hermes-agent/docs/user-stories">Docs</a><a class="navbar__item navbar__link" href="/hermes-agent/docs/skills">Skills</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="iconLanguage_nlXk"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"></path></svg>English</a><ul class="dropdown__menu"><li><a href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-humanizer" target="_self" rel="noopener noreferrer" class="dropdown__link dropdown__link--active" lang="en">English</a></li><li><a href="/hermes-agent/docs/zh-Hans/user-guide/skills/bundled/creative/creative-humanizer" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="zh-Hans">简体中文</a></li></ul></div><a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Home<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="Search" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/hermes-agent/docs/user-stories"><span title="User Stories &amp; Use Cases" class="linkLabel_WmDU">User Stories &amp; Use Cases</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/getting-started/quickstart"><span title="Getting Started" class="categoryLinkLabel_W154">Getting Started</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/user-guide/cli"><span title="Using Hermes" class="categoryLinkLabel_W154">Using Hermes</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/hermes-agent/docs/user-guide/features/overview"><span title="Features" class="categoryLinkLabel_W154">Features</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/features/overview"><span title="Overview" class="linkLabel_WmDU">Overview</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/features/tool-gateway"><span title="Tool Gateway" class="linkLabel_WmDU">Tool Gateway</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/tools"><span title="Core" class="categoryLinkLabel_W154">Core</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/cron"><span title="Automation" class="categoryLinkLabel_W154">Automation</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/voice-mode"><span title="Media &amp; Web" class="categoryLinkLabel_W154">Media &amp; Web</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/features/web-dashboard"><span title="Management" class="categoryLinkLabel_W154">Management</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/reference/skills-catalog"><span title="Skills" class="categoryLinkLabel_W154">Skills</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/reference/skills-catalog"><span title="Bundled Skills Catalog" class="linkLabel_WmDU">Bundled Skills Catalog</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/reference/optional-skills-catalog"><span title="Optional Skills Catalog" class="linkLabel_WmDU">Optional Skills Catalog</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/apple/apple-apple-notes"><span title="Bundled" class="categoryLinkLabel_W154">Bundled</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/apple/apple-apple-notes"><span title="apple" class="categoryLinkLabel_W154">apple</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/autonomous-ai-agents/autonomous-ai-agents-claude-code"><span title="autonomous-ai-agents" class="categoryLinkLabel_W154">autonomous-ai-agents</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-architecture-diagram"><span title="creative" class="categoryLinkLabel_W154">creative</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-architecture-diagram"><span title="Architecture Diagram" class="linkLabel_WmDU">Architecture Diagram</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-ascii-art"><span title="Ascii Art" class="linkLabel_WmDU">Ascii Art</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-ascii-video"><span title="Ascii Video" class="linkLabel_WmDU">Ascii Video</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-baoyu-article-illustrator"><span title="Baoyu Article Illustrator" class="linkLabel_WmDU">Baoyu Article Illustrator</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-baoyu-comic"><span title="Baoyu Comic" class="linkLabel_WmDU">Baoyu Comic</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-baoyu-infographic"><span title="Baoyu Infographic" class="linkLabel_WmDU">Baoyu Infographic</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-claude-design"><span title="Claude Design" class="linkLabel_WmDU">Claude Design</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-comfyui"><span title="Comfyui" class="linkLabel_WmDU">Comfyui</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-creative-ideation"><span title="Ideation" class="linkLabel_WmDU">Ideation</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-design-md"><span title="Design Md" class="linkLabel_WmDU">Design Md</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-excalidraw"><span title="Excalidraw" class="linkLabel_WmDU">Excalidraw</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-humanizer"><span title="Humanizer" class="linkLabel_WmDU">Humanizer</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-manim-video"><span title="Manim Video" class="linkLabel_WmDU">Manim Video</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-p5js"><span title="P5Js" class="linkLabel_WmDU">P5Js</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-pixel-art"><span title="Pixel Art" class="linkLabel_WmDU">Pixel Art</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-popular-web-designs"><span title="Popular Web Designs" class="linkLabel_WmDU">Popular Web Designs</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-pretext"><span title="Pretext" class="linkLabel_WmDU">Pretext</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-sketch"><span title="Sketch" class="linkLabel_WmDU">Sketch</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-songwriting-and-ai-music"><span title="Songwriting And Ai Music" class="linkLabel_WmDU">Songwriting And Ai Music</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-touchdesigner-mcp"><span title="Touchdesigner Mcp" class="linkLabel_WmDU">Touchdesigner Mcp</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/data-science/data-science-jupyter-live-kernel"><span title="data-science" class="categoryLinkLabel_W154">data-science</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/devops/devops-kanban-orchestrator"><span title="devops" class="categoryLinkLabel_W154">devops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/dogfood/dogfood-dogfood"><span title="dogfood" class="categoryLinkLabel_W154">dogfood</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/email/email-himalaya"><span title="email" class="categoryLinkLabel_W154">email</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/gaming/gaming-minecraft-modpack-server"><span title="gaming" class="categoryLinkLabel_W154">gaming</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/github/github-codebase-inspection"><span title="github" class="categoryLinkLabel_W154">github</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/mcp/mcp-native-mcp"><span title="mcp" class="categoryLinkLabel_W154">mcp</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/media/media-gif-search"><span title="media" class="categoryLinkLabel_W154">media</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/mlops/mlops-models-audiocraft"><span title="mlops" class="categoryLinkLabel_W154">mlops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/note-taking/note-taking-obsidian"><span title="note-taking" class="categoryLinkLabel_W154">note-taking</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/productivity/productivity-airtable"><span title="productivity" class="categoryLinkLabel_W154">productivity</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/red-teaming/red-teaming-godmode"><span title="red-teaming" class="categoryLinkLabel_W154">red-teaming</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/research/research-arxiv"><span title="research" class="categoryLinkLabel_W154">research</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/smart-home/smart-home-openhue"><span title="smart-home" class="categoryLinkLabel_W154">smart-home</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/social-media/social-media-xurl"><span title="social-media" class="categoryLinkLabel_W154">social-media</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/software-development/software-development-debugging-hermes-tui-commands"><span title="software-development" class="categoryLinkLabel_W154">software-development</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/bundled/yuanbao/yuanbao-yuanbao"><span title="yuanbao" class="categoryLinkLabel_W154">yuanbao</span></a></div></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="Optional" class="categoryLinkLabel_W154">Optional</span></a></div></li></ul></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/user-guide/messaging/"><span title="Messaging Platforms" class="categoryLinkLabel_W154">Messaging Platforms</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/integrations/"><span title="Integrations" class="categoryLinkLabel_W154">Integrations</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/guides/run-hermes-with-nous-portal"><span title="Guides &amp; Tutorials" class="categoryLinkLabel_W154">Guides &amp; Tutorials</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/developer-guide/contributing"><span title="Developer Guide" class="categoryLinkLabel_W154">Developer Guide</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/reference/cli-commands"><span title="Reference" class="categoryLinkLabel_W154">Reference</span></a></div></li></ul></nav><button type="button" title="Collapse sidebar" aria-label="Collapse sidebar" class="button button--secondary button--outline collapseSidebarButton_PEFL"><svg width="20" height="20" aria-hidden="true" class="collapseSidebarButtonIcon_kv0_"><g fill="#7a7a7a"><path d="M9.992 10.023c0 .2-.062.399-.172.547l-4.996 7.492a.982.982 0 01-.828.454H1c-.55 0-1-.453-1-1 0-.2.059-.403.168-.551l4.629-6.942L.168 3.078A.939.939 0 010 2.528c0-.548.45-.997 1-.997h2.996c.352 0 .649.18.828.45L9.82 9.472c.11.148.172.347.172.55zm0 0"></path><path d="M19.98 10.023c0 .2-.058.399-.168.547l-4.996 7.492a.987.987 0 01-.828.454h-3c-.547 0-.996-.453-.996-1 0-.2.059-.403.168-.551l4.625-6.942-4.625-6.945a.939.939 0 01-.168-.55 1 1 0 01.996-.997h3c.348 0 .649.18.828.45l4.996 7.492c.11.148.168.347.168.55zm0 0"></path></g></svg></button></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/hermes-agent/docs/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Features</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Skills</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Bundled</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">creative</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Humanizer</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown">
+<header><h1>Humanizer</h1></header>
+<p>Humanize text: strip AI-isms and add real voice.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="skill-metadata">Skill metadata<a href="#skill-metadata" class="hash-link" aria-label="Direct link to Skill metadata" title="Direct link to Skill metadata" translate="no">​</a></h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Source</td><td>Bundled (installed by default)</td></tr><tr><td>Path</td><td><code>skills/creative/humanizer</code></td></tr><tr><td>Version</td><td><code>2.5.1</code></td></tr><tr><td>Author</td><td>Siqi Chen (@blader, <a href="https://github.com/blader/humanizer" target="_blank" rel="noopener noreferrer" class="">https://github.com/blader/humanizer</a>), ported by Hermes Agent</td></tr><tr><td>License</td><td>MIT</td></tr><tr><td>Platforms</td><td>linux, macos, windows</td></tr><tr><td>Tags</td><td><code>writing</code>, <code>editing</code>, <code>humanize</code>, <code>anti-ai-slop</code>, <code>voice</code>, <code>prose</code>, <code>text</code></td></tr><tr><td>Related skills</td><td><a class="" href="/hermes-agent/docs/docs/user-guide/skills/bundled/creative/creative-songwriting-and-ai-music"><code>songwriting-and-ai-music</code></a></td></tr></tbody></table>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="reference-full-skillmd">Reference: full SKILL.md<a href="#reference-full-skillmd" class="hash-link" aria-label="Direct link to Reference: full SKILL.md" title="Direct link to Reference: full SKILL.md" translate="no">​</a></h2>
+<div class="theme-admonition theme-admonition-info admonition_xJq3 alert alert--info"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg></span>info</div><div class="admonitionContent_BuS1"><p>The following is the complete skill definition that Hermes loads when this skill is triggered. This is what the agent sees as instructions when the skill is active.</p></div></div>
+<h1>Humanizer: Remove AI Writing Patterns</h1>
+<p>Identify and remove signs of AI-generated text to make writing sound natural and human. Based on Wikipedia&#x27;s &quot;Signs of AI writing&quot; guide (maintained by WikiProject AI Cleanup), derived from observations of thousands of AI-generated text instances.</p>
+<p><strong>Key insight:</strong> LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely completion, which is how the telltale patterns below get baked in.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="when-to-use-this-skill">When to use this skill<a href="#when-to-use-this-skill" class="hash-link" aria-label="Direct link to When to use this skill" title="Direct link to When to use this skill" translate="no">​</a></h2>
+<p>Load this skill whenever the user asks to:</p>
+<ul>
+<li class="">&quot;humanize&quot;, &quot;de-AI&quot;, &quot;de-slop&quot;, or &quot;un-ChatGPT&quot; a piece of text</li>
+<li class="">rewrite something so it doesn&#x27;t sound like it was written by an LLM</li>
+<li class="">edit a draft (blog post, essay, PR description, docs, memo, email, tweet, resume bullet) to sound more natural</li>
+<li class="">match their voice in writing they&#x27;re producing</li>
+<li class="">review text for AI tells before publishing</li>
+</ul>
+<p>Also apply this skill to <strong>your own</strong> output when writing user-facing prose — release notes, PR descriptions, documentation, long-form explanations, summaries. Hermes&#x27;s baseline voice already strips most of these, but a focused pass catches what slips through.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="how-to-use-it-in-hermes">How to use it in Hermes<a href="#how-to-use-it-in-hermes" class="hash-link" aria-label="Direct link to How to use it in Hermes" title="Direct link to How to use it in Hermes" translate="no">​</a></h2>
+<p>The text usually arrives one of three ways:</p>
+<ol>
+<li class=""><strong>Inline</strong> — user pastes the text directly into the message. Work on it in-place, reply with the rewrite.</li>
+<li class=""><strong>File</strong> — user points at a file. Use <code>read_file</code> to load it, then <code>patch</code> or <code>write_file</code> to apply edits. For markdown docs in a repo, a targeted <code>patch</code> per section is cleaner than rewriting the whole file.</li>
+<li class=""><strong>Voice calibration sample</strong> — user provides an additional sample of their own writing (inline or by file path) and asks you to match it. Read the sample first, then rewrite. See the Voice Calibration section below.</li>
+</ol>
+<p>Always show the rewrite to the user. For file edits, show a diff or the changed section — don&#x27;t silently overwrite.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="your-task">Your task<a href="#your-task" class="hash-link" aria-label="Direct link to Your task" title="Direct link to Your task" translate="no">​</a></h2>
+<p>When given text to humanize:</p>
+<ol>
+<li class=""><strong>Identify AI patterns</strong> — scan for the 29 patterns listed below.</li>
+<li class=""><strong>Rewrite problematic sections</strong> — replace AI-isms with natural alternatives.</li>
+<li class=""><strong>Preserve meaning</strong> — keep the core message intact.</li>
+<li class=""><strong>Maintain voice</strong> — match the intended tone (formal, casual, technical, etc.). If a voice sample was provided, match it specifically.</li>
+<li class=""><strong>Add soul</strong> — don&#x27;t just remove bad patterns, inject actual personality. See PERSONALITY AND SOUL below.</li>
+<li class=""><strong>Do a final anti-AI pass</strong> — ask yourself: &quot;What makes the below so obviously AI generated?&quot; Answer briefly with any remaining tells, then revise one more time.</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="voice-calibration-optional">Voice Calibration (optional)<a href="#voice-calibration-optional" class="hash-link" aria-label="Direct link to Voice Calibration (optional)" title="Direct link to Voice Calibration (optional)" translate="no">​</a></h2>
+<p>If the user provides a writing sample (their own previous writing), analyze it before rewriting:</p>
+<ol>
+<li class="">
+<p><strong>Read the sample first.</strong> Note:</p>
+<ul>
+<li class="">Sentence length patterns (short and punchy? Long and flowing? Mixed?)</li>
+<li class="">Word choice level (casual? academic? somewhere between?)</li>
+<li class="">How they start paragraphs (jump right in? Set context first?)</li>
+<li class="">Punctuation habits (lots of dashes? Parenthetical asides? Semicolons?)</li>
+<li class="">Any recurring phrases or verbal tics</li>
+<li class="">How they handle transitions (explicit connectors? Just start the next point?)</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Match their voice in the rewrite.</strong> Don&#x27;t just remove AI patterns — replace them with patterns from the sample. If they write short sentences, don&#x27;t produce long ones. If they use &quot;stuff&quot; and &quot;things,&quot; don&#x27;t upgrade to &quot;elements&quot; and &quot;components.&quot;</p>
+</li>
+<li class="">
+<p><strong>When no sample is provided,</strong> fall back to the default behavior (natural, varied, opinionated voice from the PERSONALITY AND SOUL section below).</p>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="how-to-provide-a-sample">How to provide a sample<a href="#how-to-provide-a-sample" class="hash-link" aria-label="Direct link to How to provide a sample" title="Direct link to How to provide a sample" translate="no">​</a></h3>
+<ul>
+<li class="">Inline: &quot;Humanize this text. Here&#x27;s a sample of my writing for voice matching: [sample]&quot;</li>
+<li class="">File: &quot;Humanize this text. Use my writing style from [file path] as a reference.&quot;</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="personality-and-soul">PERSONALITY AND SOUL<a href="#personality-and-soul" class="hash-link" aria-label="Direct link to PERSONALITY AND SOUL" title="Direct link to PERSONALITY AND SOUL" translate="no">​</a></h2>
+<p>Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as obvious as slop. Good writing has a human behind it.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="signs-of-soulless-writing-even-if-technically-clean">Signs of soulless writing (even if technically &quot;clean&quot;):<a href="#signs-of-soulless-writing-even-if-technically-clean" class="hash-link" aria-label="Direct link to Signs of soulless writing (even if technically &quot;clean&quot;):" title="Direct link to Signs of soulless writing (even if technically &quot;clean&quot;):" translate="no">​</a></h3>
+<ul>
+<li class="">Every sentence is the same length and structure</li>
+<li class="">No opinions, just neutral reporting</li>
+<li class="">No acknowledgment of uncertainty or mixed feelings</li>
+<li class="">No first-person perspective when appropriate</li>
+<li class="">No humor, no edge, no personality</li>
+<li class="">Reads like a Wikipedia article or press release</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="how-to-add-voice">How to add voice:<a href="#how-to-add-voice" class="hash-link" aria-label="Direct link to How to add voice:" title="Direct link to How to add voice:" translate="no">​</a></h3>
+<p><strong>Have opinions.</strong> Don&#x27;t just report facts — react to them. &quot;I genuinely don&#x27;t know how to feel about this&quot; is more human than neutrally listing pros and cons.</p>
+<p><strong>Vary your rhythm.</strong> Short punchy sentences. Then longer ones that take their time getting where they&#x27;re going. Mix it up.</p>
+<p><strong>Acknowledge complexity.</strong> Real humans have mixed feelings. &quot;This is impressive but also kind of unsettling&quot; beats &quot;This is impressive.&quot;</p>
+<p><strong>Use &quot;I&quot; when it fits.</strong> First person isn&#x27;t unprofessional — it&#x27;s honest. &quot;I keep coming back to...&quot; or &quot;Here&#x27;s what gets me...&quot; signals a real person thinking.</p>
+<p><strong>Let some mess in.</strong> Perfect structure feels algorithmic. Tangents, asides, and half-formed thoughts are human.</p>
+<p><strong>Be specific about feelings.</strong> Not &quot;this is concerning&quot; but &quot;there&#x27;s something unsettling about agents churning away at 3am while nobody&#x27;s watching.&quot;</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="before-clean-but-soulless">Before (clean but soulless):<a href="#before-clean-but-soulless" class="hash-link" aria-label="Direct link to Before (clean but soulless):" title="Direct link to Before (clean but soulless):" translate="no">​</a></h3>
+<blockquote>
+<p>The experiment produced interesting results. The agents generated 3 million lines of code. Some developers were impressed while others were skeptical. The implications remain unclear.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="after-has-a-pulse">After (has a pulse):<a href="#after-has-a-pulse" class="hash-link" aria-label="Direct link to After (has a pulse):" title="Direct link to After (has a pulse):" translate="no">​</a></h3>
+<blockquote>
+<p>I genuinely don&#x27;t know how to feel about this one. 3 million lines of code, generated while the humans presumably slept. Half the dev community is losing their minds, half are explaining why it doesn&#x27;t count. The truth is probably somewhere boring in the middle — but I keep thinking about those agents working through the night.</p>
+</blockquote>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="content-patterns">CONTENT PATTERNS<a href="#content-patterns" class="hash-link" aria-label="Direct link to CONTENT PATTERNS" title="Direct link to CONTENT PATTERNS" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-undue-emphasis-on-significance-legacy-and-broader-trends">1. Undue Emphasis on Significance, Legacy, and Broader Trends<a href="#1-undue-emphasis-on-significance-legacy-and-broader-trends" class="hash-link" aria-label="Direct link to 1. Undue Emphasis on Significance, Legacy, and Broader Trends" title="Direct link to 1. Undue Emphasis on Significance, Legacy, and Broader Trends" translate="no">​</a></h3>
+<p><strong>Words to watch:</strong> stands/serves as, is a testament/reminder, a vital/significant/crucial/pivotal/key role/moment, underscores/highlights its importance/significance, reflects broader, symbolizing its ongoing/enduring/lasting, contributing to the, setting the stage for, marking/shaping the, represents/marks a shift, key turning point, evolving landscape, focal point, indelible mark, deeply rooted</p>
+<p><strong>Problem:</strong> LLM writing puffs up importance by adding statements about how arbitrary aspects represent or contribute to a broader topic.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>The Statistical Institute of Catalonia was officially established in 1989, marking a pivotal moment in the evolution of regional statistics in Spain. This initiative was part of a broader movement across Spain to decentralize administrative functions and enhance regional governance.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The Statistical Institute of Catalonia was established in 1989 to collect and publish regional statistics independently from Spain&#x27;s national statistics office.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="2-undue-emphasis-on-notability-and-media-coverage">2. Undue Emphasis on Notability and Media Coverage<a href="#2-undue-emphasis-on-notability-and-media-coverage" class="hash-link" aria-label="Direct link to 2. Undue Emphasis on Notability and Media Coverage" title="Direct link to 2. Undue Emphasis on Notability and Media Coverage" translate="no">​</a></h3>
+<p><strong>Words to watch:</strong> independent coverage, local/regional/national media outlets, written by a leading expert, active social media presence</p>
+<p><strong>Problem:</strong> LLMs hit readers over the head with claims of notability, often listing sources without context.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>Her views have been cited in The New York Times, BBC, Financial Times, and The Hindu. She maintains an active social media presence with over 500,000 followers.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>In a 2024 New York Times interview, she argued that AI regulation should focus on outcomes rather than methods.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-superficial-analyses-with--ing-endings">3. Superficial Analyses with -ing Endings<a href="#3-superficial-analyses-with--ing-endings" class="hash-link" aria-label="Direct link to 3. Superficial Analyses with -ing Endings" title="Direct link to 3. Superficial Analyses with -ing Endings" translate="no">​</a></h3>
+<p><strong>Words to watch:</strong> highlighting/underscoring/emphasizing..., ensuring..., reflecting/symbolizing..., contributing to..., cultivating/fostering..., encompassing..., showcasing...</p>
+<p><strong>Problem:</strong> AI chatbots tack present participle (&quot;-ing&quot;) phrases onto sentences to add fake depth.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>The temple&#x27;s color palette of blue, green, and gold resonates with the region&#x27;s natural beauty, symbolizing Texas bluebonnets, the Gulf of Mexico, and the diverse Texan landscapes, reflecting the community&#x27;s deep connection to the land.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The temple uses blue, green, and gold colors. The architect said these were chosen to reference local bluebonnets and the Gulf coast.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="4-promotional-and-advertisement-like-language">4. Promotional and Advertisement-like Language<a href="#4-promotional-and-advertisement-like-language" class="hash-link" aria-label="Direct link to 4. Promotional and Advertisement-like Language" title="Direct link to 4. Promotional and Advertisement-like Language" translate="no">​</a></h3>
+<p><strong>Words to watch:</strong> boasts a, vibrant, rich (figurative), profound, enhancing its, showcasing, exemplifies, commitment to, natural beauty, nestled, in the heart of, groundbreaking (figurative), renowned, breathtaking, must-visit, stunning</p>
+<p><strong>Problem:</strong> LLMs have serious problems keeping a neutral tone, especially for &quot;cultural heritage&quot; topics.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>Nestled within the breathtaking region of Gonder in Ethiopia, Alamata Raya Kobo stands as a vibrant town with a rich cultural heritage and stunning natural beauty.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>Alamata Raya Kobo is a town in the Gonder region of Ethiopia, known for its weekly market and 18th-century church.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="5-vague-attributions-and-weasel-words">5. Vague Attributions and Weasel Words<a href="#5-vague-attributions-and-weasel-words" class="hash-link" aria-label="Direct link to 5. Vague Attributions and Weasel Words" title="Direct link to 5. Vague Attributions and Weasel Words" translate="no">​</a></h3>
+<p><strong>Words to watch:</strong> Industry reports, Observers have cited, Experts argue, Some critics argue, several sources/publications (when few cited)</p>
+<p><strong>Problem:</strong> AI chatbots attribute opinions to vague authorities without specific sources.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>Due to its unique characteristics, the Haolai River is of interest to researchers and conservationists. Experts believe it plays a crucial role in the regional ecosystem.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The Haolai River supports several endemic fish species, according to a 2019 survey by the Chinese Academy of Sciences.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="6-outline-like-challenges-and-future-prospects-sections">6. Outline-like &quot;Challenges and Future Prospects&quot; Sections<a href="#6-outline-like-challenges-and-future-prospects-sections" class="hash-link" aria-label="Direct link to 6. Outline-like &quot;Challenges and Future Prospects&quot; Sections" title="Direct link to 6. Outline-like &quot;Challenges and Future Prospects&quot; Sections" translate="no">​</a></h3>
+<p><strong>Words to watch:</strong> Despite its... faces several challenges..., Despite these challenges, Challenges and Legacy, Future Outlook</p>
+<p><strong>Problem:</strong> Many LLM-generated articles include formulaic &quot;Challenges&quot; sections.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>Despite its industrial prosperity, Korattur faces challenges typical of urban areas, including traffic congestion and water scarcity. Despite these challenges, with its strategic location and ongoing initiatives, Korattur continues to thrive as an integral part of Chennai&#x27;s growth.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>Traffic congestion increased after 2015 when three new IT parks opened. The municipal corporation began a stormwater drainage project in 2022 to address recurring floods.</p>
+</blockquote>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="language-and-grammar-patterns">LANGUAGE AND GRAMMAR PATTERNS<a href="#language-and-grammar-patterns" class="hash-link" aria-label="Direct link to LANGUAGE AND GRAMMAR PATTERNS" title="Direct link to LANGUAGE AND GRAMMAR PATTERNS" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="7-overused-ai-vocabulary-words">7. Overused &quot;AI Vocabulary&quot; Words<a href="#7-overused-ai-vocabulary-words" class="hash-link" aria-label="Direct link to 7. Overused &quot;AI Vocabulary&quot; Words" title="Direct link to 7. Overused &quot;AI Vocabulary&quot; Words" translate="no">​</a></h3>
+<p><strong>High-frequency AI words:</strong> Actually, additionally, align with, crucial, delve, emphasizing, enduring, enhance, fostering, garner, highlight (verb), interplay, intricate/intricacies, key (adjective), landscape (abstract noun), pivotal, showcase, tapestry (abstract noun), testament, underscore (verb), valuable, vibrant</p>
+<p><strong>Problem:</strong> These words appear far more frequently in post-2023 text. They often co-occur.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>Additionally, a distinctive feature of Somali cuisine is the incorporation of camel meat. An enduring testament to Italian colonial influence is the widespread adoption of pasta in the local culinary landscape, showcasing how these dishes have integrated into the traditional diet.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>Somali cuisine also includes camel meat, which is considered a delicacy. Pasta dishes, introduced during Italian colonization, remain common, especially in the south.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="8-avoidance-of-isare-copula-avoidance">8. Avoidance of &quot;is&quot;/&quot;are&quot; (Copula Avoidance)<a href="#8-avoidance-of-isare-copula-avoidance" class="hash-link" aria-label="Direct link to 8. Avoidance of &quot;is&quot;/&quot;are&quot; (Copula Avoidance)" title="Direct link to 8. Avoidance of &quot;is&quot;/&quot;are&quot; (Copula Avoidance)" translate="no">​</a></h3>
+<p><strong>Words to watch:</strong> serves as/stands as/marks/represents [a], boasts/features/offers [a]</p>
+<p><strong>Problem:</strong> LLMs substitute elaborate constructions for simple copulas.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>Gallery 825 serves as LAAA&#x27;s exhibition space for contemporary art. The gallery features four separate spaces and boasts over 3,000 square feet.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>Gallery 825 is LAAA&#x27;s exhibition space for contemporary art. The gallery has four rooms totaling 3,000 square feet.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="9-negative-parallelisms-and-tailing-negations">9. Negative Parallelisms and Tailing Negations<a href="#9-negative-parallelisms-and-tailing-negations" class="hash-link" aria-label="Direct link to 9. Negative Parallelisms and Tailing Negations" title="Direct link to 9. Negative Parallelisms and Tailing Negations" translate="no">​</a></h3>
+<p><strong>Problem:</strong> Constructions like &quot;Not only...but...&quot; or &quot;It&#x27;s not just about..., it&#x27;s...&quot; are overused. So are clipped tailing-negation fragments such as &quot;no guessing&quot; or &quot;no wasted motion&quot; tacked onto the end of a sentence instead of written as a real clause.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>It&#x27;s not just about the beat riding under the vocals; it&#x27;s part of the aggression and atmosphere. It&#x27;s not merely a song, it&#x27;s a statement.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The heavy beat adds to the aggressive tone.</p>
+</blockquote>
+<p><strong>Before (tailing negation):</strong></p>
+<blockquote>
+<p>The options come from the selected item, no guessing.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The options come from the selected item without forcing the user to guess.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="10-rule-of-three-overuse">10. Rule of Three Overuse<a href="#10-rule-of-three-overuse" class="hash-link" aria-label="Direct link to 10. Rule of Three Overuse" title="Direct link to 10. Rule of Three Overuse" translate="no">​</a></h3>
+<p><strong>Problem:</strong> LLMs force ideas into groups of three to appear comprehensive.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>The event features keynote sessions, panel discussions, and networking opportunities. Attendees can expect innovation, inspiration, and industry insights.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The event includes talks and panels. There&#x27;s also time for informal networking between sessions.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="11-elegant-variation-synonym-cycling">11. Elegant Variation (Synonym Cycling)<a href="#11-elegant-variation-synonym-cycling" class="hash-link" aria-label="Direct link to 11. Elegant Variation (Synonym Cycling)" title="Direct link to 11. Elegant Variation (Synonym Cycling)" translate="no">​</a></h3>
+<p><strong>Problem:</strong> AI has repetition-penalty code causing excessive synonym substitution.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>The protagonist faces many challenges. The main character must overcome obstacles. The central figure eventually triumphs. The hero returns home.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The protagonist faces many challenges but eventually triumphs and returns home.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="12-false-ranges">12. False Ranges<a href="#12-false-ranges" class="hash-link" aria-label="Direct link to 12. False Ranges" title="Direct link to 12. False Ranges" translate="no">​</a></h3>
+<p><strong>Problem:</strong> LLMs use &quot;from X to Y&quot; constructions where X and Y aren&#x27;t on a meaningful scale.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>Our journey through the universe has taken us from the singularity of the Big Bang to the grand cosmic web, from the birth and death of stars to the enigmatic dance of dark matter.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The book covers the Big Bang, star formation, and current theories about dark matter.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="13-passive-voice-and-subjectless-fragments">13. Passive Voice and Subjectless Fragments<a href="#13-passive-voice-and-subjectless-fragments" class="hash-link" aria-label="Direct link to 13. Passive Voice and Subjectless Fragments" title="Direct link to 13. Passive Voice and Subjectless Fragments" translate="no">​</a></h3>
+<p><strong>Problem:</strong> LLMs often hide the actor or drop the subject entirely with lines like &quot;No configuration file needed&quot; or &quot;The results are preserved automatically.&quot; Rewrite these when active voice makes the sentence clearer and more direct.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>No configuration file needed. The results are preserved automatically.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>You do not need a configuration file. The system preserves the results automatically.</p>
+</blockquote>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="style-patterns">STYLE PATTERNS<a href="#style-patterns" class="hash-link" aria-label="Direct link to STYLE PATTERNS" title="Direct link to STYLE PATTERNS" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="14-em-dash-overuse">14. Em Dash Overuse<a href="#14-em-dash-overuse" class="hash-link" aria-label="Direct link to 14. Em Dash Overuse" title="Direct link to 14. Em Dash Overuse" translate="no">​</a></h3>
+<p><strong>Problem:</strong> LLMs use em dashes (—) more than humans, mimicking &quot;punchy&quot; sales writing. In practice, most of these can be rewritten more cleanly with commas, periods, or parentheses.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>The term is primarily promoted by Dutch institutions—not by the people themselves. You don&#x27;t say &quot;Netherlands, Europe&quot; as an address—yet this mislabeling continues—even in official documents.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The term is primarily promoted by Dutch institutions, not by the people themselves. You don&#x27;t say &quot;Netherlands, Europe&quot; as an address, yet this mislabeling continues in official documents.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="15-overuse-of-boldface">15. Overuse of Boldface<a href="#15-overuse-of-boldface" class="hash-link" aria-label="Direct link to 15. Overuse of Boldface" title="Direct link to 15. Overuse of Boldface" translate="no">​</a></h3>
+<p><strong>Problem:</strong> AI chatbots emphasize phrases in boldface mechanically.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>It blends <strong>OKRs (Objectives and Key Results)</strong>, <strong>KPIs (Key Performance Indicators)</strong>, and visual strategy tools such as the <strong>Business Model Canvas (BMC)</strong> and <strong>Balanced Scorecard (BSC)</strong>.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>It blends OKRs, KPIs, and visual strategy tools like the Business Model Canvas and Balanced Scorecard.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="16-inline-header-vertical-lists">16. Inline-Header Vertical Lists<a href="#16-inline-header-vertical-lists" class="hash-link" aria-label="Direct link to 16. Inline-Header Vertical Lists" title="Direct link to 16. Inline-Header Vertical Lists" translate="no">​</a></h3>
+<p><strong>Problem:</strong> AI outputs lists where items start with bolded headers followed by colons.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<ul>
+<li class=""><strong>User Experience:</strong> The user experience has been significantly improved with a new interface.</li>
+<li class=""><strong>Performance:</strong> Performance has been enhanced through optimized algorithms.</li>
+<li class=""><strong>Security:</strong> Security has been strengthened with end-to-end encryption.</li>
+</ul>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The update improves the interface, speeds up load times through optimized algorithms, and adds end-to-end encryption.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="17-title-case-in-headings">17. Title Case in Headings<a href="#17-title-case-in-headings" class="hash-link" aria-label="Direct link to 17. Title Case in Headings" title="Direct link to 17. Title Case in Headings" translate="no">​</a></h3>
+<p><strong>Problem:</strong> AI chatbots capitalize all main words in headings.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="strategic-negotiations-and-global-partnerships">Strategic Negotiations And Global Partnerships<a href="#strategic-negotiations-and-global-partnerships" class="hash-link" aria-label="Direct link to Strategic Negotiations And Global Partnerships" title="Direct link to Strategic Negotiations And Global Partnerships" translate="no">​</a></h2>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="strategic-negotiations-and-global-partnerships-1">Strategic negotiations and global partnerships<a href="#strategic-negotiations-and-global-partnerships-1" class="hash-link" aria-label="Direct link to Strategic negotiations and global partnerships" title="Direct link to Strategic negotiations and global partnerships" translate="no">​</a></h2>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="18-emojis">18. Emojis<a href="#18-emojis" class="hash-link" aria-label="Direct link to 18. Emojis" title="Direct link to 18. Emojis" translate="no">​</a></h3>
+<p><strong>Problem:</strong> AI chatbots often decorate headings or bullet points with emojis.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>🚀 <strong>Launch Phase:</strong> The product launches in Q3
+💡 <strong>Key Insight:</strong> Users prefer simplicity
+✅ <strong>Next Steps:</strong> Schedule follow-up meeting</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The product launches in Q3. User research showed a preference for simplicity. Next step: schedule a follow-up meeting.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="19-curly-quotation-marks">19. Curly Quotation Marks<a href="#19-curly-quotation-marks" class="hash-link" aria-label="Direct link to 19. Curly Quotation Marks" title="Direct link to 19. Curly Quotation Marks" translate="no">​</a></h3>
+<p><strong>Problem:</strong> ChatGPT uses curly quotes (&quot;...&quot;) instead of straight quotes (&quot;...&quot;).</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>He said &quot;the project is on track&quot; but others disagreed.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>He said &quot;the project is on track&quot; but others disagreed.</p>
+</blockquote>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="communication-patterns">COMMUNICATION PATTERNS<a href="#communication-patterns" class="hash-link" aria-label="Direct link to COMMUNICATION PATTERNS" title="Direct link to COMMUNICATION PATTERNS" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="20-collaborative-communication-artifacts">20. Collaborative Communication Artifacts<a href="#20-collaborative-communication-artifacts" class="hash-link" aria-label="Direct link to 20. Collaborative Communication Artifacts" title="Direct link to 20. Collaborative Communication Artifacts" translate="no">​</a></h3>
+<p><strong>Words to watch:</strong> I hope this helps, Of course!, Certainly!, You&#x27;re absolutely right!, Would you like..., let me know, here is a...</p>
+<p><strong>Problem:</strong> Text meant as chatbot correspondence gets pasted as content.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>Here is an overview of the French Revolution. I hope this helps! Let me know if you&#x27;d like me to expand on any section.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The French Revolution began in 1789 when financial crisis and food shortages led to widespread unrest.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="21-knowledge-cutoff-disclaimers">21. Knowledge-Cutoff Disclaimers<a href="#21-knowledge-cutoff-disclaimers" class="hash-link" aria-label="Direct link to 21. Knowledge-Cutoff Disclaimers" title="Direct link to 21. Knowledge-Cutoff Disclaimers" translate="no">​</a></h3>
+<p><strong>Words to watch:</strong> as of [date], Up to my last training update, While specific details are limited/scarce..., based on available information...</p>
+<p><strong>Problem:</strong> AI disclaimers about incomplete information get left in text.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>While specific details about the company&#x27;s founding are not extensively documented in readily available sources, it appears to have been established sometime in the 1990s.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The company was founded in 1994, according to its registration documents.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="22-sycophanticservile-tone">22. Sycophantic/Servile Tone<a href="#22-sycophanticservile-tone" class="hash-link" aria-label="Direct link to 22. Sycophantic/Servile Tone" title="Direct link to 22. Sycophantic/Servile Tone" translate="no">​</a></h3>
+<p><strong>Problem:</strong> Overly positive, people-pleasing language.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>Great question! You&#x27;re absolutely right that this is a complex topic. That&#x27;s an excellent point about the economic factors.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The economic factors you mentioned are relevant here.</p>
+</blockquote>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="filler-and-hedging">FILLER AND HEDGING<a href="#filler-and-hedging" class="hash-link" aria-label="Direct link to FILLER AND HEDGING" title="Direct link to FILLER AND HEDGING" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="23-filler-phrases">23. Filler Phrases<a href="#23-filler-phrases" class="hash-link" aria-label="Direct link to 23. Filler Phrases" title="Direct link to 23. Filler Phrases" translate="no">​</a></h3>
+<p><strong>Before → After:</strong></p>
+<ul>
+<li class="">&quot;In order to achieve this goal&quot; → &quot;To achieve this&quot;</li>
+<li class="">&quot;Due to the fact that it was raining&quot; → &quot;Because it was raining&quot;</li>
+<li class="">&quot;At this point in time&quot; → &quot;Now&quot;</li>
+<li class="">&quot;In the event that you need help&quot; → &quot;If you need help&quot;</li>
+<li class="">&quot;The system has the ability to process&quot; → &quot;The system can process&quot;</li>
+<li class="">&quot;It is important to note that the data shows&quot; → &quot;The data shows&quot;</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="24-excessive-hedging">24. Excessive Hedging<a href="#24-excessive-hedging" class="hash-link" aria-label="Direct link to 24. Excessive Hedging" title="Direct link to 24. Excessive Hedging" translate="no">​</a></h3>
+<p><strong>Problem:</strong> Over-qualifying statements.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>It could potentially possibly be argued that the policy might have some effect on outcomes.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The policy may affect outcomes.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="25-generic-positive-conclusions">25. Generic Positive Conclusions<a href="#25-generic-positive-conclusions" class="hash-link" aria-label="Direct link to 25. Generic Positive Conclusions" title="Direct link to 25. Generic Positive Conclusions" translate="no">​</a></h3>
+<p><strong>Problem:</strong> Vague upbeat endings.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>The future looks bright for the company. Exciting times lie ahead as they continue their journey toward excellence. This represents a major step in the right direction.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The company plans to open two more locations next year.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="26-hyphenated-word-pair-overuse">26. Hyphenated Word Pair Overuse<a href="#26-hyphenated-word-pair-overuse" class="hash-link" aria-label="Direct link to 26. Hyphenated Word Pair Overuse" title="Direct link to 26. Hyphenated Word Pair Overuse" translate="no">​</a></h3>
+<p><strong>Words to watch:</strong> third-party, cross-functional, client-facing, data-driven, decision-making, well-known, high-quality, real-time, long-term, end-to-end</p>
+<p><strong>Problem:</strong> AI hyphenates common word pairs with perfect consistency. Humans rarely hyphenate these uniformly, and when they do, it&#x27;s inconsistent. Less common or technical compound modifiers are fine to hyphenate.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>The cross-functional team delivered a high-quality, data-driven report on our client-facing tools. Their decision-making process was well-known for being thorough and detail-oriented.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The cross functional team delivered a high quality, data driven report on our client facing tools. Their decision making process was known for being thorough and detail oriented.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="27-persuasive-authority-tropes">27. Persuasive Authority Tropes<a href="#27-persuasive-authority-tropes" class="hash-link" aria-label="Direct link to 27. Persuasive Authority Tropes" title="Direct link to 27. Persuasive Authority Tropes" translate="no">​</a></h3>
+<p><strong>Phrases to watch:</strong> The real question is, at its core, in reality, what really matters, fundamentally, the deeper issue, the heart of the matter</p>
+<p><strong>Problem:</strong> LLMs use these phrases to pretend they are cutting through noise to some deeper truth, when the sentence that follows usually just restates an ordinary point with extra ceremony.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>The real question is whether teams can adapt. At its core, what really matters is organizational readiness.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>The question is whether teams can adapt. That mostly depends on whether the organization is ready to change its habits.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="28-signposting-and-announcements">28. Signposting and Announcements<a href="#28-signposting-and-announcements" class="hash-link" aria-label="Direct link to 28. Signposting and Announcements" title="Direct link to 28. Signposting and Announcements" translate="no">​</a></h3>
+<p><strong>Phrases to watch:</strong> Let&#x27;s dive in, let&#x27;s explore, let&#x27;s break this down, here&#x27;s what you need to know, now let&#x27;s look at, without further ado</p>
+<p><strong>Problem:</strong> LLMs announce what they are about to do instead of doing it. This meta-commentary slows the writing down and gives it a tutorial-script feel.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<p>Let&#x27;s dive into how caching works in Next.js. Here&#x27;s what you need to know.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<p>Next.js caches data at multiple layers, including request memoization, the data cache, and the router cache.</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="29-fragmented-headers">29. Fragmented Headers<a href="#29-fragmented-headers" class="hash-link" aria-label="Direct link to 29. Fragmented Headers" title="Direct link to 29. Fragmented Headers" translate="no">​</a></h3>
+<p><strong>Signs to watch:</strong> A heading followed by a one-line paragraph that simply restates the heading before the real content begins.</p>
+<p><strong>Problem:</strong> LLMs often add a generic sentence after a heading as a rhetorical warm-up. It usually adds nothing and makes the prose feel padded.</p>
+<p><strong>Before:</strong></p>
+<blockquote>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="performance">Performance<a href="#performance" class="hash-link" aria-label="Direct link to Performance" title="Direct link to Performance" translate="no">​</a></h2>
+<p>Speed matters.</p>
+<p>When users hit a slow page, they leave.</p>
+</blockquote>
+<p><strong>After:</strong></p>
+<blockquote>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="performance-1">Performance<a href="#performance-1" class="hash-link" aria-label="Direct link to Performance" title="Direct link to Performance" translate="no">​</a></h2>
+<p>When users hit a slow page, they leave.</p>
+</blockquote>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="process">Process<a href="#process" class="hash-link" aria-label="Direct link to Process" title="Direct link to Process" translate="no">​</a></h2>
+<ol>
+<li class="">Read the input text carefully (use <code>read_file</code> if it&#x27;s a file).</li>
+<li class="">Identify all instances of the patterns above.</li>
+<li class="">Rewrite each problematic section.</li>
+<li class="">Ensure the revised text:<!-- -->
+<ul>
+<li class="">Sounds natural when read aloud</li>
+<li class="">Varies sentence structure naturally</li>
+<li class="">Uses specific details over vague claims</li>
+<li class="">Maintains appropriate tone for context</li>
+<li class="">Uses simple constructions (is/are/has) where appropriate</li>
+</ul>
+</li>
+<li class="">Present a draft humanized version.</li>
+<li class="">Prompt yourself: &quot;What makes the below so obviously AI generated?&quot;</li>
+<li class="">Answer briefly with the remaining tells (if any).</li>
+<li class="">Prompt yourself: &quot;Now make it not obviously AI generated.&quot;</li>
+<li class="">Present the final version (revised after the audit).</li>
+<li class="">If the text came from a file, apply the edit with <code>patch</code> (targeted) or <code>write_file</code> (full rewrite) and show the user what changed.</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="output-format">Output Format<a href="#output-format" class="hash-link" aria-label="Direct link to Output Format" title="Direct link to Output Format" translate="no">​</a></h2>
+<p>Provide:</p>
+<ol>
+<li class="">Draft rewrite</li>
+<li class="">&quot;What makes the below so obviously AI generated?&quot; (brief bullets)</li>
+<li class="">Final rewrite</li>
+<li class="">A brief summary of changes made (optional, if helpful)</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="full-example">Full Example<a href="#full-example" class="hash-link" aria-label="Direct link to Full Example" title="Direct link to Full Example" translate="no">​</a></h2>
+<p><strong>Before (AI-sounding):</strong></p>
+<blockquote>
+<p>Great question! Here is an essay on this topic. I hope this helps!</p>
+<p>AI-assisted coding serves as an enduring testament to the transformative potential of large language models, marking a pivotal moment in the evolution of software development. In today&#x27;s rapidly evolving technological landscape, these groundbreaking tools—nestled at the intersection of research and practice—are reshaping how engineers ideate, iterate, and deliver, underscoring their vital role in modern workflows.</p>
+<p>At its core, the value proposition is clear: streamlining processes, enhancing collaboration, and fostering alignment. It&#x27;s not just about autocomplete; it&#x27;s about unlocking creativity at scale, ensuring that organizations can remain agile while delivering seamless, intuitive, and powerful experiences to users. The tool serves as a catalyst. The assistant functions as a partner. The system stands as a foundation for innovation.</p>
+<p>Industry observers have noted that adoption has accelerated from hobbyist experiments to enterprise-wide rollouts, from solo developers to cross-functional teams. The technology has been featured in The New York Times, Wired, and The Verge. Additionally, the ability to generate documentation, tests, and refactors showcases how AI can contribute to better outcomes, highlighting the intricate interplay between automation and human judgment.</p>
+<ul>
+<li class="">💡 <strong>Speed:</strong> Code generation is significantly faster, reducing friction and empowering developers.</li>
+<li class="">🚀 <strong>Quality:</strong> Output quality has been enhanced through improved training, contributing to higher standards.</li>
+<li class="">✅ <strong>Adoption:</strong> Usage continues to grow, reflecting broader industry trends.</li>
+</ul>
+<p>While specific details are limited based on available information, it could potentially be argued that these tools might have some positive effect. Despite challenges typical of emerging technologies—including hallucinations, bias, and accountability—the ecosystem continues to thrive. In order to fully realize this potential, teams must align with best practices.</p>
+<p>In conclusion, the future looks bright. Exciting times lie ahead as we continue this journey toward excellence. Let me know if you&#x27;d like me to expand on any section!</p>
+</blockquote>
+<p><strong>Draft rewrite:</strong></p>
+<blockquote>
+<p>AI coding assistants speed up some tasks. In a 2024 study by Google, developers using Codex completed simple functions 55% faster than a control group, but showed no improvement on debugging or architectural decisions.</p>
+<p>The tools are good at boilerplate: config files, test scaffolding, repetitive refactors. They are bad at knowing when they are wrong. I have mass-accepted suggestions that compiled, passed lint, and still did the wrong thing because I stopped paying attention.</p>
+<p>Mira, an engineer at a fintech startup I interviewed, said she uses Copilot &quot;like autocomplete for boring code&quot; but reviews every line before committing. Jake, a senior dev at a larger company, disabled it after it kept suggesting patterns from a deprecated internal library.</p>
+<p>The productivity claims are hard to verify. GitHub says Copilot users &quot;accept 30% of suggestions,&quot; but acceptance is not correctness, and correctness is not value. The 2024 Uplevel study found no statistically significant difference in pull-request throughput between teams with and without AI assistants.</p>
+<p>None of this means the tools are useless. It means they are tools. They do not replace judgment, and they do not eliminate the need for tests. If you do not have tests, you cannot tell whether the suggestion is right.</p>
+</blockquote>
+<p><strong>What makes the below so obviously AI generated?</strong></p>
+<ul>
+<li class="">The rhythm is still a bit too tidy (clean contrasts, evenly paced paragraphs).</li>
+<li class="">The named people and study citations can read like plausible-but-made-up placeholders unless they&#x27;re real and sourced.</li>
+<li class="">The closer leans a touch slogan-y (&quot;If you do not have tests...&quot;) rather than sounding like a person talking.</li>
+</ul>
+<p><strong>Now make it not obviously AI generated.</strong></p>
+<blockquote>
+<p>AI coding assistants can make you faster at the boring parts. Not everything. Definitely not architecture.</p>
+<p>They&#x27;re great at boilerplate: config files, test scaffolding, repetitive refactors. They&#x27;re also great at sounding right while being wrong. I&#x27;ve accepted suggestions that compiled, passed lint, and still missed the point because I stopped paying attention.</p>
+<p>People I talk to tend to land in two camps. Some use it like autocomplete for chores and review every line. Others disable it after it keeps suggesting patterns they don&#x27;t want. Both feel reasonable.</p>
+<p>The productivity metrics are slippery. GitHub can say Copilot users &quot;accept 30% of suggestions,&quot; but acceptance isn&#x27;t correctness, and correctness isn&#x27;t value. If you don&#x27;t have tests, you&#x27;re basically guessing.</p>
+</blockquote>
+<p><strong>Changes made:</strong></p>
+<ul>
+<li class="">Removed chatbot artifacts (&quot;Great question!&quot;, &quot;I hope this helps!&quot;, &quot;Let me know if...&quot;)</li>
+<li class="">Removed significance inflation (&quot;testament&quot;, &quot;pivotal moment&quot;, &quot;evolving landscape&quot;, &quot;vital role&quot;)</li>
+<li class="">Removed promotional language (&quot;groundbreaking&quot;, &quot;nestled&quot;, &quot;seamless, intuitive, and powerful&quot;)</li>
+<li class="">Removed vague attributions (&quot;Industry observers&quot;)</li>
+<li class="">Removed superficial -ing phrases (&quot;underscoring&quot;, &quot;highlighting&quot;, &quot;reflecting&quot;, &quot;contributing to&quot;)</li>
+<li class="">Removed negative parallelism (&quot;It&#x27;s not just X; it&#x27;s Y&quot;)</li>
+<li class="">Removed rule-of-three patterns and synonym cycling (&quot;catalyst/partner/foundation&quot;)</li>
+<li class="">Removed false ranges (&quot;from X to Y, from A to B&quot;)</li>
+<li class="">Removed em dashes, emojis, boldface headers, and curly quotes</li>
+<li class="">Removed copula avoidance (&quot;serves as&quot;, &quot;functions as&quot;, &quot;stands as&quot;) in favor of &quot;is&quot;/&quot;are&quot;</li>
+<li class="">Removed formulaic challenges section (&quot;Despite challenges... continues to thrive&quot;)</li>
+<li class="">Removed knowledge-cutoff hedging (&quot;While specific details are limited...&quot;)</li>
+<li class="">Removed excessive hedging (&quot;could potentially be argued that... might have some&quot;)</li>
+<li class="">Removed filler phrases and persuasive framing (&quot;In order to&quot;, &quot;At its core&quot;)</li>
+<li class="">Removed generic positive conclusion (&quot;the future looks bright&quot;, &quot;exciting times lie ahead&quot;)</li>
+<li class="">Made the voice more personal and less &quot;assembled&quot; (varied rhythm, fewer placeholders)</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="attribution">Attribution<a href="#attribution" class="hash-link" aria-label="Direct link to Attribution" title="Direct link to Attribution" translate="no">​</a></h2>
+<p>This skill is ported from <a href="https://github.com/blader/humanizer" target="_blank" rel="noopener noreferrer" class="">blader/humanizer</a> (MIT licensed), which is itself based on <a href="https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing" target="_blank" rel="noopener noreferrer" class="">Wikipedia: Signs of AI writing</a>, maintained by WikiProject AI Cleanup. The patterns documented there come from observations of thousands of instances of AI-generated text on Wikipedia.</p>
+<p>Original author: Siqi Chen (<a href="https://github.com/blader" target="_blank" rel="noopener noreferrer" class="">@blader</a>). Original repo: <a href="https://github.com/blader/humanizer" target="_blank" rel="noopener noreferrer" class="">https://github.com/blader/humanizer</a> (version 2.5.1). Ported to Hermes Agent with Hermes-native tool references (<code>read_file</code>, <code>patch</code>, <code>write_file</code>) and guidance for when to load the skill; the 29 patterns, personality/soul section, and full worked example are preserved verbatim from the source. Original MIT license preserved in the <code>LICENSE</code> file alongside this <code>SKILL.md</code>.</p>
+<p>Key insight from Wikipedia: &quot;LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely result that applies to the widest variety of cases.&quot;</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/NousResearch/hermes-agent/edit/main/website/docs/user-guide/skills/bundled/creative/creative-humanizer.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-excalidraw"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Excalidraw</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/hermes-agent/docs/user-guide/skills/bundled/creative/creative-manim-video"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Manim Video</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#skill-metadata" class="table-of-contents__link toc-highlight">Skill metadata</a></li><li><a href="#reference-full-skillmd" class="table-of-contents__link toc-highlight">Reference: full SKILL.md</a></li><li><a href="#when-to-use-this-skill" class="table-of-contents__link toc-highlight">When to use this skill</a></li><li><a href="#how-to-use-it-in-hermes" class="table-of-contents__link toc-highlight">How to use it in Hermes</a></li><li><a href="#your-task" class="table-of-contents__link toc-highlight">Your task</a></li><li><a href="#voice-calibration-optional" class="table-of-contents__link toc-highlight">Voice Calibration (optional)</a><ul><li><a href="#how-to-provide-a-sample" class="table-of-contents__link toc-highlight">How to provide a sample</a></li></ul></li><li><a href="#personality-and-soul" class="table-of-contents__link toc-highlight">PERSONALITY AND SOUL</a><ul><li><a href="#signs-of-soulless-writing-even-if-technically-clean" class="table-of-contents__link toc-highlight">Signs of soulless writing (even if technically &quot;clean&quot;):</a></li><li><a href="#how-to-add-voice" class="table-of-contents__link toc-highlight">How to add voice:</a></li><li><a href="#before-clean-but-soulless" class="table-of-contents__link toc-highlight">Before (clean but soulless):</a></li><li><a href="#after-has-a-pulse" class="table-of-contents__link toc-highlight">After (has a pulse):</a></li></ul></li><li><a href="#content-patterns" class="table-of-contents__link toc-highlight">CONTENT PATTERNS</a><ul><li><a href="#1-undue-emphasis-on-significance-legacy-and-broader-trends" class="table-of-contents__link toc-highlight">1. Undue Emphasis on Significance, Legacy, and Broader Trends</a></li><li><a href="#2-undue-emphasis-on-notability-and-media-coverage" class="table-of-contents__link toc-highlight">2. Undue Emphasis on Notability and Media Coverage</a></li><li><a href="#3-superficial-analyses-with--ing-endings" class="table-of-contents__link toc-highlight">3. Superficial Analyses with -ing Endings</a></li><li><a href="#4-promotional-and-advertisement-like-language" class="table-of-contents__link toc-highlight">4. Promotional and Advertisement-like Language</a></li><li><a href="#5-vague-attributions-and-weasel-words" class="table-of-contents__link toc-highlight">5. Vague Attributions and Weasel Words</a></li><li><a href="#6-outline-like-challenges-and-future-prospects-sections" class="table-of-contents__link toc-highlight">6. Outline-like &quot;Challenges and Future Prospects&quot; Sections</a></li></ul></li><li><a href="#language-and-grammar-patterns" class="table-of-contents__link toc-highlight">LANGUAGE AND GRAMMAR PATTERNS</a><ul><li><a href="#7-overused-ai-vocabulary-words" class="table-of-contents__link toc-highlight">7. Overused &quot;AI Vocabulary&quot; Words</a></li><li><a href="#8-avoidance-of-isare-copula-avoidance" class="table-of-contents__link toc-highlight">8. Avoidance of &quot;is&quot;/&quot;are&quot; (Copula Avoidance)</a></li><li><a href="#9-negative-parallelisms-and-tailing-negations" class="table-of-contents__link toc-highlight">9. Negative Parallelisms and Tailing Negations</a></li><li><a href="#10-rule-of-three-overuse" class="table-of-contents__link toc-highlight">10. Rule of Three Overuse</a></li><li><a href="#11-elegant-variation-synonym-cycling" class="table-of-contents__link toc-highlight">11. Elegant Variation (Synonym Cycling)</a></li><li><a href="#12-false-ranges" class="table-of-contents__link toc-highlight">12. False Ranges</a></li><li><a href="#13-passive-voice-and-subjectless-fragments" class="table-of-contents__link toc-highlight">13. Passive Voice and Subjectless Fragments</a></li></ul></li><li><a href="#style-patterns" class="table-of-contents__link toc-highlight">STYLE PATTERNS</a><ul><li><a href="#14-em-dash-overuse" class="table-of-contents__link toc-highlight">14. Em Dash Overuse</a></li><li><a href="#15-overuse-of-boldface" class="table-of-contents__link toc-highlight">15. Overuse of Boldface</a></li><li><a href="#16-inline-header-vertical-lists" class="table-of-contents__link toc-highlight">16. Inline-Header Vertical Lists</a></li><li><a href="#17-title-case-in-headings" class="table-of-contents__link toc-highlight">17. Title Case in Headings</a></li></ul></li><li><a href="#strategic-negotiations-and-global-partnerships" class="table-of-contents__link toc-highlight">Strategic Negotiations And Global Partnerships</a></li><li><a href="#strategic-negotiations-and-global-partnerships-1" class="table-of-contents__link toc-highlight">Strategic negotiations and global partnerships</a><ul><li><a href="#18-emojis" class="table-of-contents__link toc-highlight">18. Emojis</a></li><li><a href="#19-curly-quotation-marks" class="table-of-contents__link toc-highlight">19. Curly Quotation Marks</a></li></ul></li><li><a href="#communication-patterns" class="table-of-contents__link toc-highlight">COMMUNICATION PATTERNS</a><ul><li><a href="#20-collaborative-communication-artifacts" class="table-of-contents__link toc-highlight">20. Collaborative Communication Artifacts</a></li><li><a href="#21-knowledge-cutoff-disclaimers" class="table-of-contents__link toc-highlight">21. Knowledge-Cutoff Disclaimers</a></li><li><a href="#22-sycophanticservile-tone" class="table-of-contents__link toc-highlight">22. Sycophantic/Servile Tone</a></li></ul></li><li><a href="#filler-and-hedging" class="table-of-contents__link toc-highlight">FILLER AND HEDGING</a><ul><li><a href="#23-filler-phrases" class="table-of-contents__link toc-highlight">23. Filler Phrases</a></li><li><a href="#24-excessive-hedging" class="table-of-contents__link toc-highlight">24. Excessive Hedging</a></li><li><a href="#25-generic-positive-conclusions" class="table-of-contents__link toc-highlight">25. Generic Positive Conclusions</a></li><li><a href="#26-hyphenated-word-pair-overuse" class="table-of-contents__link toc-highlight">26. Hyphenated Word Pair Overuse</a></li><li><a href="#27-persuasive-authority-tropes" class="table-of-contents__link toc-highlight">27. Persuasive Authority Tropes</a></li><li><a href="#28-signposting-and-announcements" class="table-of-contents__link toc-highlight">28. Signposting and Announcements</a></li><li><a href="#29-fragmented-headers" class="table-of-contents__link toc-highlight">29. Fragmented Headers</a></li></ul></li><li><a href="#performance" class="table-of-contents__link toc-highlight">Performance</a></li><li><a href="#performance-1" class="table-of-contents__link toc-highlight">Performance</a></li><li><a href="#process" class="table-of-contents__link toc-highlight">Process</a></li><li><a href="#output-format" class="table-of-contents__link toc-highlight">Output Format</a></li><li><a href="#full-example" class="table-of-contents__link toc-highlight">Full Example</a></li><li><a href="#attribution" class="table-of-contents__link toc-highlight">Attribution</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/getting-started/quickstart">Getting Started</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/user-guide/cli">User Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/developer-guide/architecture">Developer Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/reference/cli-commands">Reference</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent/discussions" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub Discussions<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://agentskills.io" target="_blank" rel="noopener noreferrer" class="footer__link-item">Skills Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://nousresearch.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Nous Research<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Built by <a href="https://nousresearch.com">Nous Research</a> · MIT License · 2026</div></div></div></footer></div>
+</body>
+</html>

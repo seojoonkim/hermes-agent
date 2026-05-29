@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="zh-Hans" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-user-guide/skills/optional/finance/finance-dcf-model" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">DCF 模型 | Hermes Agent</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/img/hermes-agent-banner.png"><meta data-rh="true" name="twitter:image" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/img/hermes-agent-banner.png"><meta data-rh="true" property="og:url" content="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="DCF 模型 | Hermes Agent"><meta data-rh="true" name="description" content="在 Excel 中构建机构级 DCF 估值模型——收入预测、FCF 构建、WACC、终值、熊/基/牛情景、5x5 敏感性表格。与 excel-author 配合使用。适用于内在价值股权分析。"><meta data-rh="true" property="og:description" content="在 Excel 中构建机构级 DCF 估值模型——收入预测、FCF 构建、WACC、终值、熊/基/牛情景、5x5 敏感性表格。与 excel-author 配合使用。适用于内在价值股权分析。"><link data-rh="true" rel="icon" href="/hermes-agent/docs/zh-Hans/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model" hreflang="en"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Dcf Model","item":"https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model"}]}</script><link rel="stylesheet" href="/hermes-agent/docs/zh-Hans/assets/css/styles.68258a75.css">
+<script src="/hermes-agent/docs/zh-Hans/assets/js/runtime~main.66205d72.js" defer="defer"></script>
+<script src="/hermes-agent/docs/zh-Hans/assets/js/main.99aec22d.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/hermes-agent/docs/zh-Hans/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/hermes-agent/docs/zh-Hans/"><div class="navbar__logo"><img src="/hermes-agent/docs/zh-Hans/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/hermes-agent/docs/zh-Hans/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Hermes Agent</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/hermes-agent/docs/zh-Hans/user-stories">Docs</a><a class="navbar__item navbar__link" href="/hermes-agent/docs/zh-Hans/skills">Skills</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="iconLanguage_nlXk"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"></path></svg>简体中文</a><ul class="dropdown__menu"><li><a href="/hermes-agent/docs/user-guide/skills/optional/finance/finance-dcf-model" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="en">English</a></li><li><a href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model" target="_self" rel="noopener noreferrer" class="dropdown__link dropdown__link--active" lang="zh-Hans">简体中文</a></li></ul></div><a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Home<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="搜索" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/hermes-agent/docs/zh-Hans/user-stories"><span title="用户故事与使用案例" class="linkLabel_WmDU">用户故事与使用案例</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/getting-started/quickstart"><span title="Getting Started" class="categoryLinkLabel_W154">Getting Started</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/user-guide/cli"><span title="Using Hermes" class="categoryLinkLabel_W154">Using Hermes</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/hermes-agent/docs/zh-Hans/user-guide/features/overview"><span title="Features" class="categoryLinkLabel_W154">Features</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/overview"><span title="概览" class="linkLabel_WmDU">概览</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/tool-gateway"><span title="Tool Gateway" class="linkLabel_WmDU">Tool Gateway</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/tools"><span title="Core" class="categoryLinkLabel_W154">Core</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/cron"><span title="Automation" class="categoryLinkLabel_W154">Automation</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/voice-mode"><span title="Media &amp; Web" class="categoryLinkLabel_W154">Media &amp; Web</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/features/web-dashboard"><span title="Management" class="categoryLinkLabel_W154">Management</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/zh-Hans/reference/skills-catalog"><span title="Skills" class="categoryLinkLabel_W154">Skills</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/reference/skills-catalog"><span title="内置技能目录" class="linkLabel_WmDU">内置技能目录</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/reference/optional-skills-catalog"><span title="可选技能目录" class="linkLabel_WmDU">可选技能目录</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/bundled/apple/apple-apple-notes"><span title="Bundled" class="categoryLinkLabel_W154">Bundled</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="Optional" class="categoryLinkLabel_W154">Optional</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/autonomous-ai-agents/autonomous-ai-agents-blackbox"><span title="autonomous-ai-agents" class="categoryLinkLabel_W154">autonomous-ai-agents</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/blockchain/blockchain-evm"><span title="blockchain" class="categoryLinkLabel_W154">blockchain</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/communication/communication-one-three-one-rule"><span title="communication" class="categoryLinkLabel_W154">communication</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/creative/creative-blender-mcp"><span title="creative" class="categoryLinkLabel_W154">creative</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/devops/devops-cli"><span title="devops" class="categoryLinkLabel_W154">devops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/dogfood/dogfood-adversarial-ux-test"><span title="dogfood" class="categoryLinkLabel_W154">dogfood</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/email/email-agentmail"><span title="email" class="categoryLinkLabel_W154">email</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"><span title="finance" class="categoryLinkLabel_W154">finance</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"><span title="三表模型" class="linkLabel_WmDU">三表模型</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis"><span title="可比公司分析" class="linkLabel_WmDU">可比公司分析</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-dcf-model"><span title="Dcf Model" class="linkLabel_WmDU">Dcf Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-excel-author"><span title="Excel Author" class="linkLabel_WmDU">Excel Author</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-lbo-model"><span title="Lbo Model" class="linkLabel_WmDU">Lbo Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-merger-model"><span title="Merger Model" class="linkLabel_WmDU">Merger Model</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-pptx-author"><span title="Pptx Author" class="linkLabel_WmDU">Pptx Author</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-5 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-stocks"><span title="Stocks" class="linkLabel_WmDU">Stocks</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/health/health-fitness-nutrition"><span title="health" class="categoryLinkLabel_W154">health</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/mcp/mcp-fastmcp"><span title="mcp" class="categoryLinkLabel_W154">mcp</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/migration/migration-openclaw-migration"><span title="migration" class="categoryLinkLabel_W154">migration</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/mlops/mlops-accelerate"><span title="mlops" class="categoryLinkLabel_W154">mlops</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/productivity/productivity-canvas"><span title="productivity" class="categoryLinkLabel_W154">productivity</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/research/research-bioinformatics"><span title="research" class="categoryLinkLabel_W154">research</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/security/security-1password"><span title="security" class="categoryLinkLabel_W154">security</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/software-development/software-development-code-wiki"><span title="software-development" class="categoryLinkLabel_W154">software-development</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-4 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/web-development/web-development-page-agent"><span title="web-development" class="categoryLinkLabel_W154">web-development</span></a></div></li></ul></li></ul></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/user-guide/messaging/"><span title="Messaging Platforms" class="categoryLinkLabel_W154">Messaging Platforms</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/integrations/"><span title="Integrations" class="categoryLinkLabel_W154">Integrations</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/guides/run-hermes-with-nous-portal"><span title="Guides &amp; Tutorials" class="categoryLinkLabel_W154">Guides &amp; Tutorials</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/developer-guide/contributing"><span title="Developer Guide" class="categoryLinkLabel_W154">Developer Guide</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/zh-Hans/reference/cli-commands"><span title="Reference" class="categoryLinkLabel_W154">Reference</span></a></div></li></ul></nav><button type="button" title="收起侧边栏" aria-label="收起侧边栏" class="button button--secondary button--outline collapseSidebarButton_PEFL"><svg width="20" height="20" aria-hidden="true" class="collapseSidebarButtonIcon_kv0_"><g fill="#7a7a7a"><path d="M9.992 10.023c0 .2-.062.399-.172.547l-4.996 7.492a.982.982 0 01-.828.454H1c-.55 0-1-.453-1-1 0-.2.059-.403.168-.551l4.629-6.942L.168 3.078A.939.939 0 010 2.528c0-.548.45-.997 1-.997h2.996c.352 0 .649.18.828.45L9.82 9.472c.11.148.172.347.172.55zm0 0"></path><path d="M19.98 10.023c0 .2-.058.399-.168.547l-4.996 7.492a.987.987 0 01-.828.454h-3c-.547 0-.996-.453-.996-1 0-.2.059-.403.168-.551l4.625-6.942-4.625-6.945a.939.939 0 01-.168-.55 1 1 0 01.996-.997h3c.348 0 .649.18.828.45l4.996 7.492c.11.148.168.347.168.55zm0 0"></path></g></svg></button></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/hermes-agent/docs/zh-Hans/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Features</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Skills</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Optional</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">finance</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Dcf Model</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">本页总览</button></div><div class="theme-doc-markdown markdown">
+<header><h1>DCF 模型</h1></header>
+<p>在 Excel 中构建机构级 DCF 估值模型——收入预测、FCF 构建、WACC、终值、熊/基/牛情景、5x5 敏感性表格。与 excel-author 配合使用。适用于内在价值股权分析。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="skill-元数据">Skill 元数据<a href="#skill-元数据" class="hash-link" aria-label="Skill 元数据的直接链接" title="Skill 元数据的直接链接" translate="no">​</a></h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>来源</td><td>可选——通过 <code>hermes skills install official/finance/dcf-model</code> 安装</td></tr><tr><td>路径</td><td><code>optional-skills/finance/dcf-model</code></td></tr><tr><td>版本</td><td><code>1.0.0</code></td></tr><tr><td>作者</td><td>Anthropic（由 Nous Research 改编）</td></tr><tr><td>许可证</td><td>Apache-2.0</td></tr><tr><td>平台</td><td>linux, macos, windows</td></tr><tr><td>标签</td><td><code>finance</code>, <code>valuation</code>, <code>dcf</code>, <code>excel</code>, <code>openpyxl</code>, <code>modeling</code>, <code>investment-banking</code></td></tr><tr><td>相关 skill</td><td><a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-excel-author"><code>excel-author</code></a>, <a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-pptx-author"><code>pptx-author</code></a>, <a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis"><code>comps-analysis</code></a>, <a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-lbo-model"><code>lbo-model</code></a>, <a class="" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-3-statement-model"><code>3-statement-model</code></a></td></tr></tbody></table>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="参考完整-skillmd">参考：完整 SKILL.md<a href="#参考完整-skillmd" class="hash-link" aria-label="参考：完整 SKILL.md的直接链接" title="参考：完整 SKILL.md的直接链接" translate="no">​</a></h2>
+<div class="theme-admonition theme-admonition-info admonition_xJq3 alert alert--info"><div class="admonitionHeading_Gvgb"><span class="admonitionIcon_Rf37"><svg viewBox="0 0 14 16"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"></path></svg></span>信息</div><div class="admonitionContent_BuS1"><p>以下是 Hermes 在触发此 skill 时加载的完整 skill 定义。这是 agent 在 skill 激活时所看到的指令内容。</p></div></div>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="环境">环境<a href="#环境" class="hash-link" aria-label="环境的直接链接" title="环境的直接链接" translate="no">​</a></h2>
+<p>本 skill 假定使用<strong>无头 openpyxl</strong>——你在磁盘上生成 .xlsx 文件。
+遵循 <code>excel-author</code> skill 关于单元格着色、公式、命名区域和敏感性表格的约定。
+交付前重新计算：<code>python /path/to/excel-author/scripts/recalc.py ./out/model.xlsx</code>。</p>
+<h1>DCF 模型构建器</h1>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="概述">概述<a href="#概述" class="hash-link" aria-label="概述的直接链接" title="概述的直接链接" translate="no">​</a></h2>
+<p>本 skill 按照投资银行标准创建机构级 DCF 模型用于股权估值。每次分析生成一个详细的 Excel 模型（敏感性分析包含在 DCF 工作表底部）。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="工具">工具<a href="#工具" class="hash-link" aria-label="工具的直接链接" title="工具的直接链接" translate="no">​</a></h2>
+<ul>
+<li class="">默认使用用户提供的所有信息以及可用于数据获取的 MCP 服务器。</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="关键约束请先阅读">关键约束——请先阅读<a href="#关键约束请先阅读" class="hash-link" aria-label="关键约束——请先阅读的直接链接" title="关键约束——请先阅读的直接链接" translate="no">​</a></h2>
+<p>以下约束适用于所有 DCF 模型构建过程。开始前请仔细阅读：</p>
+<p><strong>公式优先于硬编码（不可协商）：</strong></p>
+<ul>
+<li class="">每个预测值、利润率、折现因子、现值和敏感性单元格都必须是实时 Excel 公式——绝不能是在 Python 中计算后写入的数值</li>
+<li class="">使用 openpyxl 时：<code>ws[&quot;D20&quot;] = &quot;=D19*(1+$B$8)&quot;</code> 是正确的；<code>ws[&quot;D20&quot;] = calculated_revenue</code> 是错误的</li>
+<li class="">唯一允许硬编码的数字是：(1) 原始历史输入，(2) 假设驱动因子（增长率、WACC 输入、终端 g），(3) 当前市场数据（股价、债务余额）</li>
+<li class="">如果你发现自己在 Python 中计算某个值并将结果写入——停止。模型必须在用户更改假设时能够动态调整。</li>
+</ul>
+<p><strong>逐步与用户确认（不要端到端构建）：</strong></p>
+<ul>
+<li class="">数据获取后→向用户展示原始输入块（收入、利润率、股份数、净债务）并在预测前确认</li>
+<li class="">收入预测后→展示预测的顶线和增长率，在构建利润率之前确认</li>
+<li class="">FCF 构建后→展示完整的 FCF 计划，在计算 WACC 前确认逻辑</li>
+<li class="">WACC 后→展示计算过程和输入，在折现前确认</li>
+<li class="">终值 + 现值后→展示股权桥接（EV → 股权价值 → 每股价值），在敏感性表格前确认</li>
+<li class="">在每个阶段捕捉错误——在敏感性表格构建完成后才发现错误的利润率假设意味着需要重建所有下游内容</li>
+</ul>
+<p><strong>敏感性表格：</strong></p>
+<ul>
+<li class=""><strong>使用奇数行和列</strong>（标准：5×5，有时 7×7）——这保证了一个真正的中心单元格</li>
+<li class=""><strong>中心单元格 = 基准情景。</strong> 构建轴值时，使中间行标题和中间列标题恰好等于模型的实际假设（例如，如果基准 WACC = 9.0%，则中间行为 9.0%；如果终端 g = 3.0%，则中间列为 3.0%）。中心单元格的输出因此必须等于模型的实际隐含每股价格——这是验证表格构建正确的合理性检验。</li>
+<li class=""><strong>高亮中心单元格</strong>，使用中蓝色填充（<code>#BDD7EE</code>）+ 粗体字体，使基准情景立即可见。</li>
+<li class="">用完整的 DCF 重新计算公式填充所有单元格（通常 3 张表 × 25 个单元格 = 75 个）</li>
+<li class="">使用 openpyxl 循环以编程方式写入公式</li>
+<li class="">不得有占位文本、不得有线性近似、不得需要手动步骤</li>
+<li class="">每个单元格必须针对该假设组合重新计算完整的 DCF</li>
+</ul>
+<p><strong>单元格注释：</strong></p>
+<ul>
+<li class="">在创建每个硬编码值时添加单元格注释</li>
+<li class="">格式：&quot;Source: [System/Document], [Date], [Reference], [URL if applicable]&quot;</li>
+<li class="">每个蓝色输入在进入下一节之前必须有注释</li>
+<li class="">不要推迟到最后或写&quot;TODO: add source&quot;</li>
+</ul>
+<p><strong>模型布局规划：</strong></p>
+<ul>
+<li class="">在写任何公式之前定义所有节的行位置</li>
+<li class="">先写所有标题和标签</li>
+<li class="">其次写所有节分隔符和空行</li>
+<li class="">然后使用锁定的行位置写公式</li>
+<li class="">创建后立即测试公式</li>
+</ul>
+<p><strong>公式重新计算：</strong></p>
+<ul>
+<li class="">交付前运行 <code>python recalc.py model.xlsx 30</code></li>
+<li class="">修复所有错误直到状态为&quot;success&quot;</li>
+<li class="">要求零公式错误（#REF!、#DIV/0!、#VALUE! 等）</li>
+</ul>
+<p><strong>情景块：</strong></p>
+<ul>
+<li class="">为熊/基/牛情景创建独立块</li>
+<li class="">在每个块内横向展示各预测年份的假设</li>
+<li class="">使用 IF 公式：<code>=IF($B$6=1,[Bear cell],IF($B$6=2,[Base cell],[Bull cell]))</code></li>
+<li class="">验证公式引用了正确的情景块单元格</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="dcf-流程工作流">DCF 流程工作流<a href="#dcf-流程工作流" class="hash-link" aria-label="DCF 流程工作流的直接链接" title="DCF 流程工作流的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-1-步数据获取与验证">第 1 步：数据获取与验证<a href="#第-1-步数据获取与验证" class="hash-link" aria-label="第 1 步：数据获取与验证的直接链接" title="第 1 步：数据获取与验证的直接链接" translate="no">​</a></h3>
+<p>从 MCP 服务器、用户提供的数据和网络获取数据。</p>
+<p><strong>数据来源优先级：</strong></p>
+<ol>
+<li class=""><strong>MCP 服务器</strong>（如已配置）——来自 Daloopa 等提供商的结构化财务数据</li>
+<li class=""><strong>用户提供的数据</strong>——来自其研究的历史财务数据</li>
+<li class=""><strong>网络搜索/抓取</strong>——需要时获取当前价格、beta、债务和现金</li>
+</ol>
+<p><strong>验证清单：</strong></p>
+<ul>
+<li class="">验证净债务与净现金（对估值至关重要）</li>
+<li class="">确认稀释后流通股数（检查近期回购/发行）</li>
+<li class="">验证历史利润率与商业模式一致</li>
+<li class="">将收入增长率与行业基准交叉核对</li>
+<li class="">验证税率合理（通常 21-28%）</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-2-步历史分析3-5-年">第 2 步：历史分析（3-5 年）<a href="#第-2-步历史分析3-5-年" class="hash-link" aria-label="第 2 步：历史分析（3-5 年）的直接链接" title="第 2 步：历史分析（3-5 年）的直接链接" translate="no">​</a></h3>
+<p>分析并记录：</p>
+<ul>
+<li class=""><strong>收入增长趋势</strong>：计算 CAGR，识别驱动因素</li>
+<li class=""><strong>利润率进展</strong>：跟踪毛利率、EBIT 利润率、FCF 利润率</li>
+<li class=""><strong>资本密集度</strong>：D&amp;A 和资本支出占收入的百分比</li>
+<li class=""><strong>营运资金效率</strong>：NWC 变化占收入增长的百分比</li>
+<li class=""><strong>回报指标</strong>：ROIC、ROE 趋势</li>
+</ul>
+<p>创建汇总表格，显示：</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Historical Metrics (LTM):</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue: $X million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue growth: X% CAGR</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Gross margin: X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT margin: X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">D&amp;A % of revenue: X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">CapEx % of revenue: X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF margin: X%</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-3-步构建收入预测">第 3 步：构建收入预测<a href="#第-3-步构建收入预测" class="hash-link" aria-label="第 3 步：构建收入预测的直接链接" title="第 3 步：构建收入预测的直接链接" translate="no">​</a></h3>
+<p><strong>方法论：</strong></p>
+<ol>
+<li class="">从最新实际收入（LTM 或最近财年）开始</li>
+<li class="">对每个预测年份应用增长率</li>
+<li class="">同时显示美元金额和计算的增长百分比</li>
+</ol>
+<p><strong>增长率框架：</strong></p>
+<ul>
+<li class="">第 1-2 年：较高增长，反映近期可见性</li>
+<li class="">第 3-4 年：逐步向行业平均水平收敛</li>
+<li class="">第 5 年及以后：接近终端增长率</li>
+</ul>
+<p><strong>公式结构：</strong></p>
+<ul>
+<li class="">收入（第 N 年）= 收入（第 N-1 年）×（1 + 增长率）</li>
+<li class="">增长%（第 N 年）= 收入（第 N 年）/ 收入（第 N-1 年）- 1</li>
+</ul>
+<p><strong>三情景方法：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Bear Case: Conservative growth (e.g., 8-12%)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Base Case: Most likely scenario (e.g., 12-16%)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Bull Case: Optimistic growth (e.g., 16-20%)</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-4-步运营费用建模">第 4 步：运营费用建模<a href="#第-4-步运营费用建模" class="hash-link" aria-label="第 4 步：运营费用建模的直接链接" title="第 4 步：运营费用建模的直接链接" translate="no">​</a></h3>
+<p><strong>固定/可变成本分析：</strong></p>
+<p>运营费用应模拟真实的运营杠杆：</p>
+<ul>
+<li class=""><strong>销售与营销</strong>：通常占收入的 15-40%，取决于商业模式</li>
+<li class=""><strong>研究与开发</strong>：科技公司通常占 10-30%</li>
+<li class=""><strong>一般与行政</strong>：通常占收入的 8-15%，随公司规模扩大显示杠杆效应</li>
+</ul>
+<p><strong>关键原则：</strong></p>
+<ul>
+<li class="">所有百分比基于收入，而非毛利润</li>
+<li class="">模拟运营杠杆：随收入增长，百分比应下降</li>
+<li class="">保持 S&amp;M、R&amp;D、G&amp;A 的独立行项目</li>
+<li class="">计算 EBIT = 毛利润 - 总运营费用</li>
+</ul>
+<p><strong>利润率扩张框架：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current State → Target State (Year 5)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Gross Margin: X% → Y% (justify based on scale, efficiency)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin: X% → Y% (result of revenue growth + opex leverage)</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-5-步自由现金流计算">第 5 步：自由现金流计算<a href="#第-5-步自由现金流计算" class="hash-link" aria-label="第 5 步：自由现金流计算的直接链接" title="第 5 步：自由现金流计算的直接链接" translate="no">​</a></h3>
+<p><strong>按正确顺序构建 FCF：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Taxes (EBIT × Tax Rate)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">= NOPAT (Net Operating Profit After Tax)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(+) D&amp;A (non-cash expense, % of revenue)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) CapEx (% of revenue, typically 4-8%)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Δ NWC (change in working capital)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">= Unlevered Free Cash Flow</span><br></span></code></pre></div></div>
+<p><strong>营运资金建模：</strong></p>
+<ul>
+<li class="">计算为收入变化的百分比（收入增量）</li>
+<li class="">典型范围：收入变化的 -2% 至 +2%</li>
+<li class="">负数 = 现金来源（营运资金释放）</li>
+<li class="">正数 = 现金使用（营运资金积累）</li>
+</ul>
+<p><strong>维护性与增长性资本支出：</strong></p>
+<ul>
+<li class="">维护性资本支出：维持当前运营（约占收入 2-3%）</li>
+<li class="">增长性资本支出：支持扩张（额外占收入 2-5%）</li>
+<li class="">总资本支出应与公司增长战略一致</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-6-步资本成本wacc研究">第 6 步：资本成本（WACC）研究<a href="#第-6-步资本成本wacc研究" class="hash-link" aria-label="第 6 步：资本成本（WACC）研究的直接链接" title="第 6 步：资本成本（WACC）研究的直接链接" translate="no">​</a></h3>
+<p><strong>股权成本的 CAPM 方法论：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Cost of Equity = Risk-Free Rate + Beta × Equity Risk Premium</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Where:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Risk-Free Rate = Current 10-Year Treasury Yield</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Beta = 5-year monthly stock beta vs market index</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Equity Risk Premium = 5.0-6.0% (market standard)</span><br></span></code></pre></div></div>
+<p><strong>债务成本计算：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">After-Tax Cost of Debt = Pre-Tax Cost of Debt × (1 - Tax Rate)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Determine Pre-Tax Cost of Debt from:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Credit rating (if available)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Current yield on company bonds</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Interest expense / Total Debt from financials</span><br></span></code></pre></div></div>
+<p><strong>资本结构权重：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Market Value Equity = Current Stock Price × Shares Outstanding</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Net Debt = Total Debt - Cash &amp; Equivalents</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Enterprise Value = Market Cap + Net Debt</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity Weight = Market Cap / Enterprise Value</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Debt Weight = Net Debt / Enterprise Value</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC = (Cost of Equity × Equity Weight) + (After-Tax Cost of Debt × Debt Weight)</span><br></span></code></pre></div></div>
+<p><strong>特殊情况：</strong></p>
+<ul>
+<li class=""><strong>净现金头寸</strong>：如果现金 &gt; 债务，净债务为负<!-- -->
+<ul>
+<li class="">债务权重可能为负</li>
+<li class="">WACC 计算相应调整</li>
+</ul>
+</li>
+<li class=""><strong>无债务</strong>：WACC = 股权成本</li>
+</ul>
+<p><strong>典型 WACC 范围：</strong></p>
+<ul>
+<li class="">大盘、稳定型：7-9%</li>
+<li class="">成长型公司：9-12%</li>
+<li class="">高增长/高风险：12-15%</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-7-步折现率应用5-10-年预测">第 7 步：折现率应用（5-10 年预测）<a href="#第-7-步折现率应用5-10-年预测" class="hash-link" aria-label="第 7 步：折现率应用（5-10 年预测）的直接链接" title="第 7 步：折现率应用（5-10 年预测）的直接链接" translate="no">​</a></h3>
+<p><strong>年中惯例：</strong></p>
+<ul>
+<li class="">假设现金流发生在年中</li>
+<li class="">折现期：0.5、1.5、2.5、3.5、4.5 等</li>
+<li class="">折现因子 = 1 / (1 + WACC)^期间</li>
+</ul>
+<p><strong>现值计算：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">For each projection year:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV of FCF = Unlevered FCF × Discount Factor</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Example (Year 1):</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">FCF = $1,000</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC = 10%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Period = 0.5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Discount Factor = 1 / (1.10)^0.5 = 0.9535</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV = $1,000 × 0.9535 = $954</span><br></span></code></pre></div></div>
+<p><strong>预测期选择：</strong></p>
+<ul>
+<li class=""><strong>5 年</strong>：大多数分析的标准</li>
+<li class=""><strong>7-10 年</strong>：具有较长跑道的高增长公司</li>
+<li class=""><strong>3 年</strong>：成熟、稳定的企业</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-8-步终值计算">第 8 步：终值计算<a href="#第-8-步终值计算" class="hash-link" aria-label="第 8 步：终值计算的直接链接" title="第 8 步：终值计算的直接链接" translate="no">​</a></h3>
+<p><strong>永续增长法（首选）：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal FCF = Final Year FCF × (1 + Terminal Growth Rate)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Value = Terminal FCF / (WACC - Terminal Growth Rate)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Critical Constraint: Terminal Growth &lt; WACC (otherwise infinite value)</span><br></span></code></pre></div></div>
+<p><strong>终端增长率选择：</strong></p>
+<ul>
+<li class="">保守型：2.0-2.5%（GDP 增长率）</li>
+<li class="">适中型：2.5-3.5%</li>
+<li class="">激进型：3.5-5.0%（仅适用于市场领导者）</li>
+</ul>
+<p><strong>不得超过</strong>：无风险利率或长期 GDP 增长率</p>
+<p><strong>退出倍数法（替代方案）：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Value = Final Year EBITDA × Exit Multiple</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Where Exit Multiple comes from:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Industry comparable trading multiples</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Precedent transaction multiples</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">- Typical range: 8-15x EBITDA</span><br></span></code></pre></div></div>
+<p><strong>终值现值：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV of Terminal Value = Terminal Value / (1 + WACC)^Final Period</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Where Final Period accounts for timing:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">5-year model with mid-year convention: Period = 4.5</span><br></span></code></pre></div></div>
+<p><strong>终值合理性检验：</strong></p>
+<ul>
+<li class="">应占企业价值的 50-70%</li>
+<li class="">如果 &gt;75%，模型可能过度依赖终端假设</li>
+<li class="">如果 &lt;40%，检查终端假设是否过于保守</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-9-步企业价值到股权价值桥接">第 9 步：企业价值到股权价值桥接<a href="#第-9-步企业价值到股权价值桥接" class="hash-link" aria-label="第 9 步：企业价值到股权价值桥接的直接链接" title="第 9 步：企业价值到股权价值桥接的直接链接" translate="no">​</a></h3>
+<p><strong>估值汇总结构：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">(+) Sum of PV of Projected FCFs = $X million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(+) PV of Terminal Value = $Y million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">= Enterprise Value = $Z million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Net Debt [or + Net Cash if negative] = $A million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">= Equity Value = $B million</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">÷ Diluted Shares Outstanding = C million shares</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">= Implied Price per Share = $XX.XX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current Stock Price = $YY.YY</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Implied Return = (Implied Price / Current Price) - 1 = XX%</span><br></span></code></pre></div></div>
+<p><strong>关键调整：</strong></p>
+<ul>
+<li class=""><strong>净债务 = 总债务 - 现金及等价物</strong>
+<ul>
+<li class="">如果为正：从 EV 中减去（降低股权价值）</li>
+<li class="">如果为负（净现金）：加到 EV 上（增加股权价值）</li>
+</ul>
+</li>
+<li class=""><strong>使用稀释股份数</strong>：包括期权、RSU、可转换证券</li>
+<li class=""><strong>其他调整</strong>（如适用）：<!-- -->
+<ul>
+<li class="">少数股东权益</li>
+<li class="">养老金负债</li>
+<li class="">经营租赁义务</li>
+</ul>
+</li>
+</ul>
+<p><strong>估值输出格式：</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Valuation Component,Amount ($M)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV Explicit FCFs,X.X</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV Terminal Value,Y.Y</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Enterprise Value,Z.Z</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Net Debt,A.A</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity Value,B.B</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Shares Outstanding (M),C.C</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Implied Price per Share,$XX.XX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current Share Price,$YY.YY</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Implied Upside/(Downside),+XX%</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="第-10-步敏感性分析">第 10 步：敏感性分析<a href="#第-10-步敏感性分析" class="hash-link" aria-label="第 10 步：敏感性分析的直接链接" title="第 10 步：敏感性分析的直接链接" translate="no">​</a></h3>
+<p>在 DCF 工作表底部构建<strong>三张敏感性表格</strong>，显示估值如何随不同假设变化：</p>
+<ol>
+<li class=""><strong>WACC vs 终端增长</strong>——显示企业价值对折现率和永续增长率的敏感性</li>
+<li class=""><strong>收入增长 vs EBIT 利润率</strong>——显示顶线增长和运营杠杆的影响</li>
+<li class=""><strong>Beta vs 无风险利率</strong>——显示对股权成本组成部分的敏感性</li>
+</ol>
+<p><strong>实现方式</strong>：这些是简单的二维网格（不是 Excel 的&quot;数据表&quot;功能），每个单元格中包含公式。每个单元格必须包含针对该特定假设组合的完整 DCF 重新计算。有关使用 openpyxl 以编程方式填充所有 75 个单元格的详细要求，请参阅关键约束部分。</p>
+<p>&lt;correct_patterns&gt;</p>
+<p>本节包含构建 DCF 模型时应遵循的所有正确模式。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="情景块选择模式遵循此方法">情景块选择模式——遵循此方法<a href="#情景块选择模式遵循此方法" class="hash-link" aria-label="情景块选择模式——遵循此方法的直接链接" title="情景块选择模式——遵循此方法的直接链接" translate="no">​</a></h3>
+<p><strong>假设按每个情景的独立块组织：</strong></p>
+<p><strong>关键结构——每个节标题三行：</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">BEAR CASE ASSUMPTIONS (section header, merge cells across)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),12%,10%,9%,8%,7%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),45%,44%,43%,42%,41%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">BASE CASE ASSUMPTIONS (section header, merge cells across)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),16%,14%,12%,10%,9%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),48%,49%,50%,51%,52%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">BULL CASE ASSUMPTIONS (section header, merge cells across)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),20%,18%,15%,13%,11%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),50%,51%,52%,53%,54%</span><br></span></code></pre></div></div>
+<p><strong>每个情景块必须有一个列标题行</strong>，在节标题正下方显示预测年份（FY2025E、FY2026E 等）。没有这一行，用户无法判断哪个假设值对应哪一年。</p>
+<p><strong>如何引用假设——创建合并列：</strong></p>
+<ol>
+<li class="">情景选择单元格（例如 B6）包含 1=熊、2=基、3=牛</li>
+<li class="">使用 INDEX 或 OFFSET 公式创建合并列，从正确的情景块中提取数据</li>
+<li class="">预测公式引用合并列（干净的单元格引用）</li>
+<li class="">每个情景块包含跨预测年份的完整 DCF 假设集</li>
+</ol>
+<p><strong>推荐的合并列模式（使用 INDEX）：</strong>
+<code>=INDEX(B10:D10, 1, $B$6)</code></p>
+<p><strong>不要这样做——在整个模型中散布 IF 语句：</strong>
+<code>=IF($B$6=1,[Bear block cell],IF($B$6=2,[Base block cell],[Bull block cell]))</code></p>
+<p>合并列方法集中了逻辑，使模型更易于审计。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="正确的收入预测模式">正确的收入预测模式<a href="#正确的收入预测模式" class="hash-link" aria-label="正确的收入预测模式的直接链接" title="正确的收入预测模式的直接链接" translate="no">​</a></h3>
+<p><strong>使用 INDEX 公式创建合并列，然后在预测中引用它：</strong></p>
+<p><strong>第 1 步——FY1 增长的合并列：</strong>
+<code>=INDEX([Bear FY1 growth]:[Bull FY1 growth], 1, $B$6)</code></p>
+<p><strong>第 2 步——收入预测引用合并列：</strong>
+<code>Revenue Year 1: =D29*(1+$E$10)</code></p>
+<p>其中：</p>
+<ul>
+<li class="">D29 = 上一年收入</li>
+<li class="">$E$10 = FY1 增长的合并列单元格（包含 INDEX 公式）</li>
+<li class="">$B$6 = 情景选择器（1=熊、2=基、3=牛）</li>
+</ul>
+<p><strong>这种方法比在每个预测公式中嵌入 IF 语句更简洁</strong>，并且更容易审计正在使用哪些情景假设。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="正确的-fcf-公式模式">正确的 FCF 公式模式<a href="#正确的-fcf-公式模式" class="hash-link" aria-label="正确的 FCF 公式模式的直接链接" title="正确的 FCF 公式模式的直接链接" translate="no">​</a></h3>
+<p><strong>使用带有 INDEX 公式的合并列，然后在 FCF 计算中引用它们：</strong></p>
+<p><strong>合并列方法：</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Item,Formula,Reference</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">D&amp;A,=E29*$E$21,$E$21 = consolidation column for D&amp;A %</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">CapEx,=E29*$E$22,$E$22 = consolidation column for CapEx %</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Δ NWC,=(E29-D29)*$E$23,$E$23 = consolidation column for NWC %</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Unlevered FCF,=E57+E58-E60-E62,E57=NOPAT E58=D&amp;A E60=CapEx E62=Δ NWC</span><br></span></code></pre></div></div>
+<p><strong>每个合并列单元格包含一个 INDEX 公式</strong>，根据情景选择器从适当的情景块中提取数据。这使预测公式保持简洁且可审计。</p>
+<p>写公式前，确认情景块行位置并设置合并列。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="正确的单元格注释格式">正确的单元格注释格式<a href="#正确的单元格注释格式" class="hash-link" aria-label="正确的单元格注释格式的直接链接" title="正确的单元格注释格式的直接链接" translate="no">​</a></h3>
+<p><strong>每个硬编码值需要此格式：</strong></p>
+<p>&quot;Source: [System/Document], [Date], [Reference], [URL if applicable]&quot;</p>
+<p><strong>示例：</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Item,Source Comment</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Stock price,Source: Market data script 2025-10-12 Close price</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Shares outstanding,Source: 10-K FY2024 Page 45 Note 12</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Historical revenue,Source: 10-K FY2024 Page 32 Consolidated Statements</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Beta,Source: Market data script 2025-10-12 5-year monthly beta</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Consensus estimates,Source: Management guidance Q3 2024 earnings call</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="正确的假设表格结构">正确的假设表格结构<a href="#正确的假设表格结构" class="hash-link" aria-label="正确的假设表格结构的直接链接" title="正确的假设表格结构的直接链接" translate="no">​</a></h3>
+<p><strong>关键：每个情景块需要三个结构元素：</strong></p>
+<ol>
+<li class=""><strong>节标题行</strong>（合并单元格）：例如&quot;BEAR CASE ASSUMPTIONS&quot;</li>
+<li class=""><strong>列标题行</strong>，显示年份——此行为必填项，不得跳过</li>
+<li class=""><strong>数据行</strong>，包含假设值</li>
+</ol>
+<p><strong>结构：</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">BEAR CASE ASSUMPTIONS (section header - merge across columns A:G)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Growth,X%,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC,X%,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">BASE CASE ASSUMPTIONS (section header - merge across columns A:G)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Growth,X%,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC,X%,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">BULL CASE ASSUMPTIONS (section header - merge across columns A:G)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,FY1,FY2,FY3,FY4,FY5</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT Margin (%),X%,X%,X%,X%,X%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Growth,X%,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC,X%,,,,</span><br></span></code></pre></div></div>
+<p><strong>如果没有显示预测年份（FY2025E、FY2026E 等）的列标题行，用户无法判断哪个假设值对应哪一年。此行为必填项。</strong></p>
+<p><strong>然后创建合并列</strong>（通常在右侧的下一列），使用 INDEX 公式根据情景选择器从所选情景块中提取数据。这个合并列就是你的预测公式所引用的内容。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="正确的行规划流程">正确的行规划流程<a href="#正确的行规划流程" class="hash-link" aria-label="正确的行规划流程的直接链接" title="正确的行规划流程的直接链接" translate="no">​</a></h3>
+<p><strong>1. 首先写所有标题和标签：</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Row,Content</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">1,[Company Name] DCF Model</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">2,Ticker | Date | Year End</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">4,Case Selector</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">7,KEY ASSUMPTIONS</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">26,Assumption headers</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">27-31,Growth assumptions</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">...,...</span><br></span></code></pre></div></div>
+<p><strong>2. 写所有节分隔符和空行</strong></p>
+<p><strong>3. 然后使用锁定的行位置写公式</strong></p>
+<p><strong>4. 创建后立即测试公式</strong></p>
+<p><strong>把它想象成建筑施工：</strong></p>
+<ul>
+<li class="">好的做法：先浇地基，再建墙（结构稳固）</li>
+<li class="">坏的做法：先建墙，再浇地基（墙会倒塌）</li>
+</ul>
+<p><strong>Excel 版本：</strong></p>
+<ul>
+<li class="">好的做法：先添加标题，再写公式（公式稳定）</li>
+<li class="">坏的做法：先写公式，再添加标题（公式会断裂）</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="正确的敏感性表格实现">正确的敏感性表格实现<a href="#正确的敏感性表格实现" class="hash-link" aria-label="正确的敏感性表格实现的直接链接" title="正确的敏感性表格实现的直接链接" translate="no">​</a></h3>
+<p><strong>重要</strong>：这些不是 Excel 的&quot;数据表&quot;功能。这些是简单的网格，你使用 openpyxl 在其中写入常规公式。是的，这意味着总共约 75 个公式（3 张表 × 每张 25 个单元格），但这是直接且必须的。</p>
+<p><strong>使用公式以编程方式填充：</strong></p>
+<p>每张敏感性表格必须完全填充公式，为每种假设组合重新计算隐含每股价格。<strong>不要使用 Excel 的数据表功能</strong>（它需要手动干预，无法通过 openpyxl 自动化）。</p>
+<p><strong>实现方法——具体示例：</strong></p>
+<p><strong>表格结构——5×5 网格（奇数维度，基准情景居中）：</strong></p>
+<p>如果模型的基准 WACC = 9.0%，基准终端增长 = 3.0%，则围绕这些值对称构建轴：</p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC vs Terminal Growth,  2.0%,  2.5%,  3.0%,  3.5%,  4.0%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">              8.0%,       [fml], [fml], [fml], [fml], [fml]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">              8.5%,       [fml], [fml], [fml], [fml], [fml]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">              9.0%,       [fml], [fml], [★  ], [fml], [fml]   ← middle row = base WACC</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">              9.5%,       [fml], [fml], [fml], [fml], [fml]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">             10.0%,       [fml], [fml], [fml], [fml], [fml]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">                                   ↑</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">                          middle col = base terminal g</span><br></span></code></pre></div></div>
+<p><strong>★ = 中心单元格。</strong> 其公式输出必须等于模型的实际隐含每股价格（来自估值汇总）。对该单元格应用中蓝色填充（<code>#BDD7EE</code>）和粗体字体，以便基准情景在视觉上有明确锚点。</p>
+<p><strong>轴值规则：</strong> <code>axis_values = [base - 2*step, base - step, base, base + step, base + 2*step]</code>——围绕基准对称，奇数个数保证有中心。</p>
+<p><strong>公式模式——单元格 B88（WACC=8.0%，终端增长=2.0%）：</strong></p>
+<p>B88 中的公式应使用以下内容重新计算隐含价格：</p>
+<ul>
+<li class="">来自行标题的 WACC：<code>$A88</code>（8.0%）</li>
+<li class="">来自列标题的终端增长：<code>B$87</code>（2.0%）</li>
+</ul>
+<p><strong>推荐方法：</strong> 引用主 DCF 计算，但替换这些值。</p>
+<p><strong>示例公式结构：</strong>
+<code>=([SUM of PV FCFs using $A88 as discount rate] + [Terminal Value using B$87 as growth rate and $A88 as WACC] - [Net Debt]) / [Shares]</code></p>
+<p><strong>关键——为 5x5 网格中的每个单元格写公式（每张表 25 个单元格，共 75 个单元格）。</strong> 使用 openpyxl 在循环中以编程方式写入这些公式。不要跳过此步骤或留下占位文本。</p>
+<p><strong>Python 实现模式：</strong></p>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token comment" style="color:rgb(98, 114, 164)"># Pseudocode for populating sensitivity table</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">for</span><span class="token plain"> row_idx</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> wacc_value </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">in</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">enumerate</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">wacc_range</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">for</span><span class="token plain"> col_idx</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> term_growth_value </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">in</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">enumerate</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">term_growth_range</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        </span><span class="token comment" style="color:rgb(98, 114, 164)"># Build formula that uses wacc_value and term_growth_value</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        formula </span><span class="token operator">=</span><span class="token plain"> </span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)">f&quot;=&lt;DCF recalc using </span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token string-interpolation interpolation">wacc_value</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)"> and </span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token string-interpolation interpolation">term_growth_value</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)">&gt;&quot;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        ws</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">cell</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">row</span><span class="token operator">=</span><span class="token plain">start_row</span><span class="token operator">+</span><span class="token plain">row_idx</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> column</span><span class="token operator">=</span><span class="token plain">start_col</span><span class="token operator">+</span><span class="token plain">col_idx</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">value </span><span class="token operator">=</span><span class="token plain"> formula</span><br></span></code></pre></div></div>
+<p><strong>敏感性表格在模型打开时必须立即可用，无需用户进行任何手动步骤。</strong></p>
+<p>&lt;/correct_patterns&gt;</p>
+<p>&lt;common_mistakes&gt;</p>
+<p>本节包含构建 DCF 模型时应避免的所有错误模式。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="错误简化的敏感性表格近似或占位文本">错误：简化的敏感性表格近似或占位文本<a href="#错误简化的敏感性表格近似或占位文本" class="hash-link" aria-label="错误：简化的敏感性表格近似或占位文本的直接链接" title="错误：简化的敏感性表格近似或占位文本的直接链接" translate="no">​</a></h3>
+<p><strong>不要使用线性近似：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">// WRONG - Linear approximation</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">B97: =B88*(1+(0.096-0.116))    // Assumes linear relationship</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// WRONG - Division shortcut</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">B105: =B88/(1+(E48-0.07))      // Doesn&#x27;t recalculate full DCF</span><br></span></code></pre></div></div>
+<p><strong>不要留下占位文本：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">// WRONG - Placeholder note</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">&quot;Note: Use Excel Data Table feature (Data → What-If Analysis → Data Table) to populate sensitivity tables.&quot;</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">// WRONG - Empty cells</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">[leaving cells blank because &quot;this is complex&quot;]</span><br></span></code></pre></div></div>
+<p><strong>不要混淆术语：</strong></p>
+<ul>
+<li class="">❌ &quot;敏感性表格需要 Excel 的数据表功能&quot;（错误——那是一个我们无法使用的特定 Excel 工具）</li>
+<li class="">✅ &quot;敏感性表格是每个单元格中包含公式的简单网格&quot;（正确——这就是我们构建的内容）</li>
+</ul>
+<p><strong>这些捷径为何错误：</strong></p>
+<ul>
+<li class="">线性近似公式实际上并不重新计算 DCF——它们只是应用简单的数学调整</li>
+<li class="">这些关系不是线性的，因此结果将不准确</li>
+<li class="">占位文本需要用户手动干预</li>
+<li class="">交付时模型无法立即使用</li>
+<li class="">不专业，不适合客户</li>
+<li class="">空单元格 = 不完整的交付物</li>
+</ul>
+<p><strong>应拒绝的常见合理化理由：</strong>
+&quot;写 75+ 个公式感觉很复杂，所以我会留一个注释让用户手动完成。&quot;</p>
+<p><strong>现实：</strong> 当你在 Python 中使用 openpyxl 循环时，写 75 个公式是直接的。每个公式遵循相同的模式——只需替换行/列值。这是交付物的必要部分。</p>
+<p><strong>正确做法：</strong> 用重新计算该特定假设组合完整 DCF 的公式填充每个敏感性单元格</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="错误缺少单元格注释">错误：缺少单元格注释<a href="#错误缺少单元格注释" class="hash-link" aria-label="错误：缺少单元格注释的直接链接" title="错误：缺少单元格注释的直接链接" translate="no">​</a></h3>
+<p><strong>不要这样做：</strong></p>
+<ul>
+<li class="">创建所有硬编码输入而不添加注释</li>
+<li class="">认为&quot;我稍后会添加&quot;</li>
+<li class="">写&quot;TODO: add source&quot;</li>
+<li class="">留下没有文档的蓝色输入</li>
+</ul>
+<p><strong>为何错误：</strong></p>
+<ul>
+<li class="">无法验证数据来源</li>
+<li class="">不符合 xlsx skill 要求</li>
+<li class="">不适合审计</li>
+<li class="">事后修复浪费时间</li>
+</ul>
+<p><strong>正确做法：</strong> 在创建每个硬编码值时添加单元格注释</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="错误公式行引用偏移">错误：公式行引用偏移<a href="#错误公式行引用偏移" class="hash-link" aria-label="错误：公式行引用偏移的直接链接" title="错误：公式行引用偏移的直接链接" translate="no">​</a></h3>
+<p><strong>症状：</strong>
+FCF 部分引用了错误的假设行：
+<code>D&amp;A:  =E29*$E$34    // Should be $E$21, but referencing wrong row</code>
+<code>CapEx: =E29*$E$41   // Should be $E$22, but row shifted</code></p>
+<p><strong>发生原因：</strong></p>
+<ol>
+<li class="">先写公式</li>
+<li class="">然后插入标题</li>
+<li class="">所有行引用偏移</li>
+<li class="">现在公式指向错误的单元格 → #REF! 错误</li>
+</ol>
+<p><strong>正确做法：</strong> 先锁定行布局，然后写公式</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="错误每个情景中每个假设使用单行">错误：每个情景中每个假设使用单行<a href="#错误每个情景中每个假设使用单行" class="hash-link" aria-label="错误：每个情景中每个假设使用单行的直接链接" title="错误：每个情景中每个假设使用单行的直接链接" translate="no">​</a></h3>
+<p><strong>不要这样构建假设：</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Assumption,Bear,Base,Bull</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth FY1,10%,13%,16%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue Growth FY2,9%,12%,15%</span><br></span></code></pre></div></div>
+<p>这种垂直布局使得难以看到每个情景内各年份的进展。</p>
+<p><strong>为何错误：</strong></p>
+<ul>
+<li class="">难以看到每个情景内假设跨年份的演变</li>
+<li class="">难以比较整个预测期内各情景的假设</li>
+<li class="">对于审查情景逻辑不够直观</li>
+</ul>
+<p><strong>正确做法：</strong></p>
+<ul>
+<li class="">为每个情景（熊、基、牛）创建独立块</li>
+<li class="">在每个块内，横向展示跨预测年份的假设</li>
+<li class="">这使每个情景的假设作为一个整体更易于审查</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="错误无边框">错误：无边框<a href="#错误无边框" class="hash-link" aria-label="错误：无边框的直接链接" title="错误：无边框的直接链接" translate="no">​</a></h3>
+<p><strong>不要交付没有边框的模型：</strong></p>
+<ul>
+<li class="">无节分隔</li>
+<li class="">所有单元格混在一起</li>
+<li class="">难以阅读且不专业</li>
+</ul>
+<p><strong>为何错误：</strong></p>
+<ul>
+<li class="">不适合客户</li>
+<li class="">难以导航</li>
+<li class="">看起来业余</li>
+</ul>
+<p><strong>正确做法：</strong> 在所有主要节周围添加边框</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="错误错误的字体颜色或无字体颜色区分">错误：错误的字体颜色或无字体颜色区分<a href="#错误错误的字体颜色或无字体颜色区分" class="hash-link" aria-label="错误：错误的字体颜色或无字体颜色区分的直接链接" title="错误：错误的字体颜色或无字体颜色区分的直接链接" translate="no">​</a></h3>
+<p><strong>不要这样做：</strong></p>
+<ul>
+<li class="">所有文本为黑色</li>
+<li class="">只使用填充颜色（不更改字体颜色）</li>
+<li class="">混淆哪些单元格是蓝色还是黑色</li>
+</ul>
+<p><strong>为何错误：</strong></p>
+<ul>
+<li class="">无法区分输入和公式</li>
+<li class="">审计变得不可能</li>
+<li class="">违反 xlsx skill 要求</li>
+</ul>
+<p><strong>正确做法：</strong> 所有硬编码输入使用蓝色文本，所有公式使用黑色文本，工作表链接使用绿色</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="错误运营费用基于毛利润">错误：运营费用基于毛利润<a href="#错误运营费用基于毛利润" class="hash-link" aria-label="错误：运营费用基于毛利润的直接链接" title="错误：运营费用基于毛利润的直接链接" translate="no">​</a></h3>
+<p><strong>不要这样做：</strong>
+<code>S&amp;M: =E33*0.15    // E33 = Gross Profit (WRONG)</code></p>
+<p><strong>为何错误：</strong></p>
+<ul>
+<li class="">运营费用随收入而非毛利润扩展</li>
+<li class="">产生不切实际的利润率进展</li>
+<li class="">不是企业实际运营方式</li>
+</ul>
+<p><strong>正确做法：</strong>
+<code>S&amp;M: =E29*0.15    // E29 = Revenue (CORRECT)</code></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="前-5-大错误汇总">前 5 大错误汇总<a href="#前-5-大错误汇总" class="hash-link" aria-label="前 5 大错误汇总的直接链接" title="前 5 大错误汇总的直接链接" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>公式行引用偏移</strong> → 在写公式之前定义所有行位置</li>
+<li class=""><strong>缺少单元格注释</strong> → 在创建单元格时添加注释，而非最后</li>
+<li class=""><strong>简化的敏感性表格</strong> → 用完整 DCF 重新计算公式填充所有单元格，而非近似值</li>
+<li class=""><strong>情景块引用错误</strong> → 确保 IF 公式从正确的熊/基/牛块中提取</li>
+<li class=""><strong>无边框</strong> → 添加专业节边框以达到客户级外观</li>
+</ol>
+<p>此外，请注意以下错误：</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wacc-计算错误">WACC 计算错误<a href="#wacc-计算错误" class="hash-link" aria-label="WACC 计算错误的直接链接" title="WACC 计算错误的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">在资本结构中混用账面价值和市场价值</li>
+<li class="">错误地使用股权 beta 而非资产/去杠杆 beta</li>
+<li class="">对债务成本应用错误的税率</li>
+<li class="">错误的无风险利率（必须使用当前 10 年期国债收益率）</li>
+<li class="">未针对净债务与净现金头寸进行调整</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="增长假设缺陷">增长假设缺陷<a href="#增长假设缺陷" class="hash-link" aria-label="增长假设缺陷的直接链接" title="增长假设缺陷的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">终端增长 &gt; WACC（产生无限价值）</li>
+<li class="">预测增长率与历史表现不一致</li>
+<li class="">忽视行业增长约束</li>
+<li class="">收入增长与单位经济学不一致</li>
+<li class="">利润率扩张缺乏运营依据</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="终值错误">终值错误<a href="#终值错误" class="hash-link" aria-label="终值错误的直接链接" title="终值错误的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">使用错误的增长方法（永续增长法 vs 退出倍数法）</li>
+<li class="">终值 &gt;80% 的企业价值（表明过度依赖终端假设）</li>
+<li class="">终端利润率与稳态假设不一致</li>
+<li class="">终值的折现期错误</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="现金流预测错误">现金流预测错误<a href="#现金流预测错误" class="hash-link" aria-label="现金流预测错误的直接链接" title="现金流预测错误的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">运营费用基于毛利润而非收入</li>
+<li class="">D&amp;A/资本支出百分比与商业模式不一致</li>
+<li class="">营运资金变化计算不正确</li>
+<li class="">各年税率不一致</li>
+<li class="">NOPAT 计算错误</li>
+</ul>
+<p><strong>这些是最常见的错误。在开始任何 DCF 构建之前重新阅读本节。</strong></p>
+<p>&lt;/common_mistakes&gt;</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="excel-文件创建">Excel 文件创建<a href="#excel-文件创建" class="hash-link" aria-label="Excel 文件创建的直接链接" title="Excel 文件创建的直接链接" translate="no">​</a></h2>
+<p><strong>本 skill 使用 <code>xlsx</code> skill 进行所有电子表格操作。</strong> xlsx skill 提供：</p>
+<ul>
+<li class="">标准化公式构建规则</li>
+<li class="">数字格式约定</li>
+<li class="">通过 <code>recalc.py</code> 脚本自动重新计算公式</li>
+<li class="">全面的错误检查和验证</li>
+</ul>
+<p>本 skill 创建的所有 Excel 文件必须遵循 xlsx skill 要求，包括零公式错误和正确的重新计算。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="质量评估标准">质量评估标准<a href="#质量评估标准" class="hash-link" aria-label="质量评估标准的直接链接" title="质量评估标准的直接链接" translate="no">​</a></h2>
+<p>每个 DCF 模型必须在以下方面最大化：</p>
+<ol>
+<li class=""><strong>基于历史表现的真实收入和利润率假设</strong></li>
+<li class=""><strong>使用正确 CAPM 方法论的适当资本成本计算</strong></li>
+<li class=""><strong>显示估值范围的全面敏感性分析</strong></li>
+<li class=""><strong>清晰的终值计算及支持依据</strong></li>
+<li class=""><strong>支持情景分析的专业模型结构</strong></li>
+<li class=""><strong>所有关键假设的透明文档</strong></li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="输入要求">输入要求<a href="#输入要求" class="hash-link" aria-label="输入要求的直接链接" title="输入要求的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="最低必需输入">最低必需输入<a href="#最低必需输入" class="hash-link" aria-label="最低必需输入的直接链接" title="最低必需输入的直接链接" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>公司标识符</strong>：股票代码或公司名称</li>
+<li class=""><strong>增长假设</strong>：预测期的收入增长率（或&quot;使用共识预测&quot;）</li>
+<li class=""><strong>可选参数</strong>：<!-- -->
+<ul>
+<li class="">预测期（默认：5 年）</li>
+<li class="">情景案例（熊/基/牛增长和利润率假设）</li>
+<li class="">终端增长率（默认：2.5-3.0%）</li>
+<li class="">如果不使用 CAPM，则提供特定的 WACC 输入</li>
+</ul>
+</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="excel-模型结构">Excel 模型结构<a href="#excel-模型结构" class="hash-link" aria-label="Excel 模型结构的直接链接" title="Excel 模型结构的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="工作表架构">工作表架构<a href="#工作表架构" class="hash-link" aria-label="工作表架构的直接链接" title="工作表架构的直接链接" translate="no">​</a></h3>
+<p>创建<strong>两个工作表</strong>：</p>
+<ol>
+<li class=""><strong>DCF</strong> - 主估值模型，底部包含敏感性分析</li>
+<li class=""><strong>WACC</strong> - 资本成本计算</li>
+</ol>
+<p><strong>关键</strong>：敏感性表格放在 DCF 工作表底部（不在单独的工作表上）。这将所有估值输出保持在一起。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="公式重新计算必须执行">公式重新计算（必须执行）<a href="#公式重新计算必须执行" class="hash-link" aria-label="公式重新计算（必须执行）的直接链接" title="公式重新计算（必须执行）的直接链接" translate="no">​</a></h3>
+<p>创建或修改 Excel 模型后，使用 <code>excel-author</code> skill 中的 <code>recalc.py</code> 脚本<strong>重新计算所有公式</strong>：</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">python recalc.py </span><span class="token punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token plain">path_to_excel_file</span><span class="token punctuation" style="color:rgb(248, 248, 242)">]</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token plain">timeout_seconds</span><span class="token punctuation" style="color:rgb(248, 248, 242)">]</span><br></span></code></pre></div></div>
+<p>示例：</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">python recalc.py AAPL_DCF_Model_2025-10-12.xlsx </span><span class="token number">30</span><br></span></code></pre></div></div>
+<p>该脚本将：</p>
+<ul>
+<li class="">使用 LibreOffice 重新计算所有工作表中的所有公式</li>
+<li class="">扫描所有单元格中的 Excel 错误（#REF!、#DIV/0!、#VALUE!、#NAME?、#NULL!、#NUM!、#N/A）</li>
+<li class="">返回包含错误位置和计数的详细 JSON</li>
+</ul>
+<p><strong>预期输出格式：</strong></p>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;status&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">&quot;success&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain">           </span><span class="token comment" style="color:rgb(98, 114, 164)">// or &quot;errors_found&quot;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;total_errors&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token number">0</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain">              </span><span class="token comment" style="color:rgb(98, 114, 164)">// Total error count</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;total_formulas&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token number">42</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain">           </span><span class="token comment" style="color:rgb(98, 114, 164)">// Number of formulas in file</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;error_summary&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token plain">             </span><span class="token comment" style="color:rgb(98, 114, 164)">// Only present if errors found</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><br></span></code></pre></div></div>
+<p><strong>如果发现错误</strong>，输出将包含详细信息：</p>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;status&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">&quot;errors_found&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;total_errors&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token number">2</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;total_formulas&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token number">42</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token property">&quot;error_summary&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token property">&quot;#REF!&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">      </span><span class="token property">&quot;count&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token number">2</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">      </span><span class="token property">&quot;locations&quot;</span><span class="token operator">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;DCF!B25&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">&quot;DCF!C25&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">]</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><br></span></code></pre></div></div>
+<p><strong>修复所有错误</strong>并重新运行 recalc.py，直到状态为&quot;success&quot;，然后再交付模型。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="格式标准">格式标准<a href="#格式标准" class="hash-link" aria-label="格式标准的直接链接" title="格式标准的直接链接" translate="no">​</a></h3>
+<p><strong>重要</strong>：遵循 xlsx skill 的公式构建规则和数字格式约定。DCF skill 添加了特定的视觉呈现标准。</p>
+<p><strong>配色方案——两层：</strong></p>
+<p><strong>第 1 层：字体颜色（xlsx skill 的必要要求）</strong></p>
+<ul>
+<li class=""><strong>蓝色文本（RGB: 0,0,255）</strong>：所有硬编码输入（股价、股份数、历史数据、假设）</li>
+<li class=""><strong>黑色文本（RGB: 0,0,0）</strong>：所有公式和计算</li>
+<li class=""><strong>绿色文本（RGB: 0,128,0）</strong>：链接到其他工作表（WACC 工作表引用）</li>
+</ul>
+<p><strong>第 2 层：填充颜色——专业蓝/灰调色板（除非用户另有指定，否则为默认值）</strong></p>
+<ul>
+<li class=""><strong>保持简洁</strong>——仅使用蓝色和灰色填充。不要引入绿色、黄色、橙色或多种强调色。颜色过多的模型看起来业余。</li>
+<li class=""><strong>默认填充调色板：</strong>
+<ul>
+<li class=""><strong>节标题</strong>：深蓝色（RGB: 31,78,121 / <code>#1F4E79</code>）背景，白色粗体文本</li>
+<li class=""><strong>子标题/列标题</strong>：浅蓝色（RGB: 217,225,242 / <code>#D9E1F2</code>）背景，黑色粗体文本</li>
+<li class=""><strong>输入单元格</strong>：浅灰色（RGB: 242,242,242 / <code>#F2F2F2</code>）背景，蓝色字体——或者如果想要最大简洁性，白色背景配蓝色字体</li>
+<li class=""><strong>计算单元格</strong>：白色背景，黑色字体</li>
+<li class=""><strong>输出/汇总行</strong>（每股价值、EV 等）：中蓝色（RGB: 189,215,238 / <code>#BDD7EE</code>）背景，黑色粗体字体</li>
+</ul>
+</li>
+<li class=""><strong>就这些——3 种蓝色 + 1 种灰色 + 白色。</strong> 抵制添加更多颜色的冲动。</li>
+<li class="">用户提供的模板或明确的颜色偏好始终覆盖这些默认值。</li>
+</ul>
+<p><strong>两层如何协同工作：</strong></p>
+<ul>
+<li class="">输入单元格：蓝色字体 + 浅灰色填充 = &quot;硬编码输入&quot;</li>
+<li class="">公式单元格：黑色字体 + 白色背景 = &quot;计算值&quot;</li>
+<li class="">工作表链接：绿色字体 + 白色背景 = &quot;来自另一工作表的引用&quot;</li>
+<li class="">关键输出：黑色粗体字体 + 中蓝色填充 = &quot;这是答案&quot;</li>
+</ul>
+<p><strong>字体颜色告诉你它是什么（输入/公式/链接）。填充颜色告诉你你在哪里（标题/数据/输出）。</strong></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="边框标准专业外观的必要要求">边框标准（专业外观的必要要求）<a href="#边框标准专业外观的必要要求" class="hash-link" aria-label="边框标准（专业外观的必要要求）的直接链接" title="边框标准（专业外观的必要要求）的直接链接" translate="no">​</a></h3>
+<p><strong>粗边框</strong>（1.5pt）围绕主要节：</p>
+<ul>
+<li class="">关键输入节</li>
+<li class="">预测假设节</li>
+<li class="">5 年现金流预测节</li>
+<li class="">终值节</li>
+<li class="">估值汇总节</li>
+<li class="">每张敏感性分析表</li>
+</ul>
+<p><strong>中等边框</strong>（1pt）在子节之间：</p>
+<ul>
+<li class="">公司详情 vs 历史表现</li>
+<li class="">增长假设 vs EBIT 利润率 vs FCF 参数</li>
+</ul>
+<p><strong>细边框</strong>（0.5pt）围绕数据表：</p>
+<ul>
+<li class="">情景假设表（熊 | 基 | 牛 | 已选）</li>
+<li class="">历史 vs 预测财务矩阵</li>
+</ul>
+<p><strong>无边框：</strong> 表格内的单个单元格（保持简洁、可扫描）</p>
+<p><strong>边框为必要要求</strong>——没有专业边框的模型不适合客户。</p>
+<p><strong>数字格式</strong>（遵循 xlsx skill 标准）：</p>
+<ul>
+<li class=""><strong>年份</strong>：格式化为文本字符串（例如&quot;2024&quot;而非&quot;2,024&quot;）</li>
+<li class=""><strong>百分比</strong>：<code>0.0%</code>（一位小数）</li>
+<li class=""><strong>货币</strong>：百万单位用 <code>$#,##0</code>；每股用 <code>$#,##0.00</code>——始终在标题中指定单位（&quot;Revenue ($mm)&quot;）</li>
+<li class=""><strong>零值</strong>：使用数字格式将所有零显示为&quot;-&quot;（例如 <code>$#,##0;($#,##0);-</code>）</li>
+<li class=""><strong>大数字</strong>：带千位分隔符的 <code>#,##0</code></li>
+<li class=""><strong>负数</strong>：用括号表示 <code>(#,##0)</code>（不用负号）</li>
+</ul>
+<p><strong>单元格注释（所有硬编码输入的必要要求）</strong>：</p>
+<p>根据 xlsx skill，所有硬编码值必须有记录来源的单元格注释。格式：&quot;Source: [System/Document], [Date], [Reference], [URL if applicable]&quot;</p>
+<p><strong>关键</strong>：在创建单元格时添加注释。不要推迟到最后。</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="dcf-工作表详细结构">DCF 工作表详细结构<a href="#dcf-工作表详细结构" class="hash-link" aria-label="DCF 工作表详细结构的直接链接" title="DCF 工作表详细结构的直接链接" translate="no">​</a></h3>
+<p><strong>第 1 节：标题</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Row,Content</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">1,[Company Name] DCF Model</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">2,Ticker: [XXX] | Date: [Date] | Year End: [FYE]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">3,Blank</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">4,Case Selector Cell (1=Bear 2=Base 3=Bull)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">5,Case Name Display (formula: =IF([Selector]=1&quot;Bear&quot;IF([Selector]=2&quot;Base&quot;&quot;Bull&quot;)))</span><br></span></code></pre></div></div>
+<p><strong>第 2 节：市场数据（不依赖情景）</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Item,Value</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current Stock Price,$XX.XX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Shares Outstanding (M),XX.X</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Market Cap ($M),[Formula]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Net Debt ($M),XXX [or Net Cash if negative]</span><br></span></code></pre></div></div>
+<p><strong>第 3 节：DCF 情景假设</strong></p>
+<p>为每个情景（熊、基、牛）创建独立的假设块，DCF 特定假设（收入增长%、EBIT 利润率%、税率%、D&amp;A 占收入%、资本支出占收入%、NWC 变化占 ΔRev%、终端增长率、WACC）横向排列在各预测年份。每个块必须包含节标题、显示预测年份（FY1、FY2 等）的列标题行和数据行。有关确切布局，请参阅 <code>&lt;correct_patterns&gt;</code> 节中的&quot;正确的假设表格结构&quot;。</p>
+<p><strong>第 4 节：历史与预测财务数据</strong></p>
+<p><strong>引用合并列（例如&quot;Selected Case&quot;），从情景块中提取数据</strong>，而非在每个预测行中散布 IF 公式。</p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Income Statement ($M),2020A,2021A,2022A,2023A,2024E,2025E,2026E</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Revenue,XXX,XXX,XXX,XXX,[=E29*(1+$E$10)],[=F29*(1+$E$11)],[=G29*(1+$E$12)]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  % growth,XX%,XX%,XX%,XX%,[=E29/D29-1],[=F29/E29-1],[=G29/F29-1]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Gross Profit,XXX,XXX,XXX,XXX,[=E29*E33],[=F29*F33],[=G29*G33]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  % margin,XX%,XX%,XX%,XX%,[=E33/E29],[=F33/F29],[=G33/G29]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Operating Expenses:,,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  S&amp;M,XXX,XXX,XXX,XXX,[=E29*0.15],[=F29*0.14],[=G29*0.13]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  R&amp;D,XXX,XXX,XXX,XXX,[=E29*0.12],[=F29*0.11],[=G29*0.10]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  G&amp;A,XXX,XXX,XXX,XXX,[=E29*0.08],[=F29*0.07],[=G29*0.07]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  Total OpEx,XXX,XXX,XXX,XXX,[=E36+E37+E38],[=F36+F37+F38],[=G36+G37+G38]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">EBIT,XXX,XXX,XXX,XXX,[=E33-E39],[=F33-F39],[=G33-G39]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  % margin,XX%,XX%,XX%,XX%,[=E41/E29],[=F41/F29],[=G41/G29]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Taxes,(XX),(XX),(XX),(XX),[=E41*$E$24],[=F41*$E$24],[=G41*$E$24]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">  Tax rate,XX%,XX%,XX%,XX%,[=E43/E41],[=F43/F41],[=G43/G41]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">NOPAT,XXX,XXX,XXX,XXX,[=E41-E43],[=F41-F43],[=G41-G43]</span><br></span></code></pre></div></div>
+<p><strong>关键公式模式</strong>：</p>
+<ul>
+<li class="">收入增长：<code>=E29*(1+$E$10)</code>，其中 $E$10 是第 1 年增长的合并列</li>
+<li class="">不要：<code>=E29*(1+IF($B$6=1,$B$10,IF($B$6=2,$C$10,$D$10)))</code></li>
+</ul>
+<p>这种方法更简洁、更易于审计，并通过集中情景逻辑防止公式错误。</p>
+<p><strong>第 5 节：自由现金流构建</strong></p>
+<p><strong>关键</strong>：验证行引用指向正确的假设行。创建后立即测试公式。</p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Cash Flow ($M),2020A,2021A,2022A,2023A,2024E,2025E,2026E</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">NOPAT,XXX,XXX,XXX,XXX,[=E45],[=F45],[=G45]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(+) D&amp;A,XXX,XXX,XXX,XXX,[=E29*$E$21],[=F29*$E$21],[=G29*$E$21]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    % of Rev,XX%,XX%,XX%,XX%,[=E58/E29],[=F58/F29],[=G58/G29]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) CapEx,(XX),(XX),(XX),(XX),[=E29*$E$22],[=F29*$E$22],[=G29*$E$22]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    % of Rev,XX%,XX%,XX%,XX%,[=E60/E29],[=F60/F29],[=G60/G29]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Δ NWC,(XX),(XX),(XX),(XX),[=(E29-D29)*$E$23],[=(F29-E29)*$E$23],[=(G29-F29)*$E$23]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    % of Δ Rev,XX%,XX%,XX%,XX%,[=E62/(E29-D29)],[=F62/(F29-E29)],[=G62/(G29-F29)]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Unlevered FCF,XXX,XXX,XXX,XXX,[=E57+E58-E60-E62],[=F57+F58-F60-F62],[=G57+G58-G60-G62]</span><br></span></code></pre></div></div>
+<p><strong>行引用示例</strong>（基于布局规划）：</p>
+<ul>
+<li class="">$E$21 = D&amp;A % 假设（合并列，第 21 行）</li>
+<li class="">$E$22 = 资本支出 % 假设（合并列，第 22 行）</li>
+<li class="">$E$23 = NWC % 假设（合并列，第 23 行）</li>
+<li class="">E29 = 该年收入（第 29 行）</li>
+<li class="">E45 = 该年 NOPAT（第 45 行）</li>
+</ul>
+<p><strong>写公式前</strong>：确认这些行号与实际布局匹配。测试一列，然后横向复制。</p>
+<p><strong>第 6 节：折现与估值</strong></p>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">DCF Valuation,2024E,2025E,2026E,2027E,2028E,Terminal</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Unlevered FCF ($M),XXX,XXX,XXX,XXX,XXX,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Period,0.5,1.5,2.5,3.5,4.5,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Discount Factor,0.XX,0.XX,0.XX,0.XX,0.XX,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV of FCF ($M),XXX,XXX,XXX,XXX,XXX,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal FCF ($M),,,,,,,XXX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Terminal Value ($M),,,,,,,XXX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV Terminal Value ($M),,,,,,,XXX</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Valuation Summary ($M),,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Sum of PV FCFs,XXX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">PV Terminal Value,XXX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Enterprise Value,XXX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">(-) Net Debt,(XX),,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity Value,XXX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Shares Outstanding (M),XX.X,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">IMPLIED PRICE PER SHARE,$XX.XX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current Stock Price,$XX.XX,,,,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Implied Upside/(Downside),XX%,,,,,</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="wacc-工作表结构">WACC 工作表结构<a href="#wacc-工作表结构" class="hash-link" aria-label="WACC 工作表结构的直接链接" title="WACC 工作表结构的直接链接" translate="no">​</a></h3>
+<div class="language-csv codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csv codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">COST OF EQUITY CALCULATION,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Risk-Free Rate (10Y Treasury),X.XX%,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Beta (5Y monthly),X.XX,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity Risk Premium,X.XX%,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Cost of Equity,X.XX%,[Calculated blue]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">COST OF DEBT CALCULATION,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Credit Rating,AA-,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Pre-Tax Cost of Debt,X.XX%,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Tax Rate,XX.X%,[Link to DCF sheet]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">After-Tax Cost of Debt,X.XX%,[Calculated blue]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">CAPITAL STRUCTURE,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Current Stock Price,$XX.XX,[Link to DCF]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Shares Outstanding (M),XX.X,[Link to DCF]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Market Capitalization ($M),&quot;X,XXX&quot;,[Calculated]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Total Debt ($M),XXX,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Cash &amp; Equivalents ($M),XXX,[Yellow input]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Net Debt ($M),XXX,[Calculated]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Enterprise Value ($M),&quot;X,XXX&quot;,[Calculated]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC CALCULATION,Weight,Cost,Contribution</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity,XX.X%,X.X%,X.XX%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Debt,XX.X%,X.X%,X.XX%</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">,,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WEIGHTED AVERAGE COST OF CAPITAL,X.XX%,[Green output]</span><br></span></code></pre></div></div>
+<p><strong>关键 WACC 公式：</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Market Cap = Price × Shares</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Net Debt = Total Debt - Cash</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Enterprise Value = Market Cap + Net Debt</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Equity Weight = Market Cap / EV</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Debt Weight = Net Debt / EV</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">WACC = (Cost of Equity × Equity Weight) + (After-tax Cost of Debt × Debt Weight)</span><br></span></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="敏感性分析dcf-工作表底部">敏感性分析（DCF 工作表底部）<a href="#敏感性分析dcf-工作表底部" class="hash-link" aria-label="敏感性分析（DCF 工作表底部）的直接链接" title="敏感性分析（DCF 工作表底部）的直接链接" translate="no">​</a></h3>
+<p><strong>术语提醒</strong>：&quot;敏感性表格&quot;= 带有行标题、列标题和每个数据单元格中公式的简单二维网格。不是 Excel 的&quot;数据表&quot;功能（数据 → 假设分析 → 数据表）。你将使用 openpyxl 将常规 Excel 公式写入每个单元格。</p>
+<p><strong>位置</strong>：DCF 工作表第 87 行及以后（不在单独的工作表上）</p>
+<p><strong>三张敏感性表格，垂直堆叠：</strong></p>
+<ol>
+<li class=""><strong>WACC vs 终端增长</strong>（第 87-100 行）——5x5 网格 = 25 个带公式的单元格</li>
+<li class=""><strong>收入增长 vs EBIT 利润率</strong>（第 102-115 行）——5x5 网格 = 25 个带公式的单元格</li>
+<li class=""><strong>Beta vs 无风险利率</strong>（第 117-130 行）——5x5 网格 = 25 个带公式的单元格</li>
+</ol>
+<p><strong>需要写入的公式总数：75</strong>（这是必要的，不是可选的）</p>
+<p><strong>关键</strong>：所有敏感性表格单元格必须使用 openpyxl 以编程方式填充公式。不要使用线性近似捷径。不要留下占位文本或关于手动步骤的注释。不要因为&quot;太复杂&quot;而合理化留空单元格——使用 Python 循环生成公式。</p>
+<p><strong>表格设置：</strong></p>
+<ol>
+<li class="">创建带有行/列标题（要测试的假设值）的表格结构</li>
+<li class="">用公式填充每个数据单元格，该公式：<!-- -->
+<ul>
+<li class="">使用行标题值（例如 WACC = 9.0%）</li>
+<li class="">使用列标题值（例如终端增长 = 3.0%）</li>
+<li class="">使用这些特定假设重新计算完整的 DCF</li>
+<li class="">返回该情景的隐含每股价格</li>
+</ul>
+</li>
+<li class="">交付时所有单元格必须包含有效公式</li>
+<li class="">使用条件格式设置单元格：较高值用绿色刻度，较低值用红色刻度</li>
+<li class="">将基准情景单元格加粗</li>
+<li class="">表格之间留 1-2 个空行</li>
+</ol>
+<p><strong>无需手动干预</strong>——用户打开文件时敏感性表格必须完全可用。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="情景选择器实现">情景选择器实现<a href="#情景选择器实现" class="hash-link" aria-label="情景选择器实现的直接链接" title="情景选择器实现的直接链接" translate="no">​</a></h2>
+<p><strong>三情景框架：</strong></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="熊市情景">熊市情景<a href="#熊市情景" class="hash-link" aria-label="熊市情景的直接链接" title="熊市情景的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">保守的收入增长（历史范围的低端）</li>
+<li class="">利润率压缩或无扩张</li>
+<li class="">较高的 WACC（风险溢价增加）</li>
+<li class="">较低的终端增长率</li>
+<li class="">较高的资本支出假设</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="基准情景">基准情景<a href="#基准情景" class="hash-link" aria-label="基准情景的直接链接" title="基准情景的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">共识或管理层指引的收入增长</li>
+<li class="">基于运营杠杆的适度利润率扩张</li>
+<li class="">当前市场隐含的 WACC</li>
+<li class="">与 GDP 一致的终端增长（2.5-3.0%）</li>
+<li class="">标准资本支出假设</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="牛市情景">牛市情景<a href="#牛市情景" class="hash-link" aria-label="牛市情景的直接链接" title="牛市情景的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">乐观的收入增长（预测的高端）</li>
+<li class="">显著的利润率扩张</li>
+<li class="">较低的 WACC（降低风险溢价）</li>
+<li class="">较高的终端增长（3.5-5.0%）</li>
+<li class="">降低的资本支出强度</li>
+</ul>
+<p><strong>公式实现：</strong></p>
+<p><strong>不要在整个模型中散布嵌套 IF 公式。</strong> 而是创建一个合并列，使用 INDEX 或 OFFSET 公式从适当的情景块中提取数据。</p>
+<p><strong>推荐模式（使用 INDEX）：</strong>
+<code>=INDEX(B10:D10, 1, $B$6)</code>，其中 <code>B10:D10</code> = 熊/基/牛值，<code>1</code> = 行偏移，<code>$B$6</code> = 情景选择器单元格（1、2 或 3）</p>
+<p><strong>然后在所有预测中引用合并列：</strong>
+<code>Revenue Year 1: =D29*(1+$E$10)</code>，其中 $E$10 是第 1 年增长的合并列值。</p>
+<p>这种方法集中了情景逻辑，使模型更易于审计和维护。</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="交付物结构">交付物结构<a href="#交付物结构" class="hash-link" aria-label="交付物结构的直接链接" title="交付物结构的直接链接" translate="no">​</a></h2>
+<p><strong>文件命名</strong>：<code>[Ticker]_DCF_Model_[Date].xlsx</code></p>
+<p><strong>两个工作表</strong>：</p>
+<ol>
+<li class=""><strong>DCF</strong> - 完整模型，包含熊/基/牛情景 + 底部三张敏感性表格（WACC vs 终端增长、收入增长 vs EBIT 利润率、Beta vs 无风险利率）</li>
+<li class=""><strong>WACC</strong> - 资本成本计算</li>
+</ol>
+<p><strong>关键功能</strong>：情景选择器（1/2/3）、带有 INDEX/OFFSET 公式的合并列、颜色编码单元格、所有输入的单元格注释、专业边框</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="最佳实践">最佳实践<a href="#最佳实践" class="hash-link" aria-label="最佳实践的直接链接" title="最佳实践的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="模型构建">模型构建<a href="#模型构建" class="hash-link" aria-label="模型构建的直接链接" title="模型构建的直接链接" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>增量构建</strong>：完成每个节后再进入下一节</li>
+<li class=""><strong>边构建边测试</strong>：输入样本数字以验证公式</li>
+<li class=""><strong>使用一致的结构</strong>：类似的计算遵循类似的模式</li>
+<li class=""><strong>注释复杂公式</strong>：为不寻常的计算添加注释</li>
+<li class=""><strong>内置检查</strong>：在适用的地方添加求和检查和平衡检查</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="文档">文档<a href="#文档" class="hash-link" aria-label="文档的直接链接" title="文档的直接链接" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>记录所有假设</strong>：解释关键输入背后的依据</li>
+<li class=""><strong>引用数据来源</strong>：注明每个数据点的来源</li>
+<li class=""><strong>解释方法论</strong>：描述任何非标准方法</li>
+<li class=""><strong>标记不确定性</strong>：突出显示可见度有限的领域</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="质量控制">质量控制<a href="#质量控制" class="hash-link" aria-label="质量控制的直接链接" title="质量控制的直接链接" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>交叉核对计算</strong>：以多种方式验证数学</li>
+<li class=""><strong>压力测试假设</strong>：运行敏感性以确保模型稳健</li>
+<li class=""><strong>同行评审</strong>：让他人检查公式</li>
+<li class=""><strong>版本控制</strong>：随工作进展保存版本</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="常见变体">常见变体<a href="#常见变体" class="hash-link" aria-label="常见变体的直接链接" title="常见变体的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="高增长科技公司">高增长科技公司<a href="#高增长科技公司" class="hash-link" aria-label="高增长科技公司的直接链接" title="高增长科技公司的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">较长的预测期（7-10 年）</li>
+<li class="">较高的初始增长率（20-30%）</li>
+<li class="">随时间显著的利润率扩张</li>
+<li class="">较高的 WACC（12-15%）</li>
+<li class="">建模单位经济学（用户、ARPU 等）</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="成熟稳定公司">成熟/稳定公司<a href="#成熟稳定公司" class="hash-link" aria-label="成熟/稳定公司的直接链接" title="成熟/稳定公司的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">较短的预测期（3-5 年）</li>
+<li class="">适度的增长率（GDP +1-3%）</li>
+<li class="">稳定的利润率</li>
+<li class="">较低的 WACC（7-9%）</li>
+<li class="">关注现金生成和资本配置</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="周期性公司">周期性公司<a href="#周期性公司" class="hash-link" aria-label="周期性公司的直接链接" title="周期性公司的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">对整个经济周期建模</li>
+<li class="">在周期中点正常化利润率</li>
+<li class="">考虑低谷和峰值情景</li>
+<li class="">针对周期性调整 beta</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="多业务段公司">多业务段公司<a href="#多业务段公司" class="hash-link" aria-label="多业务段公司的直接链接" title="多业务段公司的直接链接" translate="no">​</a></h3>
+<ul>
+<li class="">为每个业务单元建立独立的 DCF</li>
+<li class="">按业务段设置不同的增长率和利润率</li>
+<li class="">分部加总估值</li>
+<li class="">考虑协同效应</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="故障排除">故障排除<a href="#故障排除" class="hash-link" aria-label="故障排除的直接链接" title="故障排除的直接链接" translate="no">​</a></h2>
+<p><strong>如果遇到错误或不合理的结果，请阅读 <a href="https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/finance/dcf-model/TROUBLESHOOTING.md" target="_blank" rel="noopener noreferrer" class="">TROUBLESHOOTING.md</a> 获取详细的调试指导。</strong></p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="工作流集成">工作流集成<a href="#工作流集成" class="hash-link" aria-label="工作流集成的直接链接" title="工作流集成的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="dcf-构建开始时">DCF 构建开始时<a href="#dcf-构建开始时" class="hash-link" aria-label="DCF 构建开始时的直接链接" title="DCF 构建开始时的直接链接" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>收集市场数据</strong>：</p>
+<ul>
+<li class="">检查可用的 MCP 服务器以获取当前市场数据</li>
+<li class="">使用网络搜索/抓取获取股价、beta 和其他市场指标</li>
+<li class="">如果需要特定数据，向用户请求</li>
+</ul>
+</li>
+<li class="">
+<p><strong>收集历史财务数据</strong>：</p>
+<ul>
+<li class="">检查可用的 MCP 服务器（Daloopa 等）</li>
+<li class="">如果无法通过 MCP 获取，向用户请求</li>
+<li class="">必要时从 10-K 手动提取</li>
+</ul>
+</li>
+<li class="">
+<p><strong>使用本 skill 中详述的 DCF 方法论开始模型构建</strong></p>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="模型构建期间">模型构建期间<a href="#模型构建期间" class="hash-link" aria-label="模型构建期间的直接链接" title="模型构建期间的直接链接" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>使用 openpyxl 构建 Excel 模型</strong>，使用公式（而非硬编码值）</li>
+<li class=""><strong>遵循 xlsx skill 约定</strong>进行公式构建和格式设置</li>
+<li class=""><strong>仅在用户请求或提供特定品牌指南时应用填充颜色</strong></li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="交付模型前必须执行">交付模型前（必须执行）<a href="#交付模型前必须执行" class="hash-link" aria-label="交付模型前（必须执行）的直接链接" title="交付模型前（必须执行）的直接链接" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>验证结构</strong>：</p>
+<ul>
+<li class="">熊/基/牛情景块，假设横向排列在各预测年份</li>
+<li class="">情景选择器可用，公式引用正确的情景块</li>
+<li class="">敏感性表格在 DCF 工作表底部（不在单独工作表上）</li>
+<li class="">字体颜色：蓝色输入、黑色公式、绿色工作表链接</li>
+<li class="">所有硬编码输入的单元格注释</li>
+<li class="">主要节周围的专业边框</li>
+</ul>
+</li>
+<li class="">
+<p><strong>重新计算公式</strong>：运行 <code>python recalc.py model.xlsx 30</code></p>
+</li>
+<li class="">
+<p><strong>检查输出</strong>：</p>
+<ul>
+<li class="">如果 <code>status</code> 为 <code>&quot;success&quot;</code> → 继续第 4 步</li>
+<li class="">如果 <code>status</code> 为 <code>&quot;errors_found&quot;</code> → 检查 <code>error_summary</code> 并阅读 <a href="https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/finance/dcf-model/TROUBLESHOOTING.md" target="_blank" rel="noopener noreferrer" class="">TROUBLESHOOTING.md</a> 获取调试指导</li>
+</ul>
+</li>
+<li class="">
+<p><strong>修复错误并重新运行 recalc.py</strong>，直到状态为&quot;success&quot;</p>
+</li>
+<li class="">
+<p><strong>抽查公式</strong>：</p>
+<ul>
+<li class="">测试一个 FCF 公式——它是否引用了正确的假设行？</li>
+<li class="">更改情景选择器——合并列是否正确更新？</li>
+<li class="">验证收入公式引用合并列（而非嵌套 IF 公式）</li>
+</ul>
+</li>
+<li class="">
+<p><strong>交付模型</strong></p>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="可用数据来源">可用数据来源<a href="#可用数据来源" class="hash-link" aria-label="可用数据来源的直接链接" title="可用数据来源的直接链接" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>MCP 服务器</strong>：如已配置（Daloopa 用于历史财务数据）</li>
+<li class=""><strong>网络搜索/抓取</strong>：用于当前股价、beta 和市场数据</li>
+<li class=""><strong>用户提供的数据</strong>：历史财务数据、共识预测</li>
+<li class=""><strong>手动提取</strong>：SEC EDGAR 文件作为备用</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="最终输出检查清单">最终输出检查清单<a href="#最终输出检查清单" class="hash-link" aria-label="最终输出检查清单的直接链接" title="最终输出检查清单的直接链接" translate="no">​</a></h2>
+<p>交付 DCF 模型前：</p>
+<p><strong>必要项：</strong></p>
+<ul>
+<li class="">运行 <code>python recalc.py model.xlsx 30</code> 直到状态为&quot;success&quot;（零公式错误）</li>
+<li class="">两个工作表：DCF（底部含敏感性分析）、WACC</li>
+<li class="">字体颜色：蓝色=输入，黑色=公式，绿色=工作表链接</li>
+<li class="">所有硬编码输入的单元格注释</li>
+<li class="">敏感性表格完全填充公式</li>
+<li class="">主要节周围的专业边框</li>
+</ul>
+<p><strong>验证：</strong></p>
+<ul>
+<li class="">运营费用基于收入（而非毛利润）</li>
+<li class="">终值占 EV 的 50-70%</li>
+<li class="">终端增长 &lt; WACC</li>
+<li class="">税率 21-28%</li>
+<li class="">文件命名：<code>[Ticker]_DCF_Model_[Date].xlsx</code></li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="数据来源mcp-优先网络备用">数据来源——MCP 优先，网络备用<a href="#数据来源mcp-优先网络备用" class="hash-link" aria-label="数据来源——MCP 优先，网络备用的直接链接" title="数据来源——MCP 优先，网络备用的直接链接" translate="no">​</a></h2>
+<p>以下许多段落提到&quot;使用 S&amp;P Kensho MCP / Daloopa MCP / FactSet MCP&quot;。这些是原始 Cowork 插件上下文中的商业金融数据 MCP。在 Hermes 中：</p>
+<ul>
+<li class=""><strong>如果你配置了任何结构化金融数据 MCP</strong>（Hermes 支持 MCP——参见 <code>native-mcp</code> skill），优先使用它获取时间点可比数据、先例交易和文件。</li>
+<li class=""><strong>否则</strong>，回退到：<!-- -->
+<ul>
+<li class="">针对 SEC EDGAR（<code>https://www.sec.gov/cgi-bin/browse-edgar</code>）使用 <code>web_search</code> / <code>web_extract</code> 获取美国文件</li>
+<li class="">公司 IR 页面获取新闻稿、财报演示文稿</li>
+<li class=""><code>browser_navigate</code> 用于交互式数据门户</li>
+<li class="">用户提供的数据（当上下文中没有时明确询问）</li>
+</ul>
+</li>
+<li class=""><strong>绝不捏造数据</strong>。如果某个倍数、先例或文件数字无法获取来源，将该单元格标记为 <code>[UNSOURCED]</code> 并向用户说明。</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="归属">归属<a href="#归属" class="hash-link" aria-label="归属的直接链接" title="归属的直接链接" translate="no">​</a></h2>
+<p>本 skill 改编自 Anthropic 的 Claude 金融服务插件套件（Apache-2.0）。Office-JS / Cowork 实时 Excel 路径已被移除；此版本通过 <code>excel-author</code> skill 的约定面向无头 openpyxl。原始来源：<a href="https://github.com/anthropics/financial-services" target="_blank" rel="noopener noreferrer" class="">https://github.com/anthropics/financial-services</a></p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/NousResearch/hermes-agent/edit/main/website/docs/user-guide/skills/optional/finance/finance-dcf-model.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑此页</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-comps-analysis"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">可比公司分析</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/hermes-agent/docs/zh-Hans/user-guide/skills/optional/finance/finance-excel-author"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">Excel Author</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#skill-元数据" class="table-of-contents__link toc-highlight">Skill 元数据</a></li><li><a href="#参考完整-skillmd" class="table-of-contents__link toc-highlight">参考：完整 SKILL.md</a></li><li><a href="#环境" class="table-of-contents__link toc-highlight">环境</a></li><li><a href="#概述" class="table-of-contents__link toc-highlight">概述</a></li><li><a href="#工具" class="table-of-contents__link toc-highlight">工具</a></li><li><a href="#关键约束请先阅读" class="table-of-contents__link toc-highlight">关键约束——请先阅读</a></li><li><a href="#dcf-流程工作流" class="table-of-contents__link toc-highlight">DCF 流程工作流</a><ul><li><a href="#第-1-步数据获取与验证" class="table-of-contents__link toc-highlight">第 1 步：数据获取与验证</a></li><li><a href="#第-2-步历史分析3-5-年" class="table-of-contents__link toc-highlight">第 2 步：历史分析（3-5 年）</a></li><li><a href="#第-3-步构建收入预测" class="table-of-contents__link toc-highlight">第 3 步：构建收入预测</a></li><li><a href="#第-4-步运营费用建模" class="table-of-contents__link toc-highlight">第 4 步：运营费用建模</a></li><li><a href="#第-5-步自由现金流计算" class="table-of-contents__link toc-highlight">第 5 步：自由现金流计算</a></li><li><a href="#第-6-步资本成本wacc研究" class="table-of-contents__link toc-highlight">第 6 步：资本成本（WACC）研究</a></li><li><a href="#第-7-步折现率应用5-10-年预测" class="table-of-contents__link toc-highlight">第 7 步：折现率应用（5-10 年预测）</a></li><li><a href="#第-8-步终值计算" class="table-of-contents__link toc-highlight">第 8 步：终值计算</a></li><li><a href="#第-9-步企业价值到股权价值桥接" class="table-of-contents__link toc-highlight">第 9 步：企业价值到股权价值桥接</a></li><li><a href="#第-10-步敏感性分析" class="table-of-contents__link toc-highlight">第 10 步：敏感性分析</a></li><li><a href="#情景块选择模式遵循此方法" class="table-of-contents__link toc-highlight">情景块选择模式——遵循此方法</a></li><li><a href="#正确的收入预测模式" class="table-of-contents__link toc-highlight">正确的收入预测模式</a></li><li><a href="#正确的-fcf-公式模式" class="table-of-contents__link toc-highlight">正确的 FCF 公式模式</a></li><li><a href="#正确的单元格注释格式" class="table-of-contents__link toc-highlight">正确的单元格注释格式</a></li><li><a href="#正确的假设表格结构" class="table-of-contents__link toc-highlight">正确的假设表格结构</a></li><li><a href="#正确的行规划流程" class="table-of-contents__link toc-highlight">正确的行规划流程</a></li><li><a href="#正确的敏感性表格实现" class="table-of-contents__link toc-highlight">正确的敏感性表格实现</a></li><li><a href="#错误简化的敏感性表格近似或占位文本" class="table-of-contents__link toc-highlight">错误：简化的敏感性表格近似或占位文本</a></li><li><a href="#错误缺少单元格注释" class="table-of-contents__link toc-highlight">错误：缺少单元格注释</a></li><li><a href="#错误公式行引用偏移" class="table-of-contents__link toc-highlight">错误：公式行引用偏移</a></li><li><a href="#错误每个情景中每个假设使用单行" class="table-of-contents__link toc-highlight">错误：每个情景中每个假设使用单行</a></li><li><a href="#错误无边框" class="table-of-contents__link toc-highlight">错误：无边框</a></li><li><a href="#错误错误的字体颜色或无字体颜色区分" class="table-of-contents__link toc-highlight">错误：错误的字体颜色或无字体颜色区分</a></li><li><a href="#错误运营费用基于毛利润" class="table-of-contents__link toc-highlight">错误：运营费用基于毛利润</a></li><li><a href="#前-5-大错误汇总" class="table-of-contents__link toc-highlight">前 5 大错误汇总</a></li><li><a href="#wacc-计算错误" class="table-of-contents__link toc-highlight">WACC 计算错误</a></li><li><a href="#增长假设缺陷" class="table-of-contents__link toc-highlight">增长假设缺陷</a></li><li><a href="#终值错误" class="table-of-contents__link toc-highlight">终值错误</a></li><li><a href="#现金流预测错误" class="table-of-contents__link toc-highlight">现金流预测错误</a></li></ul></li><li><a href="#excel-文件创建" class="table-of-contents__link toc-highlight">Excel 文件创建</a></li><li><a href="#质量评估标准" class="table-of-contents__link toc-highlight">质量评估标准</a></li><li><a href="#输入要求" class="table-of-contents__link toc-highlight">输入要求</a><ul><li><a href="#最低必需输入" class="table-of-contents__link toc-highlight">最低必需输入</a></li></ul></li><li><a href="#excel-模型结构" class="table-of-contents__link toc-highlight">Excel 模型结构</a><ul><li><a href="#工作表架构" class="table-of-contents__link toc-highlight">工作表架构</a></li><li><a href="#公式重新计算必须执行" class="table-of-contents__link toc-highlight">公式重新计算（必须执行）</a></li><li><a href="#格式标准" class="table-of-contents__link toc-highlight">格式标准</a></li><li><a href="#边框标准专业外观的必要要求" class="table-of-contents__link toc-highlight">边框标准（专业外观的必要要求）</a></li><li><a href="#dcf-工作表详细结构" class="table-of-contents__link toc-highlight">DCF 工作表详细结构</a></li><li><a href="#wacc-工作表结构" class="table-of-contents__link toc-highlight">WACC 工作表结构</a></li><li><a href="#敏感性分析dcf-工作表底部" class="table-of-contents__link toc-highlight">敏感性分析（DCF 工作表底部）</a></li></ul></li><li><a href="#情景选择器实现" class="table-of-contents__link toc-highlight">情景选择器实现</a><ul><li><a href="#熊市情景" class="table-of-contents__link toc-highlight">熊市情景</a></li><li><a href="#基准情景" class="table-of-contents__link toc-highlight">基准情景</a></li><li><a href="#牛市情景" class="table-of-contents__link toc-highlight">牛市情景</a></li></ul></li><li><a href="#交付物结构" class="table-of-contents__link toc-highlight">交付物结构</a></li><li><a href="#最佳实践" class="table-of-contents__link toc-highlight">最佳实践</a><ul><li><a href="#模型构建" class="table-of-contents__link toc-highlight">模型构建</a></li><li><a href="#文档" class="table-of-contents__link toc-highlight">文档</a></li><li><a href="#质量控制" class="table-of-contents__link toc-highlight">质量控制</a></li></ul></li><li><a href="#常见变体" class="table-of-contents__link toc-highlight">常见变体</a><ul><li><a href="#高增长科技公司" class="table-of-contents__link toc-highlight">高增长科技公司</a></li><li><a href="#成熟稳定公司" class="table-of-contents__link toc-highlight">成熟/稳定公司</a></li><li><a href="#周期性公司" class="table-of-contents__link toc-highlight">周期性公司</a></li><li><a href="#多业务段公司" class="table-of-contents__link toc-highlight">多业务段公司</a></li></ul></li><li><a href="#故障排除" class="table-of-contents__link toc-highlight">故障排除</a></li><li><a href="#工作流集成" class="table-of-contents__link toc-highlight">工作流集成</a><ul><li><a href="#dcf-构建开始时" class="table-of-contents__link toc-highlight">DCF 构建开始时</a></li><li><a href="#模型构建期间" class="table-of-contents__link toc-highlight">模型构建期间</a></li><li><a href="#交付模型前必须执行" class="table-of-contents__link toc-highlight">交付模型前（必须执行）</a></li><li><a href="#可用数据来源" class="table-of-contents__link toc-highlight">可用数据来源</a></li></ul></li><li><a href="#最终输出检查清单" class="table-of-contents__link toc-highlight">最终输出检查清单</a></li><li><a href="#数据来源mcp-优先网络备用" class="table-of-contents__link toc-highlight">数据来源——MCP 优先，网络备用</a></li><li><a href="#归属" class="table-of-contents__link toc-highlight">归属</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/getting-started/quickstart">Getting Started</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/user-guide/cli">User Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/developer-guide/architecture">Developer Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/zh-Hans/reference/cli-commands">Reference</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent/discussions" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub Discussions<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://agentskills.io" target="_blank" rel="noopener noreferrer" class="footer__link-item">Skills Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://nousresearch.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Nous Research<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Built by <a href="https://nousresearch.com">Nous Research</a> · MIT License · 2026</div></div></div></footer></div>
+</body>
+</html>

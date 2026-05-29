@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-developer-guide/provider-runtime" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">Provider Runtime Resolution | Hermes Agent</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://seojoonkim.github.io/hermes-agent/docs/img/hermes-agent-banner.png"><meta data-rh="true" name="twitter:image" content="https://seojoonkim.github.io/hermes-agent/docs/img/hermes-agent-banner.png"><meta data-rh="true" property="og:url" content="https://seojoonkim.github.io/hermes-agent/docs/developer-guide/provider-runtime"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Provider Runtime Resolution | Hermes Agent"><meta data-rh="true" name="description" content="How Hermes resolves providers, credentials, API modes, and auxiliary models at runtime"><meta data-rh="true" property="og:description" content="How Hermes resolves providers, credentials, API modes, and auxiliary models at runtime"><link data-rh="true" rel="icon" href="/hermes-agent/docs/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://seojoonkim.github.io/hermes-agent/docs/developer-guide/provider-runtime"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/developer-guide/provider-runtime" hreflang="en"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/zh-Hans/developer-guide/provider-runtime" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://seojoonkim.github.io/hermes-agent/docs/developer-guide/provider-runtime" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Provider Runtime Resolution","item":"https://seojoonkim.github.io/hermes-agent/docs/developer-guide/provider-runtime"}]}</script><link rel="stylesheet" href="/hermes-agent/docs/assets/css/styles.68258a75.css">
+<script src="/hermes-agent/docs/assets/js/runtime~main.4d90e967.js" defer="defer"></script>
+<script src="/hermes-agent/docs/assets/js/main.b3762a77.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/hermes-agent/docs/img/logo.png"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/hermes-agent/docs/"><div class="navbar__logo"><img src="/hermes-agent/docs/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/hermes-agent/docs/img/logo.png" alt="Hermes Agent" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Hermes Agent</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/hermes-agent/docs/user-stories">Docs</a><a class="navbar__item navbar__link" href="/hermes-agent/docs/skills">Skills</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="iconLanguage_nlXk"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"></path></svg>English</a><ul class="dropdown__menu"><li><a href="/hermes-agent/docs/developer-guide/provider-runtime" target="_self" rel="noopener noreferrer" class="dropdown__link dropdown__link--active" lang="en">English</a></li><li><a href="/hermes-agent/docs/zh-Hans/developer-guide/provider-runtime" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="zh-Hans">简体中文</a></li></ul></div><a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Home<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="Search" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/hermes-agent/docs/user-stories"><span title="User Stories &amp; Use Cases" class="linkLabel_WmDU">User Stories &amp; Use Cases</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/getting-started/quickstart"><span title="Getting Started" class="categoryLinkLabel_W154">Getting Started</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/user-guide/cli"><span title="Using Hermes" class="categoryLinkLabel_W154">Using Hermes</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/user-guide/features/overview"><span title="Features" class="categoryLinkLabel_W154">Features</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/user-guide/messaging/"><span title="Messaging Platforms" class="categoryLinkLabel_W154">Messaging Platforms</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/integrations/"><span title="Integrations" class="categoryLinkLabel_W154">Integrations</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/guides/run-hermes-with-nous-portal"><span title="Guides &amp; Tutorials" class="categoryLinkLabel_W154">Guides &amp; Tutorials</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/hermes-agent/docs/developer-guide/contributing"><span title="Developer Guide" class="categoryLinkLabel_W154">Developer Guide</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/developer-guide/contributing"><span title="Contributing" class="linkLabel_WmDU">Contributing</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" tabindex="0" href="/hermes-agent/docs/developer-guide/architecture"><span title="Architecture" class="categoryLinkLabel_W154">Architecture</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/developer-guide/architecture"><span title="Architecture" class="linkLabel_WmDU">Architecture</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/developer-guide/agent-loop"><span title="Agent Loop Internals" class="linkLabel_WmDU">Agent Loop Internals</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/developer-guide/prompt-assembly"><span title="Prompt Assembly" class="linkLabel_WmDU">Prompt Assembly</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/developer-guide/context-compression-and-caching"><span title="Context Compression and Caching" class="linkLabel_WmDU">Context Compression and Caching</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/developer-guide/gateway-internals"><span title="Gateway Internals" class="linkLabel_WmDU">Gateway Internals</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/developer-guide/session-storage"><span title="Session Storage" class="linkLabel_WmDU">Session Storage</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/hermes-agent/docs/developer-guide/provider-runtime"><span title="Provider Runtime Resolution" class="linkLabel_WmDU">Provider Runtime Resolution</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/hermes-agent/docs/developer-guide/programmatic-integration"><span title="Programmatic Integration" class="linkLabel_WmDU">Programmatic Integration</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/developer-guide/adding-tools"><span title="Extending" class="categoryLinkLabel_W154">Extending</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/hermes-agent/docs/developer-guide/tools-runtime"><span title="Internals" class="categoryLinkLabel_W154">Internals</span></a></div></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/hermes-agent/docs/reference/cli-commands"><span title="Reference" class="categoryLinkLabel_W154">Reference</span></a></div></li></ul></nav><button type="button" title="Collapse sidebar" aria-label="Collapse sidebar" class="button button--secondary button--outline collapseSidebarButton_PEFL"><svg width="20" height="20" aria-hidden="true" class="collapseSidebarButtonIcon_kv0_"><g fill="#7a7a7a"><path d="M9.992 10.023c0 .2-.062.399-.172.547l-4.996 7.492a.982.982 0 01-.828.454H1c-.55 0-1-.453-1-1 0-.2.059-.403.168-.551l4.629-6.942L.168 3.078A.939.939 0 010 2.528c0-.548.45-.997 1-.997h2.996c.352 0 .649.18.828.45L9.82 9.472c.11.148.172.347.172.55zm0 0"></path><path d="M19.98 10.023c0 .2-.058.399-.168.547l-4.996 7.492a.987.987 0 01-.828.454h-3c-.547 0-.996-.453-.996-1 0-.2.059-.403.168-.551l4.625-6.942-4.625-6.945a.939.939 0 01-.168-.55 1 1 0 01.996-.997h3c.348 0 .649.18.828.45l4.996 7.492c.11.148.168.347.168.55zm0 0"></path></g></svg></button></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/hermes-agent/docs/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Developer Guide</span></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Architecture</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Provider Runtime Resolution</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>Provider Runtime Resolution</h1></header>
+<p>Hermes has a shared provider runtime resolver used across:</p>
+<ul>
+<li class="">CLI</li>
+<li class="">gateway</li>
+<li class="">cron jobs</li>
+<li class="">ACP</li>
+<li class="">auxiliary model calls</li>
+</ul>
+<p>Primary implementation:</p>
+<ul>
+<li class=""><code>hermes_cli/runtime_provider.py</code> — credential resolution, <code>_resolve_custom_runtime()</code></li>
+<li class=""><code>hermes_cli/auth.py</code> — provider registry, <code>resolve_provider()</code></li>
+<li class=""><code>hermes_cli/model_switch.py</code> — shared <code>/model</code> switch pipeline (CLI + gateway)</li>
+<li class=""><code>agent/auxiliary_client.py</code> — auxiliary model routing</li>
+<li class=""><code>providers/</code> — ABC + registry entry points (<code>ProviderProfile</code>, <code>register_provider</code>, <code>get_provider_profile</code>, <code>list_providers</code>)</li>
+<li class=""><code>plugins/model-providers/&lt;name&gt;/</code> — per-provider plugins (bundled) that declare <code>api_mode</code>, <code>base_url</code>, <code>env_vars</code>, <code>fallback_models</code> and register themselves into the registry on first access. User plugins at <code>$HERMES_HOME/plugins/model-providers/&lt;name&gt;/</code> override bundled ones of the same name.</li>
+</ul>
+<p><code>get_provider_profile()</code> in <code>providers/</code> returns a <code>ProviderProfile</code> for a given provider id. <code>runtime_provider.py</code> calls this at resolution time to get the canonical <code>base_url</code>, <code>env_vars</code> priority list, <code>api_mode</code>, and <code>fallback_models</code> without needing to duplicate that data in multiple files. Adding a new plugin under <code>plugins/model-providers/&lt;your-provider&gt;/</code> (or <code>$HERMES_HOME/plugins/model-providers/&lt;your-provider&gt;/</code>) that calls <code>register_provider()</code> is enough for <code>runtime_provider.py</code> to pick it up — no branch needed in the resolver itself.</p>
+<p>If you are trying to add a new first-class inference provider, read <a class="" href="/hermes-agent/docs/developer-guide/adding-providers">Adding Providers</a> and the <a class="" href="/hermes-agent/docs/developer-guide/model-provider-plugin">Model Provider Plugin guide</a> alongside this page.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="resolution-precedence">Resolution precedence<a href="#resolution-precedence" class="hash-link" aria-label="Direct link to Resolution precedence" title="Direct link to Resolution precedence" translate="no">​</a></h2>
+<p>At a high level, provider resolution uses:</p>
+<ol>
+<li class="">explicit CLI/runtime request</li>
+<li class=""><code>config.yaml</code> model/provider config</li>
+<li class="">environment variables</li>
+<li class="">provider-specific defaults or auto resolution</li>
+</ol>
+<p>That ordering matters because Hermes treats the saved model/provider choice as the source of truth for normal runs. This prevents a stale shell export from silently overriding the endpoint a user last selected in <code>hermes model</code>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="providers">Providers<a href="#providers" class="hash-link" aria-label="Direct link to Providers" title="Direct link to Providers" translate="no">​</a></h2>
+<p>Current provider families include (see <code>plugins/model-providers/</code> for the complete bundled set):</p>
+<ul>
+<li class="">OpenRouter</li>
+<li class="">Nous Portal</li>
+<li class="">OpenAI Codex</li>
+<li class="">Copilot / Copilot ACP</li>
+<li class="">Anthropic (native)</li>
+<li class="">Google / Gemini (<code>gemini</code>, <code>google-gemini-cli</code>)</li>
+<li class="">Alibaba / DashScope (<code>alibaba</code>, <code>alibaba-coding-plan</code>)</li>
+<li class="">DeepSeek</li>
+<li class="">Z.AI</li>
+<li class="">Kimi / Moonshot (<code>kimi-coding</code>, <code>kimi-coding-cn</code>)</li>
+<li class="">MiniMax (<code>minimax</code>, <code>minimax-cn</code>, <code>minimax-oauth</code>)</li>
+<li class="">Kilo Code</li>
+<li class="">Hugging Face</li>
+<li class="">OpenCode Zen / OpenCode Go</li>
+<li class="">AWS Bedrock</li>
+<li class="">Azure Foundry</li>
+<li class="">NVIDIA NIM</li>
+<li class="">xAI (Grok)</li>
+<li class="">Arcee</li>
+<li class="">GMI Cloud</li>
+<li class="">StepFun</li>
+<li class="">Qwen OAuth</li>
+<li class="">Xiaomi</li>
+<li class="">Ollama Cloud</li>
+<li class="">LM Studio</li>
+<li class="">Tencent TokenHub</li>
+<li class="">Custom (<code>provider: custom</code>) — first-class provider for any OpenAI-compatible endpoint</li>
+<li class="">Named custom providers (<code>custom_providers</code> list in config.yaml)</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="output-of-runtime-resolution">Output of runtime resolution<a href="#output-of-runtime-resolution" class="hash-link" aria-label="Direct link to Output of runtime resolution" title="Direct link to Output of runtime resolution" translate="no">​</a></h2>
+<p>The runtime resolver returns data such as:</p>
+<ul>
+<li class=""><code>provider</code></li>
+<li class=""><code>api_mode</code></li>
+<li class=""><code>base_url</code></li>
+<li class=""><code>api_key</code></li>
+<li class=""><code>source</code></li>
+<li class="">provider-specific metadata like expiry/refresh info</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="why-this-matters">Why this matters<a href="#why-this-matters" class="hash-link" aria-label="Direct link to Why this matters" title="Direct link to Why this matters" translate="no">​</a></h2>
+<p>This resolver is the main reason Hermes can share auth/runtime logic between:</p>
+<ul>
+<li class=""><code>hermes chat</code></li>
+<li class="">gateway message handling</li>
+<li class="">cron jobs running in fresh sessions</li>
+<li class="">ACP editor sessions</li>
+<li class="">auxiliary model tasks</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="openrouter-and-custom-openai-compatible-base-urls">OpenRouter and custom OpenAI-compatible base URLs<a href="#openrouter-and-custom-openai-compatible-base-urls" class="hash-link" aria-label="Direct link to OpenRouter and custom OpenAI-compatible base URLs" title="Direct link to OpenRouter and custom OpenAI-compatible base URLs" translate="no">​</a></h2>
+<p>Hermes contains logic to avoid leaking the wrong API key to a custom endpoint when multiple provider keys exist (e.g. <code>OPENROUTER_API_KEY</code> and <code>OPENAI_API_KEY</code>).</p>
+<p>Each provider&#x27;s API key is scoped to its own base URL:</p>
+<ul>
+<li class=""><code>OPENROUTER_API_KEY</code> is only sent to <code>openrouter.ai</code> endpoints</li>
+<li class=""><code>OPENAI_API_KEY</code> is used for custom endpoints and as a fallback</li>
+</ul>
+<p>Hermes also distinguishes between:</p>
+<ul>
+<li class="">a real custom endpoint selected by the user</li>
+<li class="">the OpenRouter fallback path used when no custom endpoint is configured</li>
+</ul>
+<p>That distinction is especially important for:</p>
+<ul>
+<li class="">local model servers</li>
+<li class="">non-OpenRouter OpenAI-compatible APIs</li>
+<li class="">switching providers without re-running setup</li>
+<li class="">config-saved custom endpoints that should keep working even when <code>OPENAI_BASE_URL</code> is not exported in the current shell</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="native-anthropic-path">Native Anthropic path<a href="#native-anthropic-path" class="hash-link" aria-label="Direct link to Native Anthropic path" title="Direct link to Native Anthropic path" translate="no">​</a></h2>
+<p>Anthropic is not just &quot;via OpenRouter&quot; anymore.</p>
+<p>When provider resolution selects <code>anthropic</code>, Hermes uses:</p>
+<ul>
+<li class=""><code>api_mode = anthropic_messages</code></li>
+<li class="">the native Anthropic Messages API</li>
+<li class=""><code>agent/anthropic_adapter.py</code> for translation</li>
+</ul>
+<p>Credential resolution for native Anthropic now prefers refreshable Claude Code credentials over copied env tokens when both are present. In practice that means:</p>
+<ul>
+<li class="">Claude Code credential files are treated as the preferred source when they include refreshable auth</li>
+<li class="">manual <code>ANTHROPIC_TOKEN</code> / <code>CLAUDE_CODE_OAUTH_TOKEN</code> values still work as explicit overrides</li>
+<li class="">Hermes preflights Anthropic credential refresh before native Messages API calls</li>
+<li class="">Hermes still retries once on a 401 after rebuilding the Anthropic client, as a fallback path</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="openai-codex-path">OpenAI Codex path<a href="#openai-codex-path" class="hash-link" aria-label="Direct link to OpenAI Codex path" title="Direct link to OpenAI Codex path" translate="no">​</a></h2>
+<p>Codex uses a separate Responses API path:</p>
+<ul>
+<li class=""><code>api_mode = codex_responses</code></li>
+<li class="">dedicated credential resolution and auth store support</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="auxiliary-model-routing">Auxiliary model routing<a href="#auxiliary-model-routing" class="hash-link" aria-label="Direct link to Auxiliary model routing" title="Direct link to Auxiliary model routing" translate="no">​</a></h2>
+<p>Auxiliary tasks such as:</p>
+<ul>
+<li class="">vision</li>
+<li class="">web extraction summarization</li>
+<li class="">context compression summaries</li>
+<li class="">skills hub operations</li>
+<li class="">MCP helper operations</li>
+<li class="">memory flushes</li>
+</ul>
+<p>can use their own provider/model routing rather than the main conversational model.</p>
+<p>When an auxiliary task is configured with provider <code>main</code>, Hermes resolves that through the same shared runtime path as normal chat. In practice that means:</p>
+<ul>
+<li class="">env-driven custom endpoints still work</li>
+<li class="">custom endpoints saved via <code>hermes model</code> / <code>config.yaml</code> also work</li>
+<li class="">auxiliary routing can tell the difference between a real saved custom endpoint and the OpenRouter fallback</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="fallback-models">Fallback models<a href="#fallback-models" class="hash-link" aria-label="Direct link to Fallback models" title="Direct link to Fallback models" translate="no">​</a></h2>
+<p>Hermes supports a configured fallback provider chain — a list of <code>(provider, model)</code> entries tried in order when the primary model encounters errors. The legacy single-pair <code>fallback_model</code> dict is still accepted for back-compat (and migrated on first write).</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="how-it-works-internally">How it works internally<a href="#how-it-works-internally" class="hash-link" aria-label="Direct link to How it works internally" title="Direct link to How it works internally" translate="no">​</a></h3>
+<ol>
+<li class="">
+<p><strong>Storage</strong>: <code>AIAgent.__init__</code> stores the <code>fallback_model</code> dict and sets <code>_fallback_activated = False</code>.</p>
+</li>
+<li class="">
+<p><strong>Trigger points</strong>: <code>_try_activate_fallback()</code> is called from three places in the main retry loop in <code>run_agent.py</code>:</p>
+<ul>
+<li class="">After max retries on invalid API responses (None choices, missing content)</li>
+<li class="">On non-retryable client errors (HTTP 401, 403, 404)</li>
+<li class="">After max retries on transient errors (HTTP 429, 500, 502, 503)</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Activation flow</strong> (<code>_try_activate_fallback</code>):</p>
+<ul>
+<li class="">Returns <code>False</code> immediately if already activated or not configured</li>
+<li class="">Calls <code>resolve_provider_client()</code> from <code>auxiliary_client.py</code> to build a new client with proper auth</li>
+<li class="">Determines <code>api_mode</code>: <code>codex_responses</code> for openai-codex, <code>anthropic_messages</code> for anthropic, <code>chat_completions</code> for everything else</li>
+<li class="">Swaps in-place: <code>self.model</code>, <code>self.provider</code>, <code>self.base_url</code>, <code>self.api_mode</code>, <code>self.client</code>, <code>self._client_kwargs</code></li>
+<li class="">For anthropic fallback: builds a native Anthropic client instead of OpenAI-compatible</li>
+<li class="">Re-evaluates prompt caching (enabled for Claude models on OpenRouter)</li>
+<li class="">Sets <code>_fallback_activated = True</code> — prevents firing again</li>
+<li class="">Resets retry count to 0 and continues the loop</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Config flow</strong>:</p>
+<ul>
+<li class="">CLI: <code>cli.py</code> reads <code>CLI_CONFIG[&quot;fallback_model&quot;]</code> → passes to <code>AIAgent(fallback_model=...)</code></li>
+<li class="">Gateway: <code>gateway/run.py._load_fallback_model()</code> reads <code>config.yaml</code> → passes to <code>AIAgent</code></li>
+<li class="">Validation: both <code>provider</code> and <code>model</code> keys must be non-empty, or fallback is disabled</li>
+</ul>
+</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="what-does-not-support-fallback">What does NOT support fallback<a href="#what-does-not-support-fallback" class="hash-link" aria-label="Direct link to What does NOT support fallback" title="Direct link to What does NOT support fallback" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>Subagent delegation</strong> (<code>tools/delegate_tool.py</code>): subagents inherit the parent&#x27;s provider but not the fallback config</li>
+<li class=""><strong>Auxiliary tasks</strong>: use their own independent provider auto-detection chain (see Auxiliary model routing above)</li>
+</ul>
+<p>Cron jobs <strong>do</strong> support fallback: <code>run_job()</code> reads <code>fallback_providers</code> (or legacy <code>fallback_model</code>) from <code>config.yaml</code> and passes it to <code>AIAgent(fallback_model=...)</code>, matching the gateway&#x27;s <code>_load_fallback_model()</code> pattern. See <a class="" href="/hermes-agent/docs/developer-guide/cron-internals">Cron Internals</a>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="test-coverage">Test coverage<a href="#test-coverage" class="hash-link" aria-label="Direct link to Test coverage" title="Direct link to Test coverage" translate="no">​</a></h3>
+<p>Fallback behavior is exercised across several suites:</p>
+<ul>
+<li class=""><code>tests/run_agent/test_fallback_credential_isolation.py</code> — credential isolation between primary and fallback</li>
+<li class=""><code>tests/hermes_cli/test_fallback_cmd.py</code> — the <code>/fallback</code> CLI command</li>
+<li class=""><code>tests/gateway/test_fallback_eviction.py</code> — gateway eviction of failed providers</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="related-docs">Related docs<a href="#related-docs" class="hash-link" aria-label="Direct link to Related docs" title="Direct link to Related docs" translate="no">​</a></h2>
+<ul>
+<li class=""><a class="" href="/hermes-agent/docs/developer-guide/agent-loop">Agent Loop Internals</a></li>
+<li class=""><a class="" href="/hermes-agent/docs/developer-guide/acp-internals">ACP Internals</a></li>
+<li class=""><a class="" href="/hermes-agent/docs/developer-guide/context-compression-and-caching">Context Compression &amp; Prompt Caching</a></li>
+</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/NousResearch/hermes-agent/edit/main/website/docs/developer-guide/provider-runtime.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/hermes-agent/docs/developer-guide/session-storage"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Session Storage</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/hermes-agent/docs/developer-guide/programmatic-integration"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Programmatic Integration</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#resolution-precedence" class="table-of-contents__link toc-highlight">Resolution precedence</a></li><li><a href="#providers" class="table-of-contents__link toc-highlight">Providers</a></li><li><a href="#output-of-runtime-resolution" class="table-of-contents__link toc-highlight">Output of runtime resolution</a></li><li><a href="#why-this-matters" class="table-of-contents__link toc-highlight">Why this matters</a></li><li><a href="#openrouter-and-custom-openai-compatible-base-urls" class="table-of-contents__link toc-highlight">OpenRouter and custom OpenAI-compatible base URLs</a></li><li><a href="#native-anthropic-path" class="table-of-contents__link toc-highlight">Native Anthropic path</a></li><li><a href="#openai-codex-path" class="table-of-contents__link toc-highlight">OpenAI Codex path</a></li><li><a href="#auxiliary-model-routing" class="table-of-contents__link toc-highlight">Auxiliary model routing</a></li><li><a href="#fallback-models" class="table-of-contents__link toc-highlight">Fallback models</a><ul><li><a href="#how-it-works-internally" class="table-of-contents__link toc-highlight">How it works internally</a></li><li><a href="#what-does-not-support-fallback" class="table-of-contents__link toc-highlight">What does NOT support fallback</a></li><li><a href="#test-coverage" class="table-of-contents__link toc-highlight">Test coverage</a></li></ul></li><li><a href="#related-docs" class="table-of-contents__link toc-highlight">Related docs</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/getting-started/quickstart">Getting Started</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/user-guide/cli">User Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/developer-guide/architecture">Developer Guide</a></li><li class="footer__item"><a class="footer__link-item" href="/hermes-agent/docs/reference/cli-commands">Reference</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent/discussions" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub Discussions<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://agentskills.io" target="_blank" rel="noopener noreferrer" class="footer__link-item">Skills Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://nousresearch.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Nous Research<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Built by <a href="https://nousresearch.com">Nous Research</a> · MIT License · 2026</div></div></div></footer></div>
+</body>
+</html>
