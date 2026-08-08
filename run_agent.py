@@ -7587,6 +7587,10 @@ class AIAgent:
             finish_task_run,
             start_task_run,
         )
+        from hermes_cli.observability.task_event_stream import (
+            emit_task_start,
+            emit_task_terminal,
+        )
         from agent.subagent_lifecycle import bind_subagent_parent
         effective_task_id = task_id or str(uuid.uuid4())
         session_id = str(getattr(self, "session_id", None) or "")
@@ -7609,8 +7613,10 @@ class AIAgent:
         token = None
         acct_token = None
         task_started = False
+        task_event_started = False
         task_finished = False
         relay_outcome = "failed"
+        event_outcome = "failed"
         try:
             relay_lease = relay_runtime.SESSION_COORDINATOR.acquire_conversation(
                 profile_key=relay_runtime.current_profile_key(),
@@ -7629,6 +7635,14 @@ class AIAgent:
                 parent_session_id=getattr(self, "_parent_session_id", None) or "",
             )
             task_started = True
+            # Measurement-only lifecycle fact for future retrospective code.
+            # Fail-open: never touches the conversation or metrics semantics.
+            task_event_started = emit_task_start(
+                task_id=effective_task_id,
+                session_id=task_context["session_id"],
+                platform=task_context["platform"],
+                entrypoint="run_conversation",
+            )
             # Publish the conversation id for ambient Nous Portal tagging. Every
             # LLM call made inside this turn — main loop, compression, vision,
             # web_extract, session_search, MoA slots, background-review forks
@@ -7670,6 +7684,7 @@ class AIAgent:
                 relay_outcome = "failed"
             else:
                 relay_outcome = "success"
+            event_outcome = relay_outcome
             relay_runtime.SESSION_COORDINATOR.finish_logical_calls(
                 relay_turn,
                 outcome=relay_outcome,
@@ -7682,8 +7697,14 @@ class AIAgent:
                 type(exc).__name__ == "CancelledError"
             ):
                 relay_outcome = "cancelled"
+                event_outcome = "cancelled"
             elif isinstance(exc, TimeoutError):
                 relay_outcome = "timed_out"
+                event_outcome = "timed_out"
+            else:
+                # Keep Relay's authoritative outcome unchanged. The additive event
+                # records that the caller ultimately observed a failure.
+                event_outcome = "failed"
             if relay_turn is not None:
                 relay_runtime.SESSION_COORDINATOR.finish_logical_calls(
                     relay_turn,
@@ -7694,6 +7715,16 @@ class AIAgent:
                 finish_task_run(**task_context, error=exc)
             raise
         finally:
+            # Exactly one terminal fact per started task, reusing the Relay
+            # outcome vocabulary. Fail-open facade; no content in metadata.
+            if task_event_started:
+                emit_task_terminal(
+                    event_outcome,
+                    task_id=effective_task_id,
+                    session_id=task_context["session_id"],
+                    platform=task_context["platform"],
+                    entrypoint="run_conversation",
+                )
             try:
                 if relay_turn is not None:
                     relay_runtime.SESSION_COORDINATOR.end_turn(
