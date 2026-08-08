@@ -3432,7 +3432,133 @@ def _is_gateway_hidden_reasoning_incomplete_turn(agent_result: dict) -> bool:
     return not final_response or final_response == error_text
 
 
-def _should_clear_resume_pending_after_turn(agent_result: dict) -> bool:
+# ---- restart commitment recovery ------------------------------------------
+#
+# A resumed turn that replies "I'll continue working on that now" and stops is
+# syntactically successful (no interrupted/failed flag, non-empty final text),
+# so the pre-existing clear condition drops ``resume_pending`` and the
+# interrupted task is silently abandoned — the exact failure the marker exists
+# to prevent.  Track which turns were resumed, and require such a turn to show
+# evidence of actual work before the marker is cleared.
+#
+# The store holds SESSION KEYS ONLY — never message or response payloads — and
+# is bounded so a long-lived gateway cannot accumulate entries without limit.
+
+_RESUME_COMMITMENT_MAX_TRACKED = 512
+
+_RESUME_COMMITMENT_TURNS: "OrderedDict[str, bool]" = OrderedDict()
+
+# Only the head of a response is inspected: a promise followed by a large tail
+# is still a promise, and an unbounded scan is a cheap DoS surface.
+_RESUME_COMMITMENT_SCAN_CHARS = 600
+
+# A "content word" longer than this is a blob, not prose — it must not count
+# as substance.
+_RESUME_COMMITMENT_MAX_WORD_LEN = 40
+
+# Minimum non-commitment content words for a reply to count as a real answer.
+_RESUME_COMMITMENT_MIN_CONTENT_WORDS = 4
+
+_RESUME_COMMITMENT_PATTERNS = (
+    re.compile(
+        r"\b(i'?ll|i\s+will|i'?m\s+going\s+to|let\s+me)\b[^.!?]*\b"
+        r"(continue|continuing|resume|resuming|finish|carry\s+on|"
+        r"keep\s+(going|working)|get\s+(back|started)|start(ing)?\s+on|"
+        r"work(ing)?\s+on|pick\s+(this|it|that)\s+(back\s+)?up|"
+        r"report\s+back|update\s+you|let\s+you\s+know)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"^\s*(continuing|resuming|on\s+it|working\s+on\s+it|one\s+moment|"
+        r"hold\s+on|give\s+me\s+a\s+(moment|sec|second)|stand\s+by)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(r"\bget\s+back\s+to\s+you\b", re.IGNORECASE),
+    re.compile(
+        r"\bwill\s+(continue|resume|finish|report\s+back|update\s+you)\b",
+        re.IGNORECASE,
+    ),
+)
+
+
+def _mark_resume_commitment_turn(session_key: Optional[str]) -> None:
+    """Record that this session's next turn is a restart-recovery resume."""
+    key = str(session_key or "").strip()
+    if not key:
+        return
+    _RESUME_COMMITMENT_TURNS.pop(key, None)
+    _RESUME_COMMITMENT_TURNS[key] = True
+    while len(_RESUME_COMMITMENT_TURNS) > _RESUME_COMMITMENT_MAX_TRACKED:
+        _RESUME_COMMITMENT_TURNS.popitem(last=False)
+
+
+def _take_resume_commitment_turn(session_key: Optional[str]) -> bool:
+    """Consume the resumed-turn marker for a session (one-shot)."""
+    key = str(session_key or "").strip()
+    if not key:
+        return False
+    return bool(_RESUME_COMMITMENT_TURNS.pop(key, False))
+
+
+def _clear_resume_commitment_turn(session_key: Optional[str]) -> None:
+    """Drop the marker for one session, or all sessions when ``None``."""
+    if session_key is None:
+        _RESUME_COMMITMENT_TURNS.clear()
+        return
+    _RESUME_COMMITMENT_TURNS.pop(str(session_key).strip(), None)
+
+
+def _resumed_turn_completed_work(agent_result: dict) -> bool:
+    """Return whether a resumed turn did work rather than promising to.
+
+    Work is either tool execution (the turn actually touched something) or a
+    substantive reply — one that still carries real content after bare
+    commitments to continue later are discounted.  Fails open: anything this
+    cannot parse is treated as completed work, so the only behaviour change is
+    for replies positively identified as empty promises.
+    """
+    try:
+        if not isinstance(agent_result, dict):
+            return True
+
+        messages = agent_result.get("messages")
+        if isinstance(messages, (list, tuple)):
+            for msg in messages:
+                if not isinstance(msg, dict):
+                    continue
+                if msg.get("role") == "tool" or msg.get("tool_call_id"):
+                    return True
+                if msg.get("tool_calls"):
+                    return True
+
+        text = str(agent_result.get("final_response") or "").strip()
+        if not text:
+            return False
+
+        content_words = 0
+        for sentence in re.split(r"[.!?\n]+", text[:_RESUME_COMMITMENT_SCAN_CHARS]):
+            sentence = sentence.strip()
+            if not sentence:
+                continue
+            if any(p.search(sentence) for p in _RESUME_COMMITMENT_PATTERNS):
+                continue
+            content_words += sum(
+                1
+                for word in re.findall(r"[^\W\d_]+", sentence)
+                if len(word) <= _RESUME_COMMITMENT_MAX_WORD_LEN
+            )
+            if content_words >= _RESUME_COMMITMENT_MIN_CONTENT_WORDS:
+                return True
+        return False
+    except Exception:  # pragma: no cover - defensive: never block a clear
+        return True
+
+
+def _should_clear_resume_pending_after_turn(
+    agent_result: dict,
+    *,
+    resumed_turn: bool = False,
+) -> bool:
     """Return True only when a gateway turn really completed successfully.
 
     Restart recovery uses ``resume_pending`` as a durable marker for sessions
@@ -3440,6 +3566,11 @@ def _should_clear_resume_pending_after_turn(agent_result: dict) -> bool:
     a syntactically normal agent result with an empty final response; clearing
     the marker in that case loses the recovery signal and startup auto-resume
     has nothing to schedule.
+
+    ``resumed_turn`` marks a turn that received the restart recovery note.
+    Such a turn additionally has to show evidence of work — a bare "I'll
+    continue working on that now" must NOT clear the marker.  Non-resumed
+    turns keep the pre-existing behaviour exactly.
     """
     if not isinstance(agent_result, dict):
         return False
@@ -3448,6 +3579,8 @@ def _should_clear_resume_pending_after_turn(agent_result: dict) -> bool:
     if agent_result.get("failed") or agent_result.get("partial") or agent_result.get("error"):
         return False
     if agent_result.get("completed") is False:
+        return False
+    if resumed_turn and not _resumed_turn_completed_work(agent_result):
         return False
     return True
 
@@ -5214,6 +5347,9 @@ class TurnRunner:
             ctx.message = build_resume_recovery_note(
                 _reason, ctx.message, interactive=_interactive_resume,
             )
+            # This turn is a restart recovery: a bare promise to continue must
+            # not be allowed to clear resume_pending once it returns.
+            _mark_resume_commitment_turn(ctx.session_key)
         elif _has_fresh_tool_tail:
             _persist_user_message_override = ctx.message
             ctx.message = (
@@ -5261,6 +5397,7 @@ class TurnRunner:
                     getattr(_sn_adapter, "interactive_resume", True)
                 ),
             )
+            _mark_resume_commitment_turn(ctx.session_key)
 
         _approval_session_key = ctx.session_key or ""
         _approval_session_token = set_current_session_key(_approval_session_key)
@@ -17489,7 +17626,10 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             # shutdown) — the turn ran to completion, so recovery
             # succeeded and subsequent messages should no longer receive
             # the restart-interruption system note.
-            if session_key and _should_clear_resume_pending_after_turn(agent_result):
+            _was_resumed_turn = _take_resume_commitment_turn(session_key)
+            if session_key and _should_clear_resume_pending_after_turn(
+                agent_result, resumed_turn=_was_resumed_turn
+            ):
                 self._clear_restart_failure_count(session_key)
                 try:
                     await self.async_session_store.clear_resume_pending(session_key)
