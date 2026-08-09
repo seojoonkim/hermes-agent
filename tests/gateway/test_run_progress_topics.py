@@ -59,6 +59,19 @@ class ProgressCaptureAdapter(BasePlatformAdapter):
         return {"id": chat_id}
 
 
+class FailedDeliveryProgressCaptureAdapter(ProgressCaptureAdapter):
+    async def send(self, chat_id, content, reply_to=None, metadata=None) -> SendResult:
+        self.sent.append(
+            {
+                "chat_id": chat_id,
+                "content": content,
+                "reply_to": reply_to,
+                "metadata": metadata,
+            }
+        )
+        return SendResult(success=False, error="delivery failed", retryable=False)
+
+
 class DiscordProgressCaptureAdapter(ProgressCaptureAdapter):
     """Capture sends while exercising Discord's real preview formatter."""
 
@@ -1089,6 +1102,61 @@ async def test_base_processing_stops_typing_before_hung_post_delivery_callback(
     assert events[: events.index("callback-start")] == (
         ["typing-stopped"] * events.index("callback-start")
     )
+    assert any(call["metadata"] == {"stopped": True} for call in adapter.typing)
+
+
+@pytest.mark.asyncio
+async def test_base_processing_fires_post_delivery_callback_once_after_success():
+    adapter = ProgressCaptureAdapter()
+    callbacks = []
+
+    async def _handler(event):
+        return "done"
+
+    adapter.set_message_handler(_handler)
+    source = SessionSource(platform=Platform.TELEGRAM, chat_id="123", chat_type="dm")
+    event = MessageEvent(
+        text="hello",
+        message_type=MessageType.TEXT,
+        source=source,
+        message_id="msg-success",
+    )
+    session_key = "agent:main:telegram:dm:123"
+    adapter._active_sessions[session_key] = asyncio.Event()
+    adapter.register_post_delivery_callback(session_key, lambda: callbacks.append("fired"))
+
+    await adapter._process_message_background(event, session_key)
+
+    assert [call["content"] for call in adapter.sent] == ["done"]
+    assert callbacks == ["fired"]
+    assert session_key not in adapter._post_delivery_callbacks
+
+
+@pytest.mark.asyncio
+async def test_base_processing_discards_post_delivery_callback_after_failed_delivery():
+    adapter = FailedDeliveryProgressCaptureAdapter()
+    callbacks = []
+
+    async def _handler(event):
+        return "done"
+
+    adapter.set_message_handler(_handler)
+    source = SessionSource(platform=Platform.TELEGRAM, chat_id="123", chat_type="dm")
+    event = MessageEvent(
+        text="hello",
+        message_type=MessageType.TEXT,
+        source=source,
+        message_id="msg-failure",
+    )
+    session_key = "agent:main:telegram:dm:123"
+    adapter._active_sessions[session_key] = asyncio.Event()
+    adapter.register_post_delivery_callback(session_key, lambda: callbacks.append("fired"))
+
+    await adapter._process_message_background(event, session_key)
+
+    assert adapter.sent[0]["content"] == "done"
+    assert callbacks == []
+    assert session_key not in adapter._post_delivery_callbacks
     assert any(call["metadata"] == {"stopped": True} for call in adapter.typing)
 
 

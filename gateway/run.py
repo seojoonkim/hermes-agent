@@ -5464,6 +5464,17 @@ class TurnRunner:
             reset_current_session_key(_approval_session_token)
         ctx.result_holder[0] = result
 
+        # Persist and arm a bounded continuation before the response leaves this
+        # turn. The callback itself fires only after platform delivery succeeds.
+        self._runner._arm_runtime_resume(
+            agent=ctx.agent_holder[0],
+            result=result,
+            source=ctx.source,
+            session_key=ctx.session_key or "",
+            user_text=ctx.message,
+            run_generation=ctx.run_generation,
+        )
+
         # Signal the stream consumer that the agent is done
         if _stream_consumer is not None:
             _stream_consumer.finish()
@@ -7705,6 +7716,105 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
     # next overflow item into the slot so the following recursion picks
     # it up.  Clearing happens on /new and /reset via
     # _handle_reset_command.
+
+    def _arm_runtime_resume(
+        self,
+        *,
+        agent: Any,
+        result: Any,
+        source: Any,
+        session_key: str,
+        user_text: Any,
+        run_generation: Any,
+    ) -> bool:
+        """Arm a bounded resume for an iteration-capped turn.
+
+        Fail-open in every direction: the user's finished turn is already
+        delivered, so a missing provider, a refused checkpoint, or an adapter
+        without the delivery/FIFO seams simply means "no resume".
+        """
+        try:
+            from agent.runtime_resume import (
+                RESUME_TURN_PREFIX,
+                ResumeCoordinator,
+                select_resume_provider,
+            )
+            from types import SimpleNamespace
+
+            text = str(user_text or "").strip()
+            # A resume turn may not arm another one; depth carries the bound.
+            depth = 1 if text.startswith(RESUME_TURN_PREFIX) else 0
+
+            memory_manager = getattr(agent, "memory_manager", None)
+            if memory_manager is None:
+                return False
+            agent_profile = str(getattr(agent, "profile", "") or "")
+            provider = select_resume_provider(memory_manager, agent_profile)
+            if provider is None:
+                # Some agents do not expose their profile directly. A single
+                # resume-capable provider is unambiguous; never guess when a
+                # multiplexed manager contains more than one candidate.
+                candidates = [
+                    candidate
+                    for candidate in list(getattr(memory_manager, "providers", ()) or ())
+                    if callable(getattr(candidate, "on_incomplete_turn", None))
+                ]
+                if len(candidates) == 1:
+                    provider = candidates[0]
+            if provider is None:
+                return False
+
+            adapter = self._adapter_for_source(source)
+            if adapter is None:
+                return False
+            if not callable(getattr(adapter, "register_post_delivery_callback", None)):
+                return False
+            enqueue = getattr(self, "_enqueue_fifo", None)
+            if not callable(enqueue):
+                return False
+
+            profile = getattr(provider, "profile", None) or getattr(provider, "_profile", "") or ""
+
+            class _ProviderCheckpointStore:
+                """The provider *is* the durable store for the checkpoint."""
+
+                @staticmethod
+                def save_resume_checkpoint(payload: Any) -> bool:
+                    return bool(provider.on_incomplete_turn(payload))
+
+            def _schedule_turn(turn_text: str) -> None:
+                event = MessageEvent(
+                    text=turn_text,
+                    message_type=MessageType.TEXT,
+                    source=source,
+                    internal=True,
+                )
+                enqueue(session_key, event, adapter)
+
+            coordinator = ResumeCoordinator(
+                # No providers here: the checkpoint shim above already notified
+                # the provider, and the coordinator must not do it twice.
+                memory_manager=SimpleNamespace(providers=()),
+                checkpoint_store=_ProviderCheckpointStore,
+                register_post_delivery=lambda callback: adapter.register_post_delivery_callback(
+                    session_key, callback, generation=run_generation
+                ),
+                schedule_turn=_schedule_turn,
+                session_key=session_key,
+                profile=profile,
+                depth=depth,
+            )
+            return bool(
+                coordinator.maybe_schedule(
+                    result,
+                    goal=text,
+                    failing_test_ids=(),
+                    verified_sha="",
+                )
+            )
+        except Exception:
+            logger.debug("resume: arming runtime resume failed", exc_info=True)
+            return False
 
     def _enqueue_fifo(self, session_key: str, queued_event: "MessageEvent", adapter: Any) -> None:
         """Append a /queue event to the FIFO chain for a session."""

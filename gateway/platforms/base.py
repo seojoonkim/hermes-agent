@@ -6399,7 +6399,7 @@ class BasePlatformAdapter(ABC):
                 )
             else:
                 _post_cb = getattr(self, "_post_delivery_callbacks", {}).pop(session_key, None)
-            if callable(_post_cb):
+            if delivery_succeeded and callable(_post_cb):
                 try:
                     _post_result = _post_cb()
                     if inspect.isawaitable(_post_result):
