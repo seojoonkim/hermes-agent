@@ -8507,7 +8507,13 @@ class TelegramAdapter(BasePlatformAdapter):
         cached = None
         if cache_key and replied_cache is not None:
             cached = replied_cache.get(cache_key)
-            if cached is not None:
+            if cached is not None and not os.path.exists(getattr(cached, "path", "") or ""):
+                # The on-disk media cache entry vanished (eviction/cleanup).
+                # Drop the stale hit and re-download rather than attaching a
+                # path the agent cannot read.
+                replied_cache.pop(cache_key, None)
+                cached = None
+            elif cached is not None:
                 replied_cache.move_to_end(cache_key)
         if cached is None:
             try:
@@ -8540,10 +8546,13 @@ class TelegramAdapter(BasePlatformAdapter):
                 event.message_type = MessageType.VIDEO
             elif cached.kind == "audio":
                 event.message_type = MessageType.AUDIO
-        event.text = self._append_observed_note(
-            event.text,
-            f"[Replied-to {cached.kind} '{cached.display_name}' saved at: {cached.path}]",
-        )
+        note = f"[Replied-to {cached.kind} '{cached.display_name}' saved at: {cached.path}]"
+        event.text = self._append_observed_note(event.text, note)
+        notes = getattr(event, "_generated_media_notes", None)
+        if not isinstance(notes, dict):
+            notes = {}
+            event._generated_media_notes = notes  # type: ignore[attr-defined]
+        notes[cached.path] = note
         logger.info("[Telegram] Cached replied-to %s at %s", cached.kind, cached.path)
 
     def _observed_media_source(self, msg: Message):
@@ -8947,9 +8956,15 @@ class TelegramAdapter(BasePlatformAdapter):
             # Append text from the follow-up chunk. If it carries media already
             # present in the batch, drop its duplicate cache note as well.
             if event.text:
+                notes = getattr(event, "_generated_media_notes", None) or {}
                 for media_url in set(existing.media_urls).intersection(event.media_urls):
+                    note = notes.get(media_url)
+                    if not note:
+                        continue
+                    # Drop only the note this adapter generated — a user line
+                    # that merely mentions the path must survive verbatim.
                     event.text = "\n".join(
-                        line for line in event.text.splitlines() if media_url not in line
+                        line for line in event.text.splitlines() if line.strip() != note
                     ).strip()
                 existing.text = f"{existing.text}\n{event.text}" if existing.text else event.text
             existing._last_chunk_len = chunk_len  # type: ignore[attr-defined]

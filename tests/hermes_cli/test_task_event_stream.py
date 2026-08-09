@@ -370,20 +370,28 @@ def test_facade_swallows_failures_and_debug_logs(monkeypatch, caplog):
     assert all(r.levelno == logging.DEBUG for r in caplog.records)
 
 
-def test_facade_remains_fail_open_when_diagnostic_logging_also_fails(monkeypatch):
+@pytest.mark.parametrize("fatal", [KeyboardInterrupt(), SystemExit(2)])
+def test_emit_does_not_swallow_process_control_exceptions(monkeypatch, fatal):
     class _Broken:
         def append(self, *_args, **_kwargs):
-            raise KeyboardInterrupt()
+            raise fatal
 
     monkeypatch.setattr(tes, "_STREAM", _Broken())
+
+    with pytest.raises(type(fatal)):
+        tes.emit_task_start(task_id="t", session_id="s")
+
+
+@pytest.mark.parametrize("fatal", [KeyboardInterrupt(), SystemExit(2)])
+def test_safe_debug_does_not_swallow_process_control_exceptions(monkeypatch, fatal):
     monkeypatch.setattr(
         tes.logger,
         "debug",
-        lambda *_args, **_kwargs: (_ for _ in ()).throw(SystemExit(2)),
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(fatal),
     )
 
-    assert tes.emit_task_start(task_id="t", session_id="s") is False
-    assert tes.emit_task_terminal("unknown", task_id="t", session_id="s") is False
+    with pytest.raises(type(fatal)):
+        tes._safe_debug("diagnostic")
 
 
 def test_facade_swallows_rejected_metadata(monkeypatch):

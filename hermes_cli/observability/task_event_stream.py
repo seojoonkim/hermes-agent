@@ -253,7 +253,9 @@ def emit(
             metadata=metadata or None,
         )
         return True
-    except BaseException:  # measurement must never change caller semantics
+    except Exception:  # measurement must never change caller semantics
+        # KeyboardInterrupt/SystemExit/CancelledError are BaseException and
+        # deliberately propagate: process control is not ours to swallow.
         _safe_debug("Task event emit failed (kind=%r)", kind, exc_info=True)
         return False
 
@@ -262,7 +264,7 @@ def _safe_debug(message: str, *args: Any, **kwargs: Any) -> None:
     """Best-effort diagnostics that cannot break the fail-open boundary."""
     try:
         logger.debug(message, *args, **kwargs)
-    except BaseException:
+    except Exception:
         pass
 
 

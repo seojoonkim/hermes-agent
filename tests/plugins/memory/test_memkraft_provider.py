@@ -1,11 +1,13 @@
 import builtins
 from datetime import timezone
+import json
 import sys
 import threading
 import time
 
 import pytest
 
+from agent.runtime_resume import HANDOFF_FIELDS, build_handoff
 from plugins.memory.memkraft import MemKraftMemoryProvider
 
 
@@ -30,6 +32,35 @@ def provider_with(fake_mk):
     provider._prefetch_threads = {}
     provider._lock = threading.RLock()
     return provider
+
+
+def test_incomplete_turn_accepts_canonical_resume_handoff_and_writes_bounded_checkpoint(tmp_path):
+    provider = provider_with(object())
+    provider._base_dir = str(tmp_path)
+    handoff = build_handoff(
+        session_key="telegram:111",
+        profile="work",
+        goal="finish the migration",
+        failing_test_ids=["tests/test_migration.py::test_upgrade"],
+        verified_sha="a" * 40,
+        depth=0,
+    )
+
+    assert set(handoff.to_payload()) == set(HANDOFF_FIELDS)
+    assert provider.on_incomplete_turn(handoff.to_payload()) is True
+
+    checkpoints = list((tmp_path / "tasks" / "hermes-resume").glob("*.json"))
+    assert len(checkpoints) == 1
+    persisted = json.loads(checkpoints[0].read_text(encoding="utf-8"))
+    assert persisted == {
+        "status": "incomplete",
+        "session_key": "telegram:111",
+        "profile": "work",
+        "goal": "finish the migration",
+        "failing_test_ids": ["tests/test_migration.py::test_upgrade"],
+        "verified_sha": "a" * 40,
+        "depth": 0,
+    }
 
 
 def test_prefetch_combines_search_context_and_reasoning_injection(monkeypatch):

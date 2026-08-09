@@ -133,6 +133,11 @@ def stub_media_cache(monkeypatch):
         return _Cached()
 
     monkeypatch.setattr(base, "cache_media_bytes", fake_cache_media_bytes)
+    # This fixture represents a valid cache entry. Tests for eviction override
+    # this predicate explicitly after the first cache fill.
+    monkeypatch.setattr(
+        "plugins.platforms.telegram.adapter.os.path.exists", lambda _path: True
+    )
     return calls
 
 
@@ -182,6 +187,63 @@ async def test_second_reply_to_same_photo_reuses_cache_without_redownload(stub_m
 
 
 @pytest.mark.asyncio
+async def test_replied_media_cache_hit_with_vanished_path_redownloads(
+    stub_media_cache, monkeypatch
+):
+    adapter = _make_adapter()
+    photo = _FakePhotoSize()
+    path = "/tmp/hermes-media-cache/reply.png"
+    monkeypatch.setattr(
+        "plugins.platforms.telegram.adapter.os.path.exists",
+        lambda candidate: candidate != path,
+    )
+
+    for idx in range(2):
+        msg = _reply_to_photo(photo, message_id=101 + idx, text=f"chunk {idx}")
+        await adapter._handle_text_message(
+            SimpleNamespace(update_id=9100 + idx, message=msg, effective_message=msg),
+            SimpleNamespace(),
+        )
+
+    assert photo.download_count == 2
+    assert len(stub_media_cache) == 2
+    await _drain(adapter)
+
+
+@pytest.mark.asyncio
+async def test_vanished_replied_media_cache_path_redownload_failure_fails_open(
+    stub_media_cache, monkeypatch
+):
+    adapter = _make_adapter()
+    photo = _FakePhotoSize()
+    first = _reply_to_photo(photo, message_id=101, text="first")
+    await adapter._handle_text_message(
+        SimpleNamespace(update_id=9201, message=first, effective_message=first),
+        SimpleNamespace(),
+    )
+    await _drain(adapter)
+    adapter._pending_text_batches.clear()
+    adapter._pending_text_batch_tasks.clear()
+
+    monkeypatch.setattr(
+        "plugins.platforms.telegram.adapter.os.path.exists", lambda _candidate: False
+    )
+    photo._fail = True
+    second = _reply_to_photo(photo, message_id=102, text="keep this user request")
+    await adapter._handle_text_message(
+        SimpleNamespace(update_id=9202, message=second, effective_message=second),
+        SimpleNamespace(),
+    )
+
+    event = next(iter(adapter._pending_text_batches.values()))
+    assert photo.download_count == 2
+    assert event.text == "keep this user request"
+    assert event.media_urls == []
+    assert "uniq-1" not in adapter._replied_media_cache
+    await _drain(adapter)
+
+
+@pytest.mark.asyncio
 async def test_batched_replies_to_same_photo_attach_media_once(stub_media_cache):
     """Text-batch merging must not duplicate the replied-to media in one event."""
     adapter = _make_adapter()
@@ -199,6 +261,25 @@ async def test_batched_replies_to_same_photo_attach_media_once(stub_media_cache)
     assert event.media_urls == ["/tmp/hermes-media-cache/reply.png"]
     assert event.media_types == ["image/png"]
     assert event.text.count("/tmp/hermes-media-cache/reply.png") == 1
+    await _drain(adapter)
+
+
+@pytest.mark.asyncio
+async def test_batch_media_dedup_preserves_user_text_when_path_shares_its_line(stub_media_cache):
+    adapter = _make_adapter()
+    photo = _FakePhotoSize()
+    path = "/tmp/hermes-media-cache/reply.png"
+
+    for idx, text in enumerate(("first chunk", f"please compare {path} carefully")):
+        msg = _reply_to_photo(photo, message_id=101, text=text)
+        await adapter._handle_text_message(
+            SimpleNamespace(update_id=9300 + idx, message=msg, effective_message=msg),
+            SimpleNamespace(),
+        )
+
+    event = next(iter(adapter._pending_text_batches.values()))
+    assert f"please compare {path} carefully" in event.text
+    assert event.media_urls == [path]
     await _drain(adapter)
 
 

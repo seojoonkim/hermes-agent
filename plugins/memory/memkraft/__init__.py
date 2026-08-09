@@ -16,6 +16,7 @@ Config in $HERMES_HOME/config.yaml::
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import io
 import json
 import logging
@@ -399,21 +400,28 @@ class MemKraftMemoryProvider(MemoryProvider):
         """Persist a Hermes handoff; scheduling remains gateway-owned."""
         if not self._mk or not self._base_dir or not isinstance(handoff, dict):
             return False
-        token = str(handoff.get("resume_token") or "")
-        if not re.fullmatch(r"[0-9a-f]{32}", token):
+        try:
+            from agent.runtime_resume import HANDOFF_FIELDS
+
+            if set(handoff) != set(HANDOFF_FIELDS):
+                return False
+            payload = {
+                "session_key": str(handoff.get("session_key") or "")[:200],
+                "profile": str(handoff.get("profile") or ""),
+                "goal": str(handoff.get("goal") or "")[:1000],
+                "failing_test_ids": [
+                    str(item)[:240] for item in (handoff.get("failing_test_ids") or [])[:10]
+                ],
+                "verified_sha": str(handoff.get("verified_sha") or "")[:40],
+                "depth": int(handoff.get("depth") or 0),
+                "status": "incomplete",
+            }
+            canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
+            token = hashlib.sha256(canonical).hexdigest()[:32]
+        except (TypeError, ValueError):
             return False
         checkpoint_dir = Path(self._base_dir) / "tasks" / "hermes-resume"
         checkpoint_path = checkpoint_dir / f"{token}.json"
-        payload = {
-            "status": "incomplete",
-            "resume_token": token,
-            "session_id": str(handoff.get("session_id") or "")[:200],
-            "termination_reason": str(handoff.get("termination_reason") or "")[:200],
-            "incomplete_goal": str(handoff.get("incomplete_goal") or "")[:1000],
-            "last_verified_commit": str(handoff.get("last_verified_commit") or "")[:40],
-            "failing_tests": [str(item)[:240] for item in (handoff.get("failing_tests") or [])[:10]],
-            "next_dispatch_intent": str(handoff.get("next_dispatch_intent") or "")[:100],
-        }
         try:
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
             if checkpoint_path.exists():

@@ -125,6 +125,48 @@ class TestArmRuntimeResume:
         assert provider.payloads == []
         assert wired.adapter.registered == []
 
+    def test_explicit_resume_depth_blocks_rearming_even_when_runtime_message_was_rewritten(
+        self, runner, wired
+    ):
+        provider = _FakeProvider()
+        armed = runner._arm_runtime_resume(
+            agent=_agent(provider),
+            result=CAPPED,
+            source=SimpleNamespace(platform="telegram", chat_id="c1"),
+            session_key="telegram:c1",
+            user_text="rewritten text no longer carries the internal marker",
+            resume_depth=1,
+            resume_goal="finish the migration",
+            run_generation=7,
+        )
+
+        assert armed is False
+        assert provider.payloads == []
+        assert wired.adapter.registered == []
+
+    def test_explicit_resume_goal_excludes_rewritten_recovery_and_tool_tail(self, runner, wired):
+        provider = _FakeProvider()
+        rewritten = (
+            "finish the migration\n\n"
+            "[Recovery context injected by gateway]\n"
+            "tool output: SECRET-TOOL-TAIL"
+        )
+
+        assert runner._arm_runtime_resume(
+            agent=_agent(provider),
+            result=CAPPED,
+            source=SimpleNamespace(platform="telegram", chat_id="c1"),
+            session_key="telegram:c1",
+            user_text=rewritten,
+            resume_depth=0,
+            resume_goal="finish the migration",
+            run_generation=7,
+        ) is True
+
+        assert provider.payloads[0]["goal"] == "finish the migration"
+        assert "Recovery context" not in repr(provider.payloads[0])
+        assert "SECRET-TOOL-TAIL" not in repr(provider.payloads[0])
+
     def test_no_provider_is_fail_open(self, runner, wired):
         assert _arm(runner, _agent(None)) is False
         assert wired.adapter.registered == []

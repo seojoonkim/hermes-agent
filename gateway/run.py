@@ -5472,6 +5472,8 @@ class TurnRunner:
             source=ctx.source,
             session_key=ctx.session_key or "",
             user_text=ctx.message,
+            resume_goal=ctx.original_message,
+            resume_depth=ctx.resume_depth,
             run_generation=ctx.run_generation,
         )
 
@@ -7726,6 +7728,8 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         session_key: str,
         user_text: Any,
         run_generation: Any,
+        resume_goal: Any = None,
+        resume_depth: Any = None,
     ) -> bool:
         """Arm a bounded resume for an iteration-capped turn.
 
@@ -7741,9 +7745,20 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             )
             from types import SimpleNamespace
 
+            from agent.runtime_resume import MAX_RESUME_DEPTH
+
             text = str(user_text or "").strip()
-            # A resume turn may not arm another one; depth carries the bound.
-            depth = 1 if text.startswith(RESUME_TURN_PREFIX) else 0
+            # ``user_text`` is the *rewritten* runtime message: it may carry a
+            # gateway recovery note or a tool tail, and it may have lost the
+            # internal-resume marker entirely.  When the caller knows the
+            # original message it passes goal/depth explicitly; only fall back
+            # to deriving them from the rewritten text.
+            if resume_depth is None:
+                # A resume turn may not arm another one; depth carries the bound.
+                depth = MAX_RESUME_DEPTH if text.startswith(RESUME_TURN_PREFIX) else 0
+            else:
+                depth = min(int(resume_depth or 0), MAX_RESUME_DEPTH)
+            goal = text if resume_goal is None else str(resume_goal or "").strip()
 
             memory_manager = getattr(agent, "memory_manager", None)
             if memory_manager is None:
@@ -7807,7 +7822,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             return bool(
                 coordinator.maybe_schedule(
                     result,
-                    goal=text,
+                    goal=goal,
                     failing_test_ids=(),
                     verified_sha="",
                 )
