@@ -18,6 +18,7 @@ import html as _html
 import re
 import threading
 import time
+from collections import OrderedDict
 from contextvars import ContextVar
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Set, Any
@@ -640,6 +641,12 @@ class TelegramAdapter(BasePlatformAdapter):
     _SPLIT_THRESHOLD = 4000
     MEDIA_GROUP_WAIT_SECONDS = 0.8
     _GENERAL_TOPIC_THREAD_ID = "1"
+    _REPLIED_MEDIA_CACHE_MAX = 128
+
+    @staticmethod
+    def _new_replied_media_cache():
+        """Create the bounded process-local cache for replied-to media."""
+        return OrderedDict()
 
     # Telegram's edit_message applies MarkdownV2 formatting only on the
     # finalize=True path.  Without this flag, stream_consumer._send_or_edit
@@ -767,6 +774,7 @@ class TelegramAdapter(BasePlatformAdapter):
         )
         self._pending_text_batches: Dict[str, MessageEvent] = {}
         self._pending_text_batch_tasks: Dict[str, asyncio.Task] = {}
+        self._replied_media_cache = self._new_replied_media_cache()
         self._drop_delayed_deliveries = False
         self._polling_error_task: Optional[asyncio.Task] = None
         self._polling_conflict_count: int = 0
@@ -8490,15 +8498,35 @@ class TelegramAdapter(BasePlatformAdapter):
         if not (0 < size <= max_bytes):
             return
 
-        try:
-            file_obj = await source.get_file()
-            data = bytes(await file_obj.download_as_bytearray())
-            if not filename:
-                filename = os.path.basename(getattr(file_obj, "file_path", "") or "")
-            cached = cache_media_bytes(data, filename=filename, mime_type=mime, default_kind=kind)
-        except Exception as exc:
-            logger.warning("[Telegram] Failed to cache replied-to media: %s", _redact_telegram_error_text(exc), exc_info=True)
-            return
+        cache_key = str(
+            getattr(source, "file_unique_id", None)
+            or getattr(source, "file_id", None)
+            or ""
+        )
+        replied_cache = getattr(self, "_replied_media_cache", None)
+        cached = None
+        if cache_key and replied_cache is not None:
+            cached = replied_cache.get(cache_key)
+            if cached is not None:
+                replied_cache.move_to_end(cache_key)
+        if cached is None:
+            try:
+                file_obj = await source.get_file()
+                data = bytes(await file_obj.download_as_bytearray())
+                if not filename:
+                    filename = os.path.basename(getattr(file_obj, "file_path", "") or "")
+                cached = cache_media_bytes(data, filename=filename, mime_type=mime, default_kind=kind)
+            except Exception:
+                # Telegram transport errors may embed bot-token-bearing URLs.
+                # Keep this fail-open signal free of exception text entirely.
+                logger.warning("[Telegram] Failed to cache replied-to media")
+                return
+
+            if cached is not None and cache_key and replied_cache is not None:
+                replied_cache[cache_key] = cached
+                replied_cache.move_to_end(cache_key)
+                while len(replied_cache) > self._REPLIED_MEDIA_CACHE_MAX:
+                    replied_cache.popitem(last=False)
 
         if cached is None:
             return
@@ -8916,14 +8944,21 @@ class TelegramAdapter(BasePlatformAdapter):
             event._last_chunk_len = chunk_len  # type: ignore[attr-defined]
             self._pending_text_batches[key] = event
         else:
-            # Append text from the follow-up chunk
+            # Append text from the follow-up chunk. If it carries media already
+            # present in the batch, drop its duplicate cache note as well.
             if event.text:
+                for media_url in set(existing.media_urls).intersection(event.media_urls):
+                    event.text = "\n".join(
+                        line for line in event.text.splitlines() if media_url not in line
+                    ).strip()
                 existing.text = f"{existing.text}\n{event.text}" if existing.text else event.text
             existing._last_chunk_len = chunk_len  # type: ignore[attr-defined]
-            # Merge any media that might be attached
+            # Merge media by cached path so repeated replies do not duplicate it.
             if event.media_urls:
-                existing.media_urls.extend(event.media_urls)
-                existing.media_types.extend(event.media_types)
+                for media_url, media_type in zip(event.media_urls, event.media_types):
+                    if media_url not in existing.media_urls:
+                        existing.media_urls.append(media_url)
+                        existing.media_types.append(media_type)
 
         # Cancel any pending flush and restart the timer
         prior_task = self._pending_text_batch_tasks.get(key)
