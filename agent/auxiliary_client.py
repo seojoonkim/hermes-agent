@@ -1171,6 +1171,7 @@ class _CodexCompletionsAdapter:
         self._model = model
 
     def create(self, **kwargs) -> Any:
+        request_started_at = time.monotonic()
         messages = kwargs.get("messages", [])
         model = kwargs.get("model", self._model)
 
@@ -1348,7 +1349,7 @@ class _CodexCompletionsAdapter:
         tool_calls_raw: List[Any] = []
         usage = None
         total_timeout = timeout if isinstance(timeout, (int, float)) and timeout > 0 else None
-        deadline = time.monotonic() + float(total_timeout) if total_timeout else None
+        deadline = request_started_at + float(total_timeout) if total_timeout else None
         timed_out = threading.Event()
         timeout_timer: Optional[threading.Timer] = None
         # A protected provider call may outlive its owning compression attempt:
@@ -1361,64 +1362,70 @@ class _CodexCompletionsAdapter:
         )
         attempt_stream_lock = threading.Lock()
         attempt_stream: List[Any] = []
+        timeout_cleanup_lock = threading.Lock()
+        timeout_decision: Optional[str] = None
 
         def _timeout_message() -> str:
             return f"Codex auxiliary Responses stream exceeded {float(total_timeout):.1f}s total timeout"
 
-        def _close_client_on_timeout() -> None:
-            begin_timeout_cleanup = getattr(
-                protected_cancel_check, "begin_timeout_cleanup", None
-            )
-            if callable(begin_timeout_cleanup):
-                timeout_won = bool(begin_timeout_cleanup())
-            else:
-                timeout_won = not (
-                    callable(protected_cancel_check)
-                    and _captured_aux_cancel_requested(protected_cancel_check)
-                )
-            # Publish transport timeout only after the attempt-local decision is
-            # fixed, so owner polling cannot observe completion in between.
-            timed_out.set()
-            if not timeout_won:
-                # The request owner already hard-cancelled this attempt. The
-                # OpenAI client is process-shared, so closing/evicting it here
-                # would disrupt unrelated sessions. Wake only this attempt's
-                # event stream when responses.create() returned one in time;
-                # otherwise rely on the bounded SDK/provider timeout.
-                with attempt_stream_lock:
-                    stream = attempt_stream[0] if attempt_stream else None
-                close_stream = getattr(stream, "close", None)
-                if callable(close_stream):
-                    try:
-                        close_stream()
-                    except Exception:
-                        logger.debug(
-                            "Codex auxiliary: cancelled attempt stream close "
-                            "during timeout failed",
-                            exc_info=True,
-                        )
-                return
+        def _destructive_timeout_cleanup() -> None:
+            # Evict before close: close() may block behind an in-flight stream,
+            # and a poisoned shared client must not remain cached meanwhile.
+            try:
+                _evict_cached_client_instance(self._client)
+            except Exception:
+                logger.debug("Codex auxiliary: cache eviction on timeout failed", exc_info=True)
             close = getattr(self._client, "close", None)
             if callable(close):
                 try:
                     close()
                 except Exception:
                     logger.debug("Codex auxiliary: client close during timeout failed", exc_info=True)
-            # The cached auxiliary client wraps this same ``self._client``
-            # (or *is* a ``CodexAuxiliaryClient`` whose ``_real_client`` is
-            # this instance).  After we close the httpx transport above, the
-            # cache must drop that entry — otherwise the next auxiliary call
-            # (compression retry, memory flush, etc.) reuses the dead client
-            # and fails fast with a connection error.  See issue #23432.
-            try:
-                _evict_cached_client_instance(self._client)
-            except Exception:
-                logger.debug("Codex auxiliary: cache eviction on timeout failed", exc_info=True)
+
+        def _close_client_on_timeout(*, owner_thread: bool = False) -> None:
+            """Decide once; publish timeout and schedule destructive cleanup once."""
+            nonlocal timeout_decision
+            with timeout_cleanup_lock:
+                if timeout_decision is not None:
+                    return
+                begin_timeout_cleanup = getattr(
+                    protected_cancel_check, "begin_timeout_cleanup", None
+                )
+                if callable(begin_timeout_cleanup):
+                    timeout_won = bool(begin_timeout_cleanup())
+                else:
+                    timeout_won = not (
+                        callable(protected_cancel_check)
+                        and _captured_aux_cancel_requested(protected_cancel_check)
+                    )
+                timeout_decision = "timed_out" if timeout_won else "cancelled"
+                if not timeout_won:
+                    # Explicit cancellation owns this attempt. Never close or
+                    # evict the process-shared client on its behalf.
+                    return
+                timed_out.set()
+
+            if owner_thread:
+                # Shared SDK/httpx close can block behind the active stream.
+                # When the stream consumer beats the timer to the deadline,
+                # hand teardown to a daemon rather than delaying its raise.
+                threading.Thread(
+                    target=_destructive_timeout_cleanup,
+                    name="codex-aux-timeout-cleanup",
+                    daemon=True,
+                ).start()
+            else:
+                # The timeout Timer is already a daemon cleanup worker. Avoid
+                # another thread-start race; publish timed_out above, then let
+                # the request owner return while this thread performs teardown.
+                _destructive_timeout_cleanup()
 
         def _check_cancelled() -> None:
             if deadline is not None and time.monotonic() >= deadline:
+                _close_client_on_timeout(owner_thread=True)
                 if not timed_out.is_set():
-                    _close_client_on_timeout()
+                    # The attempt-local decision chose explicit cancellation.
+                    raise AuxiliaryExplicitCancellation()
                 raise TimeoutError(_timeout_message())
             try:
                 from tools.interrupt import is_interrupted
@@ -1439,8 +1446,11 @@ class _CodexCompletionsAdapter:
                 pass
 
         try:
-            if total_timeout:
-                timeout_timer = threading.Timer(float(total_timeout), _close_client_on_timeout)
+            if total_timeout and deadline is not None:
+                timeout_timer = threading.Timer(
+                    max(0.0, deadline - time.monotonic()),
+                    _close_client_on_timeout,
+                )
                 timeout_timer.daemon = True
                 timeout_timer.start()
             _check_cancelled()

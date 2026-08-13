@@ -3161,7 +3161,9 @@ class TestCodexAuxiliaryAdapterTimeout:
         assert fake_client.responses.kwargs["stream"] is True
         assert response.choices[0].message.content == "summary"
 
-    def test_enforces_total_timeout_while_stream_keeps_emitting_events(self):
+    def test_enforces_total_timeout_while_stream_keeps_emitting_events(self, monkeypatch):
+        cleanup_counts = {"close": 0, "evict": 0}
+
         class _SlowAliveCreateStream:
             def __iter__(self):
                 for _ in range(5):
@@ -3174,8 +3176,24 @@ class TestCodexAuxiliaryAdapterTimeout:
             def create(self, **kwargs):
                 return _SlowAliveCreateStream()
 
-        fake_client = SimpleNamespace(responses=FakeResponses(), close=lambda: None)
+        def blocking_close():
+            cleanup_counts["close"] += 1
+            time.sleep(0.15)
+
+        def record_evict(client):
+            cleanup_counts["evict"] += 1
+            return True
+
+        monkeypatch.setattr(
+            "agent.auxiliary_client._evict_cached_client_instance", record_evict,
+        )
+        fake_client = SimpleNamespace(responses=FakeResponses(), close=blocking_close)
         adapter = _CodexCompletionsAdapter(fake_client, "gpt-5.5")
+
+        # Keep this regression scoped to timeout/cleanup concurrency rather
+        # than charging Python's first lazy import of the stream parser against
+        # a deliberately tiny synthetic timeout.
+        from agent.codex_runtime import _consume_codex_event_stream  # noqa: F401
 
         started = time.monotonic()
         with pytest.raises(TimeoutError):
@@ -3184,7 +3202,68 @@ class TestCodexAuxiliaryAdapterTimeout:
                 timeout=0.05,
             )
 
-        assert time.monotonic() - started < 0.14
+        elapsed = time.monotonic() - started
+        assert elapsed < 0.14
+
+        # Cleanup is asynchronous so the request owner is not held hostage by
+        # a shared OpenAI/httpx client's potentially blocking close().
+        deadline = time.monotonic() + 0.5
+        while cleanup_counts["close"] < 1 and time.monotonic() < deadline:
+            time.sleep(0.005)
+        assert cleanup_counts == {"close": 1, "evict": 1}
+
+        # A later stream event/deadline check must not schedule cleanup twice.
+        time.sleep(0.2)
+        assert cleanup_counts == {"close": 1, "evict": 1}
+
+    def test_explicit_cancellation_wins_timeout_without_shared_cleanup(self, monkeypatch):
+        import threading
+        from agent.auxiliary_client import (
+            AuxiliaryExplicitCancellation,
+            _AuxiliaryCancellationDecision,
+            aux_interrupt_protection,
+        )
+
+        cancel_event = threading.Event()
+        decision = _AuxiliaryCancellationDecision(cancel_event.is_set)
+        cleanup_counts = {"close": 0, "evict": 0}
+
+        class _DelayedStream:
+            def __iter__(self):
+                time.sleep(0.06)
+                yield SimpleNamespace(type="response.in_progress")
+
+            def close(self):
+                pass
+
+        def create_stream(**kwargs):
+            # Set cancellation after adapter setup but before its timeout
+            # decision, exercising the actual cancellation-vs-timeout race.
+            cancel_event.set()
+            return _DelayedStream()
+
+        client = SimpleNamespace(
+            responses=SimpleNamespace(create=create_stream),
+            close=lambda: cleanup_counts.__setitem__(
+                "close", cleanup_counts["close"] + 1
+            ),
+        )
+        monkeypatch.setattr(
+            "agent.auxiliary_client._evict_cached_client_instance",
+            lambda target: cleanup_counts.__setitem__(
+                "evict", cleanup_counts["evict"] + 1
+            ),
+        )
+
+        with aux_interrupt_protection(cancel_check=decision):
+            with pytest.raises(AuxiliaryExplicitCancellation):
+                _CodexCompletionsAdapter(client, "gpt-5.5").create(
+                    messages=[{"role": "user", "content": "summarize this"}],
+                    timeout=0.05,
+                )
+
+        time.sleep(0.1)
+        assert cleanup_counts == {"close": 0, "evict": 0}
 
 
 class TestCodexAuxiliaryToolMessageConversion:
