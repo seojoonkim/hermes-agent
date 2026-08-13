@@ -73,6 +73,82 @@ class TestApiModeAccepted:
 
 
 class TestRunConversationCodexPath:
+    def test_provider_wait_is_not_counted_active_and_common_close_is_once(
+        self, fake_session, monkeypatch
+    ):
+        events = []
+        agent = _make_codex_agent()
+        manager = MagicMock()
+        manager.estimate_turn.return_value = None
+        manager.on_turn_timing_start.side_effect = (
+            lambda turn, **kwargs: events.append(("start", turn))
+        )
+        manager.on_turn_progress.side_effect = (
+            lambda turn, **kwargs: events.append((kwargs["phase"], turn))
+        )
+        manager.on_turn_finish.side_effect = (
+            lambda turn, **kwargs: events.append(("finish", turn, kwargs["outcome"]))
+        )
+        manager.build_system_prompt.return_value = ""
+        agent._memory_manager = manager
+        original = agent._run_codex_app_server_turn
+
+        def observed_app_server_call(**kwargs):
+            events.append(("provider", agent._turn_timing_turn_number))
+            return original(**kwargs)
+
+        monkeypatch.setattr(agent, "_run_codex_app_server_turn", observed_app_server_call)
+        with patch.object(agent, "_spawn_background_review", return_value=None):
+            result = agent.run_conversation("private provider request")
+
+        assert result["completed"] is True
+        assert events == [
+            ("start", 1),
+            ("wait", 1),
+            ("provider", 1),
+            ("active", 1),
+            ("finish", 1, "completed"),
+        ]
+        assert manager.on_turn_finish.call_count == 1
+
+    def test_resumed_history_hydrates_distinct_lifecycle_turns(self, fake_session):
+        events = []
+        agent = _make_codex_agent()
+        manager = MagicMock()
+        manager.estimate_turn.return_value = None
+        manager.build_system_prompt.return_value = ""
+        manager.on_turn_timing_start.side_effect = (
+            lambda turn, **kwargs: events.append(("start", turn, kwargs))
+        )
+        manager.on_turn_finish.side_effect = (
+            lambda turn, **kwargs: events.append(("finish", turn, kwargs))
+        )
+        agent._memory_manager = manager
+        history = [
+            {"role": "user", "content": "RAW RESUMED REQUEST ONE"},
+            {"role": "assistant", "content": "RAW RESUMED RESPONSE ONE"},
+            {"role": "user", "content": "RAW RESUMED REQUEST TWO"},
+            {"role": "assistant", "content": "RAW RESUMED RESPONSE TWO"},
+        ]
+
+        with patch.object(agent, "_spawn_background_review", return_value=None):
+            first = agent.run_conversation("third request", conversation_history=history)
+            second = agent.run_conversation("fourth request", conversation_history=first["messages"])
+
+        assert first["completed"] is True
+        assert second["completed"] is True
+        assert [(kind, turn) for kind, turn, _kwargs in events] == [
+            ("start", 3),
+            ("finish", 3),
+            ("start", 4),
+            ("finish", 4),
+        ]
+        assert agent._user_turn_count == 4
+        lifecycle_payload = repr(events)
+        assert "RAW RESUMED" not in lifecycle_payload
+        assert "third request" not in lifecycle_payload
+        assert "fourth request" not in lifecycle_payload
+
     def test_run_conversation_returns_codex_shape(self, fake_session):
         agent = _make_codex_agent()
         # No background review fork during tests

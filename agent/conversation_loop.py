@@ -141,6 +141,48 @@ def _base_turn_completed(final_response, api_call_count, max_iterations, failed,
     return bool(final_response is not None and api_call_count < max_iterations and not failed and not interrupted)
 
 
+def _timing_subject_for_message(message: Any) -> str:
+    """Reduce a request to a closed telemetry cohort without retaining text."""
+    text = str(message or "").lower()
+    cohorts = (
+        ("development", ("code", "debug", "test", "deploy", "git", "pr", "코드", "개발", "버그", "배포", "테스트")),
+        ("scheduling", ("calendar", "schedule", "meeting", "일정", "캘린더", "미팅")),
+        ("health", ("health", "sleep", "exercise", "weight", "건강", "수면", "운동", "체중")),
+        ("research", ("research", "analyze", "paper", "조사", "분석", "논문")),
+        ("operations", ("server", "gateway", "config", "process", "서버", "게이트웨이", "설정", "운영")),
+    )
+    for subject, keywords in cohorts:
+        for keyword in keywords:
+            if keyword.isascii():
+                if re.search(rf"(?<![a-z0-9_]){re.escape(keyword)}(?![a-z0-9_])", text):
+                    return subject
+            elif keyword in text:
+                return subject
+    return "general"
+
+
+def _format_turn_eta(estimate: Any) -> str:
+    """Render only bounded Delay Ledger estimates that satisfy the ETA floor."""
+    if not isinstance(estimate, dict) or int(estimate.get("sample_count", 0) or 0) < 5:
+        return ""
+    try:
+        p50 = max(0, int(estimate["p50_ms"]))
+        p80 = max(p50, int(estimate["p80_ms"]))
+        risk = max(0, int(estimate["risk_adjustment_ms"]))
+    except (KeyError, TypeError, ValueError):
+        return ""
+    confidence = estimate.get("confidence")
+    if confidence not in {"low", "medium", "high"}:
+        confidence = "low"
+    critical_path = estimate.get("critical_path")
+    if critical_path not in {"development", "scheduling", "health", "research", "operations", "general"}:
+        critical_path = "general"
+    return (
+        f"ETA p50 {p50 / 1000:.1f}s · p80 {p80 / 1000:.1f}s · "
+        f"confidence {confidence} · critical path {critical_path} · risk +{risk / 1000:.1f}s"
+    )
+
+
 def _requirements_completion_gate(agent, existing_completed):
     ledger = getattr(agent, "_requirements_ledger", None)
     if ledger is None:
@@ -1295,7 +1337,7 @@ def _notify_context_engine_turn_complete(
         )
 
 
-def run_conversation(
+def _run_conversation_impl(
     agent,
     user_message: Any,
     system_message: str = None,
@@ -1401,6 +1443,9 @@ def run_conversation(
     _plugin_user_context = _ctx.plugin_user_context
     _ext_prefetch_cache = _ctx.ext_prefetch_cache
 
+    manager = getattr(agent, "_memory_manager", None)
+    _timing_session_id = getattr(agent, "_turn_timing_session_id", "")
+
     # Commentary deduplication spans all provider continuations and tool calls
     # within one user turn, but must not suppress the same phrase next turn.
     agent._delivered_interim_texts = set()
@@ -1464,13 +1509,31 @@ def run_conversation(
     # See agent/transports/codex_app_server_session.py for the adapter
     # and references/codex-app-server-runtime.md for the rationale.
     if agent.api_mode == "codex_app_server":
-        return agent._run_codex_app_server_turn(
-            user_message=user_message,
-            original_user_message=original_user_message,
-            messages=messages,
-            effective_task_id=effective_task_id,
-            should_review_memory=_should_review_memory,
-        )
+        if manager is not None:
+            manager.on_turn_progress(
+                getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                session_id=_timing_session_id,
+                phase="wait",
+                iteration=1,
+            )
+        try:
+            return agent._run_codex_app_server_turn(
+                user_message=user_message,
+                original_user_message=original_user_message,
+                messages=messages,
+                effective_task_id=effective_task_id,
+                should_review_memory=_should_review_memory,
+            )
+        finally:
+            # The subprocess call owns provider wait. Transition back even when
+            # it raises so the outer guard closes exactly once with its outcome.
+            if manager is not None:
+                manager.on_turn_progress(
+                    getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                    session_id=_timing_session_id,
+                    phase="active",
+                    iteration=1,
+                )
 
     while (api_call_count < agent.max_iterations and agent.iteration_budget.remaining > 0) or agent._budget_grace_call:
         _redirect_text = agent._drain_pending_redirect()
@@ -1497,6 +1560,13 @@ def run_conversation(
         api_call_count += 1
         agent._api_call_count = api_call_count
         agent._touch_activity(f"starting API call #{api_call_count}")
+        if manager is not None:
+            manager.on_turn_progress(
+                getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                session_id=_timing_session_id,
+                phase="wait",
+                iteration=api_call_count,
+            )
 
         # Grace call: the budget is exhausted but we gave the model one
         # more chance.  Consume the grace flag so the loop exits after
@@ -2665,6 +2735,13 @@ def run_conversation(
                     # Invalid response — could be rate limiting, provider timeout,
                     # upstream server error, or malformed response.
                     retry_count += 1
+                    if manager is not None:
+                        manager.on_turn_progress(
+                            getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                            session_id=_timing_session_id,
+                            phase="rework",
+                            iteration=api_call_count,
+                        )
                     
                     # Eager fallback: empty/malformed responses are a common
                     # rate-limit symptom.  Switch to fallback immediately
@@ -2813,6 +2890,13 @@ def run_conversation(
                     continue  # Retry the API call
 
                 agent._turn_received_provider_response = True
+                if manager is not None:
+                    manager.on_turn_progress(
+                        getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                        session_id=_timing_session_id,
+                        phase="active",
+                        iteration=api_call_count,
+                    )
 
                 # Check finish_reason before proceeding
                 if agent.api_mode == "codex_responses":
@@ -2853,6 +2937,7 @@ def run_conversation(
                     _finish_result = _cc_fr.normalize_response(response)
                     finish_reason = _finish_result.finish_reason
                     assistant_message = _finish_result
+
                     if agent._should_treat_stop_as_truncated(
                         finish_reason,
                         assistant_message,
@@ -4257,6 +4342,13 @@ def run_conversation(
                     )
 
                 retry_count += 1
+                if manager is not None:
+                    manager.on_turn_progress(
+                        getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                        session_id=_timing_session_id,
+                        phase="rework",
+                        iteration=api_call_count,
+                    )
                 elapsed_time = time.time() - api_start_time
                 agent._touch_activity(
                     f"API error recovery (attempt {retry_count}/{max_retries})"
@@ -7309,7 +7401,7 @@ def run_conversation(
     # (god-file decomposition Phase 1 step 4). Behavior-neutral: the assembled
     # result dict is returned exactly as before.
     from agent.turn_finalizer import finalize_turn
-    return finalize_turn(
+    result = finalize_turn(
         agent,
         final_response=final_response,
         api_call_count=api_call_count,
@@ -7326,7 +7418,107 @@ def run_conversation(
         _pending_verification_response=_pending_verification_response,
         _pending_verification_response_previewed=_pending_verification_response_previewed,
     )
+    return result
 
+
+def _timing_outcome(result: Any, escaped: Optional[BaseException], agent: Any) -> str:
+    if escaped is not None:
+        if (
+            isinstance(escaped, (KeyboardInterrupt, SystemExit, InterruptedError))
+            or type(escaped).__name__ == "CancelledError"
+            or getattr(agent, "_interrupt_requested", False)
+        ):
+            return "interrupted"
+        return "failed"
+    if isinstance(result, dict):
+        if result.get("interrupted") is True:
+            return "interrupted"
+        if result.get("completed") is True:
+            return "completed"
+        if result.get("failed") is True or result.get("error"):
+            return "failed"
+    return "partial"
+
+
+def run_conversation(
+    agent,
+    user_message: Any,
+    system_message: str = None,
+    conversation_history: List[Dict[str, Any]] = None,
+    task_id: str = None,
+    stream_callback: Optional[callable] = None,
+    persist_user_message: Optional[Any] = None,
+    persist_user_timestamp: Optional[float] = None,
+    persist_user_display_kind: Optional[str] = None,
+    persist_user_display_metadata: Optional[Dict[str, Any]] = None,
+    moa_config: Optional[dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Run one turn under a single-close timing lifecycle guard."""
+    manager = getattr(agent, "_memory_manager", None)
+    session_id = str(getattr(agent, "session_id", None) or "")
+    # A fresh agent starts at zero even when resuming persisted history. The
+    # generic prologue hydrates this counter, but timing intentionally starts
+    # before that prologue, so derive the same count from authoritative history
+    # without moving lifecycle hooks or external-memory prefetch.
+    history_user_turns = sum(
+        1
+        for message in (conversation_history or [])
+        if isinstance(message, dict) and message.get("role") == "user"
+    )
+    turn_number = max(
+        int(getattr(agent, "_user_turn_count", 0) or 0), history_user_turns
+    ) + 1
+    subject_message = persist_user_message
+    if subject_message is None:
+        subject_message = user_message
+    subject = _timing_subject_for_message(subject_message)
+    platform = getattr(agent, "platform", None) or "cli"
+    result = None
+    escaped = None
+    agent._turn_timing_session_id = session_id
+    agent._turn_timing_turn_number = turn_number
+    if manager is not None:
+        try:
+            manager.on_turn_timing_start(
+                turn_number, session_id=session_id, platform=platform, subject=subject
+            )
+            eta_text = _format_turn_eta(
+                manager.estimate_turn(platform=platform, subject=subject)
+            )
+            if eta_text:
+                agent._emit_status(eta_text)
+        except Exception:
+            pass
+    try:
+        result = _run_conversation_impl(
+            agent,
+            user_message,
+            system_message,
+            conversation_history,
+            task_id,
+            stream_callback,
+            persist_user_message,
+            persist_user_timestamp,
+            persist_user_display_kind,
+            persist_user_display_metadata,
+            moa_config,
+        )
+        return result
+    except BaseException as exc:
+        escaped = exc
+        raise
+    finally:
+        if manager is not None:
+            try:
+                manager.on_turn_finish(
+                    turn_number,
+                    session_id=session_id,
+                    outcome=_timing_outcome(result, escaped, agent),
+                )
+            except Exception:
+                pass
+        agent._turn_timing_session_id = ""
+        agent._turn_timing_turn_number = None
 
 
 __all__ = ["run_conversation"]

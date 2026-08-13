@@ -25,6 +25,7 @@ import re
 import sys
 import tempfile
 import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -205,6 +206,7 @@ class MemKraftMemoryProvider(MemoryProvider):
         self._prefetch_cache: Dict[tuple[str, str], str] = {}
         self._prefetch_threads: Dict[tuple[str, str], threading.Thread] = {}
         self._prefetch_expected: Dict[str, str] = {}
+        self._turn_timing: Dict[str, Dict[str, Any]] = {}
         self._lock = threading.RLock()
 
     @property
@@ -217,11 +219,28 @@ class MemKraftMemoryProvider(MemoryProvider):
         if source_path and source_path not in sys.path:
             sys.path.insert(0, source_path)
         try:
-            import memkraft  # noqa: F401
+            import importlib
+            from packaging.version import Version
 
-            return True
+            module = importlib.import_module("memkraft")
+            if Version(str(getattr(module, "__version__", "0"))) < Version("3.5.0"):
+                return False
+            from hermes_constants import get_hermes_home
+
+            hermes_home = str(get_hermes_home())
+            raw_probe_dir = cfg.get("base_dir") or str(Path(hermes_home) / "memkraft-memory")
+            probe_dir = str(raw_probe_dir).replace("$HERMES_HOME", hermes_home).replace(
+                "${HERMES_HOME}", hermes_home
+            )
+            probe = getattr(module, "MemKraft")(str(Path(probe_dir).expanduser()))
+            required = (
+                "delay_run_start", "delay_run_finish", "delay_estimate",
+                "delay_record_retrospective", "delay_record_action",
+                "delay_record_application", "delay_record_verification",
+            )
+            return all(callable(getattr(probe, name, None)) for name in required)
         except Exception:
-            return bool(source_path) and Path(source_path, "memkraft", "__init__.py").exists()
+            return False
 
     def get_config_schema(self):
         return [
@@ -266,6 +285,17 @@ class MemKraftMemoryProvider(MemoryProvider):
         self._base_dir = str(Path(base_dir).expanduser())
         self._prefetch_top_k = int(self._config.get("prefetch_top_k", 5) or 5)
         self._mk = MemKraft(self._base_dir)
+        required_delay_api = (
+            "delay_run_start", "delay_run_finish", "delay_estimate",
+            "delay_record_retrospective", "delay_record_action",
+            "delay_record_application", "delay_record_verification",
+        )
+        missing = [name for name in required_delay_api if not callable(getattr(self._mk, name, None))]
+        if missing:
+            self._mk = None
+            raise RuntimeError(
+                "MemKraft 3.5.0+ is required; missing delay API: " + ", ".join(missing)
+            )
         try:
             self._mk.init(verbose=False)
         except TypeError:
@@ -325,6 +355,161 @@ class MemKraftMemoryProvider(MemoryProvider):
         with self._lock:
             self._prefetch_threads[key] = t
         t.start()
+
+    @staticmethod
+    def _timing_subject(platform: Any, profile: Any, subject: Any) -> str:
+        platforms = {"telegram", "discord", "slack", "cli", "cron", "gateway"}
+        subjects = {"development", "research", "operations", "scheduling", "health", "general"}
+        safe_platform = platform if platform in platforms else "gateway"
+        safe_subject = subject if subject in subjects else "general"
+        safe_profile = profile if isinstance(profile, str) and re.fullmatch(r"[a-z0-9_-]{1,32}", profile) else "hermes"
+        return f"{safe_platform}:{safe_profile}:{safe_subject}"
+
+
+    @staticmethod
+    def _timing_key(session_id: Any, turn_number: int) -> str:
+        raw = f"{session_id if isinstance(session_id, str) else ''}:{turn_number}"
+        return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:20]
+
+
+    @staticmethod
+    def _timing_now() -> datetime:
+        return datetime.now(timezone.utc)
+
+
+    def on_turn_timing_start(self, turn_number: int, **kwargs) -> None:
+        if not self._mk:
+            return
+        key = self._timing_key(kwargs.get("session_id"), turn_number)
+        subject = self._timing_subject(kwargs.get("platform"), self._profile, kwargs.get("subject"))
+        task_id = f"hermes-turn-{key}"
+        started = time.monotonic()
+        try:
+            task_result = self._mk.delay_run_start(task_id, "task", subject, now=self._timing_now())
+            if not isinstance(task_result, dict) or task_result.get("outcome") not in {"applied", "already_applied"}:
+                return
+        except Exception:
+            return
+        with self._lock:
+            self._turn_timing[key] = {
+                "task_id": task_id,
+                "subject": subject,
+                "task_started": started,
+                "phase": "active",
+                "phase_started": started,
+                "phase_totals_ms": {"active": 0, "wait": 0, "rework": 0},
+            }
+
+
+    def on_turn_progress(self, turn_number: int, **kwargs) -> None:
+        phase = kwargs.get("phase")
+        if phase not in {"active", "wait", "rework"} or not self._mk:
+            return
+        key = self._timing_key(kwargs.get("session_id"), turn_number)
+        now_tick = time.monotonic()
+        with self._lock:
+            state = self._turn_timing.get(key)
+            if not state or state["phase"] == phase:
+                return
+            elapsed_ms = max(0, round((now_tick - state["phase_started"]) * 1000))
+            state["phase_totals_ms"][state["phase"]] += elapsed_ms
+            state["phase"] = phase
+            state["phase_started"] = now_tick
+
+
+    def on_turn_finish(self, turn_number: int, **kwargs) -> None:
+        key = self._timing_key(kwargs.get("session_id"), turn_number)
+        self._finish_timing_key(key, kwargs.get("outcome"))
+
+
+    def _finish_timing_key(self, key: str, outcome: Optional[str]) -> None:
+        if not self._mk:
+            return
+        now_tick = time.monotonic()
+        with self._lock:
+            state = self._turn_timing.get(key)
+            if not state:
+                return
+            if not state.get("totals_finalized"):
+                elapsed_ms = max(0, round((now_tick - state["phase_started"]) * 1000))
+                state["phase_totals_ms"][state["phase"]] += elapsed_ms
+                state["totals_finalized"] = True
+                state["task_ms"] = max(
+                    0, round((now_tick - state["task_started"]) * 1000)
+                )
+            if outcome not in {"completed", "failed", "interrupted", "partial", "aborted"}:
+                outcome = "failed"
+            # The first close request owns the durable outcome. A later repair
+            # (including shutdown's abort sweep) must not rewrite it.
+            outcome = state.setdefault("outcome", outcome)
+
+            # Flush one aggregate child per observed phase. The number of
+            # ledger writes is bounded by the closed phase set, not API calls.
+            flushed = state.setdefault("flushed_phases", set())
+            started = state.setdefault("started_phases", set())
+            for phase_name in ("active", "wait", "rework"):
+                phase_ms = state["phase_totals_ms"][phase_name]
+                if phase_ms <= 0 or phase_name in flushed:
+                    continue
+                phase_id = f"{state['task_id']}-{phase_name}-aggregate"
+                try:
+                    if phase_name not in started:
+                        start_result = self._mk.delay_run_start(
+                            phase_id, "phase", f"{state['subject']}:{phase_name}",
+                            parent_run_id=state["task_id"], now=self._timing_now(),
+                        )
+                        if (not isinstance(start_result, dict)
+                                or start_result.get("outcome") not in {"applied", "already_applied"}):
+                            return
+                        # MemKraft 3.5 rejects a second start for the same ID.
+                        started.add(phase_name)
+                    finish_result = self._mk.delay_run_finish(
+                        phase_id, phase_ms, now=self._timing_now()
+                    )
+                    if (not isinstance(finish_result, dict)
+                            or finish_result.get("outcome") not in {"applied", "already_applied"}):
+                        return
+                except Exception:
+                    return
+                flushed.add(phase_name)
+            try:
+                task_result = self._mk.delay_run_finish(
+                    state["task_id"], state["task_ms"],
+                    outcome=outcome, now=self._timing_now(),
+                )
+            except Exception:
+                return
+            if (not isinstance(task_result, dict)
+                    or task_result.get("outcome") not in {"applied", "already_applied"}):
+                return
+            self._turn_timing.pop(key, None)
+
+
+    def estimate_turn(self, **kwargs) -> Optional[Dict[str, Any]]:
+        if not self._mk or not hasattr(self._mk, "delay_estimate"):
+            return None
+        subject = self._timing_subject(kwargs.get("platform"), self._profile, kwargs.get("subject"))
+        try:
+            estimate = self._mk.delay_estimate("task", subject, now=self._timing_now())
+        except Exception:
+            return None
+        if not isinstance(estimate, dict) or estimate.get("available") is not True:
+            return None
+        count = estimate.get("sample_count", 0)
+        # Enforce the privacy/quality floor at the adapter boundary too. Do not
+        # rely solely on an upstream implementation's ``available`` flag.
+        if not isinstance(count, int) or isinstance(count, bool) or count < 5:
+            return None
+        confidence = "high" if count >= 20 else "medium" if count >= 8 else "low"
+        return {
+            "p50_ms": estimate["p50_ms"],
+            "p80_ms": estimate["p80_ms"],
+            "confidence": confidence,
+            "sample_count": count,
+            "risk_adjustment_ms": max(0, estimate["p80_ms"] - estimate["p50_ms"]),
+            "critical_path": subject.rsplit(":", 1)[-1],
+        }
+
 
     def sync_turn(self, user_content: str, assistant_content: str, *, session_id: str = "") -> None:
         # Avoid noisy full-transcript storage. Durable writes happen through explicit tools or built-in memory mirror.
@@ -457,6 +642,8 @@ class MemKraftMemoryProvider(MemoryProvider):
         ]
 
     def handle_tool_call(self, tool_name: str, args: Dict[str, Any], **kwargs) -> str:
+        if not self._mk:
+            return tool_error("MemKraft 3.5.0+ provider is unavailable or not initialized")
         try:
             if tool_name == "memkraft_search":
                 q = str(args.get("query") or "").strip()
@@ -538,7 +725,22 @@ class MemKraftMemoryProvider(MemoryProvider):
         except Exception as e:
             return tool_error(f"MemKraft tool failed: {e}")
 
+    def abort_open_turns(self) -> None:
+        if not self._mk:
+            return
+        with self._lock:
+            keys = list(self._turn_timing)
+        for key in keys:
+            self._finish_timing_key(key, "aborted")
+
+
     def shutdown(self) -> None:
+        self.abort_open_turns()
+        if self._turn_timing:
+            logger.warning(
+                "MemKraft shutdown left %d timing run(s) open for repair",
+                len(self._turn_timing),
+            )
         self._mk = None
 
     def _json(self, payload: dict) -> str:

@@ -7701,6 +7701,9 @@ class AIAgent:
             finish_task_run(**task_context, result=result)
             return result
         except BaseException as exc:
+            manager = getattr(self, "_memory_manager", None)
+            if manager is not None:
+                manager.abort_open_turns()
             if isinstance(exc, (KeyboardInterrupt, InterruptedError)) or (
                 type(exc).__name__ == "CancelledError"
             ):
