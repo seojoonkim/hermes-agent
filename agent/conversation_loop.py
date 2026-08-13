@@ -22,7 +22,9 @@ import os
 import random
 import re
 import ssl
+import threading
 import time
+import uuid
 from typing import Any, Dict, List, Optional
 
 from agent.codex_responses_adapter import _summarize_user_message_for_log
@@ -88,6 +90,74 @@ from tools.skill_provenance import set_current_write_origin
 from utils import base_url_host_matches, env_var_enabled
 
 logger = logging.getLogger(__name__)
+
+
+def _start_requirements_turn(agent):
+    from agent.requirements_ledger import TurnRequirementsLedger
+    from tools.todo_tool import TodoStore
+
+    lock = getattr(agent, "_pending_steer_lock", None)
+    if not isinstance(lock, type(threading.RLock())):
+        lock = threading.RLock()
+        agent._pending_steer_lock = lock
+    with lock:
+        sequence = int(getattr(agent, "_requirements_turn_sequence", 0)) + 1
+        agent._requirements_turn_sequence = sequence
+        turn_id = f"{getattr(agent, 'session_id', None) or 'session'}:{sequence}:{uuid.uuid4().hex}"
+        ledger = TurnRequirementsLedger(turn_id, lock=lock)
+        agent._requirements_ledger = ledger
+        agent._requirements_finalized = False
+        agent._todo_store = TodoStore(lock=lock, reconciler=ledger.reconcile_todos)
+        return ledger
+
+
+def _initialize_task_intensity(agent, user_request):
+    from agent.task_intensity import classify_task_intensity
+
+    decision = classify_task_intensity(
+        user_request,
+        override=getattr(agent, "_task_intensity_override", None),
+        signals=getattr(agent, "_task_intensity_signals", None),
+    )
+    agent._task_intensity_decision = decision
+    agent._task_intensity_metadata = decision.as_metadata()
+    agent._task_intensity_prompt_guidance = decision.prompt_guidance
+    return decision
+
+
+def _build_task_intensity_system_context(
+    base_system, decision, *, steer_text=None, steer_override=None, steer_signals=None
+):
+    blocks = [base_system] if base_system else []
+    blocks.append(f"[TASK INTENSITY: {decision.level}]\n{decision.prompt_guidance}\n[/TASK INTENSITY]")
+    if steer_text:
+        from agent.task_intensity import classify_task_intensity
+        steer = classify_task_intensity(steer_text, override=steer_override, signals=steer_signals)
+        blocks.append(f"[STEER TASK INTENSITY: {steer.level}]\n{steer.prompt_guidance}\n[/STEER TASK INTENSITY]")
+    return "\n\n".join(blocks).strip()
+
+
+def _base_turn_completed(final_response, api_call_count, max_iterations, failed, interrupted):
+    return bool(final_response is not None and api_call_count < max_iterations and not failed and not interrupted)
+
+
+def _requirements_completion_gate(agent, existing_completed):
+    ledger = getattr(agent, "_requirements_ledger", None)
+    if ledger is None:
+        return {"completed": existing_completed}
+    requirements = ledger.requirements_snapshot()
+    pending = [item for item in requirements if item.get("must") and item.get("status") != "completed"]
+    decision = {
+        "completed": bool(existing_completed and not pending),
+        "requirements": requirements,
+        "requirements_revision": max((int(item.get("revision", 0)) for item in requirements), default=0),
+        "pending_requirements": pending,
+        "completion_blocked": bool(existing_completed and pending),
+    }
+    if decision["completion_blocked"]:
+        noun = "requirement remains" if len(pending) == 1 else "requirements remain"
+        decision.update(turn_exit_reason="pending_must_requirements", footer=f"⚠️ Incomplete: {len(pending)} must {noun} pending.")
+    return decision
 
 # Stable prefix of the local interrupt status string emitted when a turn is
 # cancelled while waiting on the provider. Surfaces (ACP, TUI) match on this
@@ -1266,6 +1336,9 @@ def run_conversation(
     Returns:
         Dict: Complete conversation result with final response and message history
     """
+    _start_requirements_turn(agent)
+    _initialize_task_intensity(agent, user_message)
+
     if moa_config is None:
         try:
             from hermes_cli.moa_config import decode_moa_turn
@@ -1483,6 +1556,7 @@ def run_conversation(
         # tool batch — injecting into a user message would break role
         # alternation, and there's no tool output to piggyback on.
         _pre_api_steer = agent._drain_pending_steer()
+        _delivered_steer_for_intensity = None
         if _pre_api_steer:
             _injected = False
             for _si in range(len(messages) - 1, -1, -1):
@@ -1502,6 +1576,7 @@ def run_conversation(
                         except Exception:
                             pass
                     _injected = True
+                    _delivered_steer_for_intensity = _pre_api_steer
                     logger.debug(
                         "Pre-API-call steer drain: injected into tool msg at index %d",
                         _si,
@@ -1696,6 +1771,13 @@ def run_conversation(
         effective_system = active_system_prompt or ""
         if agent.ephemeral_system_prompt:
             effective_system = (effective_system + "\n\n" + agent.ephemeral_system_prompt).strip()
+        effective_system = _build_task_intensity_system_context(
+            effective_system,
+            agent._task_intensity_decision,
+            steer_text=_delivered_steer_for_intensity,
+            steer_override=getattr(agent, "_task_intensity_override", None),
+            steer_signals=getattr(agent, "_task_intensity_signals", None),
+        )
         if effective_system:
             api_messages = [{"role": "system", "content": effective_system}] + api_messages
 

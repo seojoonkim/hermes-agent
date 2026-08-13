@@ -201,6 +201,13 @@ def finalize_turn(
         )
     )
 
+    from agent.conversation_loop import _requirements_completion_gate
+    requirements_decision = _requirements_completion_gate(agent, completed and not interrupted)
+    completed = requirements_decision["completed"]
+    agent._requirements_finalized = True
+    if "turn_exit_reason" in requirements_decision:
+        _turn_exit_reason = requirements_decision["turn_exit_reason"]
+
     # Preflight can seed the display count before the provider receives the
     # request. Roll that estimate back only when an interrupt wins the race
     # before any successful provider response. Compaction state remains owned

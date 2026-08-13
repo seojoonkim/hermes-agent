@@ -3248,6 +3248,14 @@ class AIAgent:
             self._pending_steer = (existing + "\n" + cleaned) if existing else cleaned
             return True
         with _lock:
+            ledger = getattr(self, "_requirements_ledger", None)
+            if ledger is not None and not getattr(self, "_requirements_finalized", True):
+                requirement = ledger.register_steer(cleaned)
+                try:
+                    self._todo_store.write([ledger._as_todo(requirement)], merge=True)
+                except Exception:
+                    ledger.rollback_registration(requirement["id"])
+                    raise
             if self._pending_steer:
                 self._pending_steer = self._pending_steer + "\n" + cleaned
             else:
