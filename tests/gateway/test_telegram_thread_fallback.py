@@ -323,6 +323,7 @@ async def test_gateway_runner_busy_ack_replies_to_triggering_message_for_telegra
 
     source = SimpleNamespace(
         platform=Platform.TELEGRAM,
+        account_id="123456",
         chat_id="12345",
         chat_type="dm",
         thread_id="20197",
@@ -620,6 +621,7 @@ async def test_send_image_upload_fallback_blocks_connect_time_rebind(monkeypatch
 @pytest.mark.asyncio
 async def test_slash_confirm_forum_callback_followup_keeps_existing_thread_behavior(monkeypatch):
     adapter = _make_adapter()
+    adapter._bot_account_id = "123456"
     adapter._slash_confirm_state = {"confirm-1": "session-1"}
     adapter._is_callback_user_authorized = lambda *args, **kwargs: True
     call_log = []

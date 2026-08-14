@@ -711,6 +711,9 @@ class TelegramAdapter(BasePlatformAdapter):
         super().__init__(config, Platform.TELEGRAM)
         self._app: Optional[Application] = None
         self._bot: Optional[Bot] = None
+        # Stable connector credential identity: the numeric bot user id from
+        # Telegram getMe, never a token, profile, username, or chat id.
+        self._bot_account_id: Optional[str] = None
         self._webhook_mode: bool = False
         self._mention_patterns = self._compile_mention_patterns()
         self._reply_to_mode: str = getattr(config, 'reply_to_mode', 'first') or 'first'
@@ -963,6 +966,7 @@ class TelegramAdapter(BasePlatformAdapter):
                     user_id=normalized_user_id,
                     user_name=str(user_name).strip() if user_name else None,
                     thread_id=str(thread_id) if thread_id is not None else None,
+                    account_id=self.account_id,
                 )
                 return bool(auth_fn(source))
             except Exception:
@@ -1040,6 +1044,7 @@ class TelegramAdapter(BasePlatformAdapter):
             user_id=user_id,
             user_name=user_name,
             thread_id=thread_id,
+            account_id=self.account_id,
         )
 
     def _telegram_auth_env_configured(self) -> bool:
@@ -4018,6 +4023,8 @@ class TelegramAdapter(BasePlatformAdapter):
                             await _shutdown_abandoned_app(old_app)
                         except Exception:
                             pass
+            if not await self._ensure_account_identity():
+                raise RuntimeError("Telegram getMe returned no bot user id")
             await self._app.start()
 
             # Decide between webhook and polling mode
@@ -6302,6 +6309,8 @@ class TelegramAdapter(BasePlatformAdapter):
         self, update: "Update", context: "ContextTypes.DEFAULT_TYPE"
     ) -> None:
         """Handle inline keyboard button clicks."""
+        if not await self._ensure_account_identity():
+            return
         query = update.callback_query
         if not query or not query.data:
             return
@@ -7986,6 +7995,42 @@ class TelegramAdapter(BasePlatformAdapter):
     # How long an observed identity is trusted before the heartbeat re-checks.
     _BOT_IDENTITY_TTL_SECONDS = 300.0
 
+    @property
+    def account_id(self) -> Optional[str]:
+        """Return the Telegram bot user id owning this adapter credential."""
+        value = str(getattr(self, "_bot_account_id", None) or "").strip()
+        return value or None
+
+    def _note_bot_account_id(self, bot_user_id: Any) -> None:
+        """Record the normalized ASCII-numeric id from Telegram ``getMe``."""
+        value = str(bot_user_id or "").strip()
+        if value and value.isascii() and value.isdigit():
+            self._bot_account_id = value
+
+    async def _ensure_account_identity(self) -> bool:
+        """Resolve bot identity before dispatch, failing closed if unavailable."""
+        bot = getattr(self, "_bot", None)
+        if bot is None:
+            # Preserve direct handler/event-builder compatibility only before
+            # connect. A running adapter without its credential owner is an
+            # invalid isolation state even if a stale account id remains cached.
+            if not getattr(self, "_running", False):
+                return True
+            logger.error(
+                "[%s] Refusing Telegram inbound event: connected bot identity is unavailable",
+                self.name,
+            )
+            return False
+        if self.account_id:
+            return True
+        self._note_bot_account_id(getattr(bot, "id", None))
+        if not self.account_id:
+            await self._refresh_bot_identity(force=True)
+        if not self.account_id:
+            logger.error("[%s] Refusing Telegram inbound event: bot account id is unknown", self.name)
+            return False
+        return True
+
     def _current_bot_username(self) -> str:
         """Return this bot's live @username (lowercased, no leading ``@``).
 
@@ -8077,6 +8122,7 @@ class TelegramAdapter(BasePlatformAdapter):
             )
             return
         self._bot_identity_checked_at = time.monotonic()
+        self._note_bot_account_id(getattr(me, "id", None))
         self._note_bot_username(getattr(me, "username", None))
 
     _BOT_IDENTITY_PROBE_TIMEOUT = 15.0
@@ -8807,6 +8853,8 @@ class TelegramAdapter(BasePlatformAdapter):
         rapid successive text messages from the same user/chat and aggregate
         them into a single MessageEvent before dispatching.
         """
+        if not await self._ensure_account_identity():
+            return
         msg = self._effective_update_message(update)
         if not msg or not msg.text:
             return
@@ -8835,6 +8883,8 @@ class TelegramAdapter(BasePlatformAdapter):
 
     async def _handle_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle incoming command messages."""
+        if not await self._ensure_account_identity():
+            return
         msg = self._effective_update_message(update)
         if not msg or not msg.text:
             return
@@ -8869,6 +8919,8 @@ class TelegramAdapter(BasePlatformAdapter):
 
     async def _handle_location_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle incoming location/venue pin messages."""
+        if not await self._ensure_account_identity():
+            return
         msg = self._effective_update_message(update)
         if not msg:
             return
@@ -9087,6 +9139,8 @@ class TelegramAdapter(BasePlatformAdapter):
 
     async def _handle_media_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle incoming media messages, downloading images to local cache."""
+        if not await self._ensure_account_identity():
+            return
         if not update.message:
             return
         if not self._is_user_authorized_from_message(update.message):
@@ -9771,6 +9825,7 @@ class TelegramAdapter(BasePlatformAdapter):
             message_id=str(message.message_id),
             is_bot=bool(getattr(user, "is_bot", False)) if user else False,
         )
+        source.account_id = self.account_id
         
         # Extract reply context if this message is a reply.
         # Prefer Telegram's native partial quote (message.quote, TextQuote)

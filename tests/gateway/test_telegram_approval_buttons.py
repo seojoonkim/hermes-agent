@@ -55,6 +55,9 @@ def _make_adapter(extra=None):
     config = PlatformConfig(enabled=True, token="test-token", extra=extra or {})
     adapter = TelegramAdapter(config)
     adapter._bot = AsyncMock()
+    adapter._bot.get_me = AsyncMock(
+        return_value=SimpleNamespace(id=123456789, username="hermes_test_bot")
+    )
     adapter._app = MagicMock()
     return adapter
 
