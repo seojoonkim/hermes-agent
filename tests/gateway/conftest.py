@@ -32,8 +32,11 @@ incident.
 """
 
 import ast
+import importlib
 import sys
+from importlib.metadata import PackageNotFoundError, distribution
 from pathlib import Path
+from types import ModuleType
 from unittest.mock import MagicMock
 
 import pytest
@@ -118,8 +121,41 @@ def _ensure_telegram_mock() -> None:
     ``setdefault`` so it wins even if a partial/broken import
     already cached a module with ``ChatType = None``.
     """
-    if "telegram" in sys.modules and hasattr(sys.modules["telegram"], "__file__"):
+    existing_root = sys.modules.get("telegram")
+    if isinstance(existing_root, ModuleType) and isinstance(
+        getattr(existing_root, "__file__", None), str
+    ):
         return  # Real library is installed — nothing to mock
+
+    # Distribution metadata cannot be spoofed by a prior ``sys.modules`` mock.
+    # If PTB is installed, import the real package before any gateway test can
+    # populate these names with the session mock. This preserves the genuine
+    # BaseRequest integration suite regardless of collection order.
+    try:
+        distribution("python-telegram-bot")
+    except PackageNotFoundError:
+        pass
+    else:
+        for name in (
+            "telegram",
+            "telegram.ext",
+            "telegram.constants",
+            "telegram.request",
+            "telegram.error",
+        ):
+            existing = sys.modules.get(name)
+            if existing is not None and not (
+                isinstance(existing, ModuleType)
+                and isinstance(getattr(existing, "__file__", None), str)
+            ):
+                sys.modules.pop(name, None)
+        real_telegram = importlib.import_module("telegram")
+        if not (
+            isinstance(real_telegram, ModuleType)
+            and isinstance(getattr(real_telegram, "__file__", None), str)
+        ):
+            raise RuntimeError("installed python-telegram-bot did not import a real package")
+        return
 
     mod = MagicMock()
     mod.ext.ContextTypes.DEFAULT_TYPE = type(None)

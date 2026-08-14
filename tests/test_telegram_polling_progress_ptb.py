@@ -1,9 +1,15 @@
 """Integration coverage for polling progress against the installed PTB runtime."""
 
 import asyncio
+from importlib.metadata import PackageNotFoundError, distribution
 
 import pytest
-pytest.importorskip("telegram", reason="python-telegram-bot not installed")
+
+try:
+    distribution("python-telegram-bot")
+except PackageNotFoundError:
+    pytest.skip("python-telegram-bot not installed", allow_module_level=True)
+
 from telegram.error import Conflict, TelegramError
 from telegram.request import BaseRequest
 
