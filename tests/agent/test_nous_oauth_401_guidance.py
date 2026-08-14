@@ -19,37 +19,26 @@ import inspect
 from agent import conversation_loop
 
 
-def test_nous_provider_is_in_oauth_401_set():
-    """The provider-set gate that selects OAuth-specific guidance must
-    include ``nous`` alongside ``openai-codex`` and ``xai-oauth``.
-    """
-    source = inspect.getsource(conversation_loop.run_conversation)
+def test_nous_provider_has_dedicated_401_recovery_gate():
+    """Nous 401s must use the dedicated Portal credential refresh path."""
+    source = inspect.getsource(conversation_loop._run_conversation_impl)
 
-    # Be flexible about set element ordering — assert all three are listed
-    # near each other in the gating expression.
-    assert "\"openai-codex\"" in source
-    assert "\"xai-oauth\"" in source
-    assert "\"nous\"" in source
-
-    # And the gate string itself must mention all three so future refactors
-    # that split nous off into its own gate still get caught.
-    needle = "_provider in {\"openai-codex\", \"xai-oauth\", \"nous\"}"
-    assert needle in source, (
-        "Expected nous to be co-gated with the other OAuth providers in the "
-        "actionable-401-guidance branch of run_conversation."
-    )
+    assert 'agent.provider == "nous"' in source
+    assert "status_code == 401" in source
+    assert "_retry.nous_auth_retry_attempted" in source
+    assert "agent._try_refresh_nous_client_credentials(force=True)" in source
 
 
 def test_nous_401_guidance_strings_present():
     """User-facing remediation strings for Nous OAuth 401s must exist."""
-    source = inspect.getsource(conversation_loop.run_conversation)
+    source = inspect.getsource(conversation_loop._run_conversation_impl)
 
     # Must tell the user it's an OAuth token problem, NOT an API key problem
     # (Nous Portal has no API key path — auth_type=oauth_device_code only).
-    assert "Nous Portal OAuth token was rejected" in source
+    assert "Nous 401 — Portal authentication failed." in source
 
     # Must give a concrete re-auth command, not a generic "hermes setup".
-    assert "hermes portal" in source
+    assert "hermes auth add nous" in source
 
     # Must point at the portal so users can check account/credit status.
     assert "portal.nousresearch.com" in source

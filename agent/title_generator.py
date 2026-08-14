@@ -316,41 +316,55 @@ def _auto_title_session(
     # ``conversation=`` Portal tag as the turn it titles. Root-of-lineage for
     # consistency with the agent loop (a no-op on first exchange, where
     # titling happens, but correct if this ever runs on a continuation).
-    from agent.aux_accounting import set_accounting_context
-    from agent.portal_tags import set_conversation_context
+    from agent.aux_accounting import (
+        reset_accounting_context,
+        set_accounting_context,
+    )
+    from agent.portal_tags import (
+        reset_conversation_context,
+        set_conversation_context,
+    )
 
     conversation_id = session_id
     try:
         conversation_id = session_db.get_conversation_root(session_id) or session_id
     except Exception:
         pass
-    set_conversation_context(conversation_id)
+    conversation_token = set_conversation_context(conversation_id)
     # Same for the accounting context, so the title call's token usage is
     # recorded against this session (task='title_generation', #23270).
-    set_accounting_context(session_db, session_id)
-
-    title = generate_title(
-        user_message,
-        assistant_response,
-        failure_callback=failure_callback,
-        main_runtime=main_runtime,
-        runtime_validator=runtime_validator,
-    )
-    if not title:
-        return
+    try:
+        accounting_token = set_accounting_context(session_db, session_id)
+    except Exception:
+        reset_conversation_context(conversation_token)
+        raise
 
     try:
-        persisted = _persist_session_title(session_db, session_id, title)
-        if persisted is None:
+        title = generate_title(
+            user_message,
+            assistant_response,
+            failure_callback=failure_callback,
+            main_runtime=main_runtime,
+            runtime_validator=runtime_validator,
+        )
+        if not title:
             return
-        logger.debug("Auto-generated session title: %s", persisted)
-        if title_callback is not None:
-            try:
-                title_callback(persisted)
-            except Exception:
-                logger.debug("Auto-title callback failed", exc_info=True)
-    except Exception as e:
-        logger.debug("Failed to set auto-generated title: %s", e)
+
+        try:
+            persisted = _persist_session_title(session_db, session_id, title)
+            if persisted is None:
+                return
+            logger.debug("Auto-generated session title: %s", persisted)
+            if title_callback is not None:
+                try:
+                    title_callback(persisted)
+                except Exception:
+                    logger.debug("Auto-title callback failed", exc_info=True)
+        except Exception as e:
+            logger.debug("Failed to set auto-generated title: %s", e)
+    finally:
+        reset_accounting_context(accounting_token)
+        reset_conversation_context(conversation_token)
 
 
 def maybe_auto_title(

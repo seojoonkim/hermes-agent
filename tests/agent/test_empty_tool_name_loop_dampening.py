@@ -134,16 +134,12 @@ def agent_env():
     prev_home = os.environ.get("HERMES_HOME")
     os.environ["HERMES_HOME"] = os.path.join(test_home, ".hermes")
 
-    # Import fresh so the patched conversation_loop is exercised even when the
-    # module was imported earlier in the same worker. Stop any prior async log
-    # listener before dropping its module reference; otherwise the orphaned
-    # listener keeps handlers bound to a deleted test HERMES_HOME.
+    # Stop any prior async log listener before changing HERMES_HOME. Reuse the
+    # canonical module graph: deleting and re-importing ``agent.*`` modules
+    # leaves collection-time imports in sibling tests bound to stale globals.
     prior_logging = sys.modules.get("hermes_logging")
     if prior_logging is not None:
         prior_logging._reset_queued_handlers()
-    for mod in list(sys.modules):
-        if mod == "run_agent" or mod.startswith("agent.") or mod.startswith("tools.") or mod.startswith("hermes_"):
-            del sys.modules[mod]
     from run_agent import AIAgent
 
     agent = AIAgent(

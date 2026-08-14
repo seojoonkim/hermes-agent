@@ -29,11 +29,17 @@ def _make_project(root: Path) -> None:
 
 @pytest.fixture
 def clear_verify_env(monkeypatch):
-    """Clear every env signal verify_on_stop_enabled consults.
+    """Clear every env and ContextVar signal consulted by verify-on-stop.
 
     Tests then set only the variable they exercise, mirroring how the CLI/TUI
     set HERMES_SESSION_SOURCE and the gateway sets HERMES_SESSION_PLATFORM.
+    ``clear_session_vars()`` intentionally leaves explicit empty ContextVars,
+    so reset them here to prevent earlier session-context tests from masking
+    this fixture's environment variables.
     """
+    from gateway.session_context import reset_session_vars
+
+    reset_session_vars()
     for var in (
         "HERMES_VERIFY_ON_STOP",
         "HERMES_PLATFORM",
@@ -41,7 +47,8 @@ def clear_verify_env(monkeypatch):
         "HERMES_SESSION_SOURCE",
     ):
         monkeypatch.delenv(var, raising=False)
-    return monkeypatch
+    yield monkeypatch
+    reset_session_vars()
 
 
 

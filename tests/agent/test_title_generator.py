@@ -121,8 +121,64 @@ class TestGenerateTitle:
 class TestAutoTitleSession:
     """Tests for auto_title_session() — the sync worker function."""
 
+    def test_restores_ambient_context_after_sync_worker(self):
+        from agent.aux_accounting import (
+            get_accounting_context,
+            reset_accounting_context,
+            set_accounting_context,
+        )
+        from agent.portal_tags import (
+            get_conversation_context,
+            reset_conversation_context,
+            set_conversation_context,
+        )
 
+        outer_db = object()
+        outer_conversation = set_conversation_context("outer-conversation")
+        outer_accounting = set_accounting_context(outer_db, "outer-session")
+        db = MagicMock()
+        db.get_session_title.return_value = None
+        db.get_conversation_root.return_value = "title-root"
+        try:
+            with patch("agent.title_generator.generate_title", return_value=None):
+                auto_title_session(db, "title-session", "hello", "world")
+            assert get_conversation_context() == "outer-conversation"
+            assert get_accounting_context() == (outer_db, "outer-session")
+        finally:
+            reset_accounting_context(outer_accounting)
+            reset_conversation_context(outer_conversation)
 
+    def test_restores_conversation_context_when_accounting_setup_fails(self):
+        from agent.portal_tags import (
+            get_conversation_context,
+            reset_conversation_context,
+            set_conversation_context,
+        )
+
+        outer_conversation = set_conversation_context("outer-conversation")
+        db = MagicMock()
+        db.get_session_title.return_value = None
+        db.get_conversation_root.return_value = "title-root"
+        failures = []
+
+        def record_failure(task, error):
+            failures.append((task, str(error)))
+        try:
+            with patch(
+                "agent.aux_accounting.set_accounting_context",
+                side_effect=RuntimeError("accounting unavailable"),
+            ):
+                auto_title_session(
+                    db,
+                    "title-session",
+                    "hello",
+                    "world",
+                    failure_callback=record_failure,
+                )
+            assert get_conversation_context() == "outer-conversation"
+            assert failures == [("title generation", "accounting unavailable")]
+        finally:
+            reset_conversation_context(outer_conversation)
 
     def test_does_not_overwrite_title_set_immediately_before_conditional_write(
         self, tmp_path
