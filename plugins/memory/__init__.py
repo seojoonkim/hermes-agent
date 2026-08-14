@@ -1,13 +1,15 @@
 """Memory provider plugin discovery.
 
-Scans two directories for memory provider plugins:
+Scans two directories for memory provider plugins, then falls back to Python
+distribution entry points:
 
 1. Bundled providers: ``plugins/memory/<name>/`` (shipped with hermes-agent)
 2. User-installed providers: ``$HERMES_HOME/plugins/<name>/``
+3. Packaged providers: ``hermes_agent.memory_providers`` entry-point group
 
-Each subdirectory must contain ``__init__.py`` with a class implementing
-the MemoryProvider ABC.  On name collisions, bundled providers take
-precedence.
+Each returned provider must implement the MemoryProvider ABC. On name
+collisions, bundled and user-directory providers take precedence over package
+entry points.
 
 Only ONE provider can be active at a time, selected via
 ``memory.provider`` in config.yaml.
@@ -23,11 +25,13 @@ from __future__ import annotations
 
 import importlib
 import importlib.machinery
+import importlib.metadata
 import importlib.util
 import logging
+import re
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 from hermes_cli.config import cfg_get
 
 logger = logging.getLogger(__name__)
@@ -37,6 +41,16 @@ _MEMORY_PLUGINS_DIR = Path(__file__).parent
 # Synthetic parent package for user-installed providers, so they don't
 # collide with bundled providers in sys.modules.
 _USER_NAMESPACE = "_hermes_user_memory"
+
+# Standalone Python distributions can expose a provider without copying code
+# into HERMES_HOME. Directory plugins remain the primary mechanism.
+_MEMORY_PROVIDER_ENTRY_POINT_GROUP = "hermes_agent.memory_providers"
+_VALID_PROVIDER_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+
+
+def _is_valid_provider_name(name: object) -> bool:
+    """Return whether *name* is safe for paths, module names, and logs."""
+    return isinstance(name, str) and _VALID_PROVIDER_NAME.fullmatch(name) is not None
 
 
 def _register_synthetic_package(name: str, search_locations: List[str]) -> None:
@@ -90,52 +104,72 @@ def _is_memory_provider_dir(path: Path) -> bool:
 def _iter_provider_dirs() -> List[Tuple[str, Path]]:
     """Yield ``(name, path)`` for all discovered provider directories.
 
-    Scans bundled first, then user-installed.  Bundled takes precedence
-    on name collisions (first-seen wins via ``seen`` set).
+    Scans bundled first, then user-installed. Bundled takes precedence on name
+    collisions. User packages retain the existing provider-source heuristic.
     """
-    seen: set = set()
+    seen: set[str] = set()
     dirs: List[Tuple[str, Path]] = []
 
-    # 1. Bundled providers (plugins/memory/<name>/)
     if _MEMORY_PLUGINS_DIR.is_dir():
         for child in sorted(_MEMORY_PLUGINS_DIR.iterdir()):
-            if not child.is_dir() or child.name.startswith(("_", ".")):
+            if not child.is_dir() or not _is_valid_provider_name(child.name):
                 continue
             if not (child / "__init__.py").exists():
                 continue
-            seen.add(child.name)
+            folded_name = child.name.casefold()
+            if folded_name in seen:
+                continue
+            seen.add(folded_name)
             dirs.append((child.name, child))
 
-    # 2. User-installed providers ($HERMES_HOME/plugins/<name>/)
     user_dir = _get_user_plugins_dir()
     if user_dir:
         for child in sorted(user_dir.iterdir()):
-            if not child.is_dir() or child.name.startswith(("_", ".")):
+            if not child.is_dir() or not _is_valid_provider_name(child.name):
                 continue
-            if child.name in seen:
-                continue  # bundled takes precedence
+            folded_name = child.name.casefold()
+            if folded_name in seen:
+                continue
             if not _is_memory_provider_dir(child):
-                continue  # skip non-memory plugins
+                continue
+            seen.add(folded_name)
             dirs.append((child.name, child))
 
     return dirs
 
 
-def find_provider_dir(name: str) -> Optional[Path]:
-    """Resolve a provider name to its directory.
-
-    Checks bundled first, then user-installed.
-    """
-    # Bundled
-    bundled = _MEMORY_PLUGINS_DIR / name
-    if bundled.is_dir() and (bundled / "__init__.py").exists():
-        return bundled
-    # User-installed
+def _reserved_provider_names() -> dict[str, str]:
+    """Map case-folded names to canonical bundled/user package names."""
+    reserved: dict[str, str] = {}
+    roots = [_MEMORY_PLUGINS_DIR]
     user_dir = _get_user_plugins_dir()
     if user_dir:
-        user = user_dir / name
-        if user.is_dir() and _is_memory_provider_dir(user):
-            return user
+        roots.append(user_dir)
+    for root in roots:
+        try:
+            for child in root.iterdir():
+                if (
+                    _is_valid_provider_name(child.name)
+                    and child.is_dir()
+                    and (child / "__init__.py").exists()
+                ):
+                    reserved.setdefault(child.name.casefold(), child.name)
+        except Exception:
+            continue
+    return reserved
+
+
+def find_provider_dir(name: str) -> Optional[Path]:
+    """Resolve a valid provider name, checking bundled before user packages."""
+    if not _is_valid_provider_name(name):
+        return None
+
+    # Resolve only canonical names yielded by discovery. This both preserves
+    # provider identity on case-insensitive filesystems and prevents arbitrary
+    # non-memory user plugin packages from being executed as memory providers.
+    for discovered_name, provider_dir in _iter_provider_dirs():
+        if discovered_name == name:
+            return provider_dir
     return None
 
 
@@ -144,26 +178,60 @@ def find_provider_dir(name: str) -> Optional[Path]:
 # ---------------------------------------------------------------------------
 
 def list_memory_provider_names() -> List[str]:
-    """Cheap name-only listing of discoverable memory providers.
+    """Cheap name-only listing that never imports provider target code.
 
-    Unlike :func:`discover_memory_providers`, this does NOT import provider
-    modules or run availability checks — it's a directory scan only, safe to
-    call at module-import time (e.g. when building the dashboard config
-    schema).
+    Directory names come from the existing scans; packaged provider names
+    come exclusively from installed-distribution metadata.
     """
-    return sorted({name for name, _ in _iter_provider_dirs()})
+    directory_names = {name for name, _ in _iter_provider_dirs()}
+    entry_point_names = set(_unique_memory_provider_entry_points())
+    reserved = _reserved_provider_names()
+    unshadowed = {
+        name for name in entry_point_names if name.casefold() not in reserved
+    }
+    return sorted(directory_names | unshadowed)
+
+
+def _memory_provider_entry_points() -> List[object]:
+    """Read provider metadata across modern and Python 3.9 legacy APIs."""
+    try:
+        discovered = importlib.metadata.entry_points()
+        if hasattr(discovered, "select"):
+            return list(discovered.select(group=_MEMORY_PROVIDER_ENTRY_POINT_GROUP))
+        return list(discovered.get(_MEMORY_PROVIDER_ENTRY_POINT_GROUP, []))
+    except Exception:
+        logger.debug("Failed to inspect memory provider entry-point metadata")
+        return []
+
+
+def _unique_memory_provider_entry_points() -> dict:
+    """Return uniquely named entry points, excluding every duplicate name."""
+    by_folded_name = {}
+    duplicates = set()
+    for entry_point in _memory_provider_entry_points():
+        name = getattr(entry_point, "name", None)
+        if not _is_valid_provider_name(name):
+            logger.warning("Ignoring invalid memory provider entry-point name")
+            continue
+        assert isinstance(name, str)
+        folded_name = name.casefold()
+        if folded_name in by_folded_name:
+            duplicates.add(folded_name)
+        else:
+            by_folded_name[folded_name] = (name, entry_point)
+    for folded_name in duplicates:
+        canonical_name, _ = by_folded_name.pop(folded_name)
+        logger.warning(
+            "Ignoring duplicate memory provider entry point '%s'", canonical_name
+        )
+    return {name: entry_point for name, entry_point in by_folded_name.values()}
 
 
 def discover_memory_providers() -> List[Tuple[str, str, bool]]:
-    """Scan bundled and user-installed directories for available providers.
-
-    Returns list of (name, description, is_available) tuples.
-    Bundled providers take precedence on name collisions.
-    """
+    """Discover directory and unshadowed packaged memory providers."""
     results = []
 
     for name, child in _iter_provider_dirs():
-        # Read description from plugin.yaml if available
         desc = ""
         yaml_file = child / "plugin.yaml"
         if yaml_file.exists():
@@ -175,20 +243,38 @@ def discover_memory_providers() -> List[Tuple[str, str, bool]]:
             except Exception:
                 pass
 
-        # Quick availability check — try loading and calling is_available()
-        available = True
         try:
             provider = _load_provider_from_dir(child)
-            if provider:
-                available = provider.is_available()
-            else:
-                available = False
+            available = bool(provider and provider.is_available())
         except Exception:
             available = False
-
         results.append((name, desc, available))
 
-    return results
+    reserved = _reserved_provider_names()
+    for name, entry_point in _unique_memory_provider_entry_points().items():
+        if name.casefold() in reserved:
+            continue
+        provider = _load_provider_from_entry_point(name, entry_point)
+        try:
+            available = bool(provider and provider.is_available())
+        except Exception:
+            available = False
+        results.append((name, _entry_point_description(entry_point), available))
+
+    return sorted(results, key=lambda item: item[0])
+
+
+def _entry_point_description(entry_point: Any) -> str:
+    """Return a bounded, single-line distribution Summary when available."""
+    try:
+        summary = entry_point.dist.metadata.get("Summary", "")
+        if not isinstance(summary, str):
+            return ""
+        if not summary or not summary.isprintable():
+            return ""
+        return summary[:500]
+    except Exception:
+        return ""
 
 
 def load_memory_provider(name: str) -> Optional["MemoryProvider"]:
@@ -200,19 +286,68 @@ def load_memory_provider(name: str) -> Optional["MemoryProvider"]:
 
     Returns None if the provider is not found or fails to load.
     """
-    provider_dir = find_provider_dir(name)
-    if not provider_dir:
-        logger.debug("Memory provider '%s' not found in bundled or user plugins", name)
+    if not _is_valid_provider_name(name):
+        logger.warning("Ignoring invalid memory provider name")
         return None
 
-    try:
-        provider = _load_provider_from_dir(provider_dir)
-        if provider:
-            return provider
-        logger.warning("Memory provider '%s' loaded but no provider instance found", name)
+    provider_dir = find_provider_dir(name)
+    if provider_dir:
+        try:
+            provider = _load_provider_from_dir(provider_dir)
+            if provider:
+                return provider
+            logger.warning("Memory provider '%s' loaded but no provider instance found", name)
+            return None
+        except Exception:
+            logger.warning("Failed to load memory provider '%s'", name)
+            return None
+
+    # A package directory always reserves its name, even if a discovery
+    # heuristic did not classify it as a memory provider.
+    if name.casefold() in _reserved_provider_names():
+        logger.warning("Reserved memory provider package could not be loaded")
         return None
-    except Exception as e:
-        logger.warning("Failed to load memory provider '%s': %s", name, e)
+
+    entry_point = _unique_memory_provider_entry_points().get(name)
+    if entry_point is None:
+        logger.debug(
+            "Memory provider '%s' not found in bundled, user, or entry-point plugins",
+            name,
+        )
+        return None
+    return _load_provider_from_entry_point(name, entry_point)
+
+
+def _load_provider_from_entry_point(name: str, entry_point: Any) -> Optional["MemoryProvider"]:
+    """Load a packaged provider and enforce its type and identity contract."""
+    from agent.memory_provider import MemoryProvider
+
+    try:
+        loaded = entry_point.load()
+        if isinstance(loaded, MemoryProvider):
+            provider = loaded
+        elif isinstance(loaded, type) and issubclass(loaded, MemoryProvider):
+            provider = loaded()
+        elif callable(loaded):
+            collector = _ProviderCollector()
+            loaded(collector)
+            provider = collector.provider
+        else:
+            provider = None
+
+        if not isinstance(provider, MemoryProvider):
+            logger.warning(
+                "Memory provider entry point '%s' did not produce a MemoryProvider", name
+            )
+            return None
+        if provider.name != name:
+            logger.warning("Memory provider entry point '%s' returned a mismatched name", name)
+            return None
+        return provider
+    except Exception:
+        # Do not interpolate exception text: importer failures can contain
+        # credentials, private paths, or other distribution-controlled data.
+        logger.warning("Failed to load memory provider entry point '%s'", name)
         return None
 
 

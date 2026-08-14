@@ -824,8 +824,8 @@ async def _dashboard_selftest_loop() -> None:
 def _memory_provider_options() -> List[str]:
     """Discovered memory providers for the ``memory.provider`` select.
 
-    Directory-scan only (no provider imports), so it's safe at module import
-    time. ``""`` (built-in only) is always first; discovery failures degrade to
+    Metadata-only (no provider imports), so it's safe at module import time.
+    ``""`` (built-in only) is always first; discovery failures degrade to
     the bundled defaults rather than dropping the field. The literal
     ``builtin`` alias is deliberately NOT offered — built-in memory is not a
     provider plugin, and ``_normalize_memory_provider_name`` already maps any
@@ -5993,11 +5993,10 @@ def _require_valid_memory_provider_name(name: str) -> None:
     """Reject provider names that could traverse outside the plugin dirs.
 
     ``name`` is interpolated into filesystem paths by ``find_provider_dir()``
-    and gates which plugin manifest's setup commands run. A strict charset
-    allowlist (no path separators, no dots) makes traversal impossible
-    regardless of how the downstream lookup evolves.
+    and gates which plugin manifest's setup commands run. Keep this grammar in
+    sync with ``plugins.memory._VALID_PROVIDER_NAME``.
     """
-    if not _MEMORY_PROVIDER_NAME_RE.fullmatch(name or ""):
+    if not isinstance(name, str) or not _MEMORY_PROVIDER_NAME_RE.fullmatch(name):
         raise HTTPException(status_code=404, detail=f"Unknown memory provider: {name}")
 
 
@@ -6888,6 +6887,11 @@ async def update_config(body: ConfigUpdate, profile: Optional[str] = None):
             # frontend can only overwrite what it explicitly sends.
             existing = read_raw_config()
             incoming = _denormalize_config_from_web(body.config)
+            memory_config = incoming.get("memory")
+            if isinstance(memory_config, dict):
+                provider_name = memory_config.get("provider")
+                if provider_name not in (None, "", "builtin", "built-in", "none"):
+                    _require_valid_memory_provider_name(provider_name)
             save_config(_deep_merge(existing, incoming))
         return {"ok": True}
     except HTTPException:
