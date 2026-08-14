@@ -21,7 +21,9 @@ def _runner():
     return runner
 
 
-def _source(account_id: str, *, platform=Platform.TELEGRAM, transport=None):
+def _source(
+    account_id: str | None, *, platform=Platform.TELEGRAM, transport=None
+) -> Any:
     return SimpleNamespace(
         platform=platform,
         profile=None,
@@ -40,6 +42,18 @@ def test_exact_account_miss_does_not_fall_back_to_platform_adapter():
         assert runner._adapter_for_source(_source("999999")) is None
     finally:
         platform_registry.unregister_live_adapter("default", identity)
+
+
+def test_missing_telegram_account_does_not_fall_back_to_platform_adapter():
+    runner = _runner()
+
+    assert runner._adapter_for_source(_source(None)) is None
+
+
+def test_invalid_telegram_account_does_not_fall_back_to_platform_adapter():
+    runner = _runner()
+
+    assert runner._adapter_for_source(_source("１２３")) is None
 
 
 def test_exact_account_resolves_registered_adapter():

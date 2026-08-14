@@ -147,7 +147,14 @@ class GatewayAuthorizationMixin:
         platform = getattr(source, "platform", None)
         account_id = getattr(source, "account_id", None)
         platform_name = getattr(platform, "value", platform)
-        if platform_name == Platform.TELEGRAM.value and account_id is not None:
+        if platform_name == Platform.TELEGRAM.value:
+            normalized_account_id = str(account_id or "").strip()
+            if (
+                not normalized_account_id
+                or not normalized_account_id.isascii()
+                or not normalized_account_id.isdigit()
+            ):
+                return None
             from gateway.platform_registry import platform_registry
 
             profile = str(getattr(source, "profile", None) or "").strip()
@@ -159,7 +166,7 @@ class GatewayAuthorizationMixin:
                     else "default"
                 )
             return platform_registry.resolve_adapter(
-                profile, Platform.TELEGRAM.value, str(account_id)
+                profile, Platform.TELEGRAM.value, normalized_account_id
             )
         transport_adapter = self._registered_transport_adapter(source)
         if transport_adapter is not None:
