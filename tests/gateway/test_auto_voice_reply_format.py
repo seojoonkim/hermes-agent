@@ -1,6 +1,7 @@
 """Tests for gateway auto-TTS voice reply audio format selection."""
 
 import json
+import weakref
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -8,6 +9,7 @@ import pytest
 
 from gateway.config import Platform
 from gateway.platforms.base import MessageEvent, MessageType
+from gateway.platform_registry import PlatformIdentity
 from gateway.run import GatewayRunner
 from gateway.session import SessionSource
 
@@ -66,7 +68,10 @@ class TestAutoVoiceReplyFormat:
         adapter._should_auto_tts_for_chat = MagicMock(return_value=True)
         runner.adapters[Platform.TELEGRAM] = adapter
         voice_event = _make_event(
-            Platform.TELEGRAM, chat_id="123", message_type=MessageType.VOICE
+            Platform.TELEGRAM,
+            chat_id="123",
+            message_type=MessageType.VOICE,
+            adapter=adapter,
         )
 
         assert runner._should_send_voice_reply(
@@ -82,15 +87,20 @@ class TestAutoVoiceReplyFormat:
         voice input still does.
         """
         runner = _make_runner()
-        runner._voice_mode["telegram:123"] = "voice_only"
         adapter = _make_adapter(Platform.TELEGRAM)
         adapter._should_auto_tts_for_chat = MagicMock(return_value=True)
         runner.adapters[Platform.TELEGRAM] = adapter
-        event = _make_event(Platform.TELEGRAM, chat_id="123")
+        event = _make_event(Platform.TELEGRAM, chat_id="123", adapter=adapter)
+        runner._voice_mode[runner._voice_key_for_source(event.source)] = "voice_only"
 
         assert runner._should_send_voice_reply(event, "hello", []) is False
 
-        voice_event = _make_event(Platform.TELEGRAM, chat_id="123", message_type=MessageType.VOICE)
+        voice_event = _make_event(
+            Platform.TELEGRAM,
+            chat_id="123",
+            message_type=MessageType.VOICE,
+            adapter=adapter,
+        )
         assert runner._should_send_voice_reply(voice_event, "hello", [], already_sent=True) is True
 
 def _make_runner() -> GatewayRunner:
@@ -104,19 +114,33 @@ def _make_runner() -> GatewayRunner:
 def _make_adapter(platform: Platform) -> MagicMock:
     adapter = MagicMock()
     adapter.platform = platform
+    if platform == Platform.TELEGRAM:
+        adapter._platform_registry_binding = (
+            "telegram",
+            PlatformIdentity(platform="telegram", account_id="123456789"),
+        )
     adapter.send_voice = AsyncMock()
     return adapter
 
 
-def _make_event(platform: Platform, chat_id: str = "123", message_type: MessageType = MessageType.TEXT) -> MessageEvent:
-    return MessageEvent(
+def _make_event(
+    platform: Platform,
+    chat_id: str = "123",
+    message_type: MessageType = MessageType.TEXT,
+    adapter: MagicMock | None = None,
+) -> MessageEvent:
+    event = MessageEvent(
         text="trigger",
         source=SessionSource(
             platform=platform,
             chat_id=chat_id,
             user_id="u1",
             user_name="User",
+            account_id="123456789" if platform == Platform.TELEGRAM else None,
         ),
         message_type=message_type,
         message_id="456",
     )
+    if adapter is not None:
+        setattr(event.source, "_transport_adapter_ref", weakref.ref(adapter))
+    return event

@@ -37,6 +37,21 @@ from agent.transports.codex_app_server import (
     CodexAppServerClient,
     CodexAppServerError,
 )
+
+
+def _is_codex_app_server_error(exc: BaseException) -> bool:
+    """Return True for Codex app-server RPC errors across module reloads.
+
+    The full test suite can reload/import the low-level client module through
+    different paths while a fake client still raises the older class object.
+    Treat only the exact error shape as equivalent so unrelated RuntimeErrors
+    still propagate normally.
+    """
+    return (
+        exc.__class__.__name__ == "CodexAppServerError"
+        and isinstance(getattr(exc, "code", None), int)
+        and isinstance(getattr(exc, "message", None), str)
+    )
 from agent.transports.codex_event_projector import CodexEventProjector
 
 logger = logging.getLogger(__name__)
@@ -553,6 +568,21 @@ class CodexAppServerSession:
                 "turn/start timed out", exc
             )
             result.should_retire = True
+            self._interrupt_event.clear()
+            return result
+        except Exception as exc:
+            if not _is_codex_app_server_error(exc):
+                raise
+            stderr_blob = "\n".join(self._client.stderr_tail(40))
+            message = str(getattr(exc, "message"))
+            hint = _classify_oauth_failure(message, stderr_blob)
+            if hint is not None:
+                result.error = hint
+                result.should_retire = True
+            else:
+                result.error = self._format_error_with_stderr(
+                    "turn/start failed", exc
+                )
             self._interrupt_event.clear()
             return result
 
