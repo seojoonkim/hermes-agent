@@ -182,6 +182,9 @@ class SessionSource:
     # None => the gateway's active/default profile. Drives both session-key
     # namespacing and the per-turn config/credential scope.
     profile: Optional[str] = None
+    # Connector credential/account identity. This is deliberately independent
+    # from ``profile``: one profile may run multiple accounts for a platform.
+    account_id: Optional[str] = None
 
     # Discord auto-thread metadata.  Newly auto-created Discord threads start
     # with a fast placeholder title from the raw message, then the gateway can
@@ -276,6 +279,8 @@ class SessionSource:
             d["message_id"] = self.message_id
         if self.profile:
             d["profile"] = self.profile
+        if self.account_id is not None:
+            d["account_id"] = self.account_id
         if self.auto_thread_created:
             d["auto_thread_created"] = True
         if self.auto_thread_initial_name:
@@ -303,6 +308,7 @@ class SessionSource:
             parent_chat_id=data.get("parent_chat_id"),
             message_id=data.get("message_id"),
             profile=data.get("profile"),
+            account_id=data.get("account_id"),
             auto_thread_created=bool(data.get("auto_thread_created", False)),
             auto_thread_initial_name=data.get("auto_thread_initial_name"),
             prospective_thread_id=data.get("prospective_thread_id"),
@@ -1094,6 +1100,12 @@ def build_session_key(
       - Without identifiers, messages fall back to one session per platform/chat_type.
     """
     ns = _session_key_namespace(profile)
+    # Preserve the complete historical layout when no account is supplied.
+    # Account-aware keys use a tagged, UTF-8 hex-encoded component so arbitrary
+    # account IDs cannot collide with key structure, profiles, or path guards.
+    if source.account_id is not None:
+        encoded_account_id = str(source.account_id).encode("utf-8").hex()
+        ns = f"{ns}:account:{encoded_account_id}"
     platform = source.platform.value
     slack_scope_id = (
         str(source.scope_id)
