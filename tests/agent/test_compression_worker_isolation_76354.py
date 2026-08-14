@@ -157,6 +157,7 @@ def test_f4_five_step_stale_holder_regression(tmp_path: Path) -> None:
 
     summary_started = threading.Event()
     release_summary = threading.Event()
+    worker_finished = threading.Event()
 
     def _blocked_summary(*_args, **_kwargs):
         summary_started.set()
@@ -176,9 +177,12 @@ def test_f4_five_step_stale_holder_regression(tmp_path: Path) -> None:
     messages = [{"role": "user", "content": f"m{i}"} for i in range(20)]
 
     def _worker(fence):
-        return agent._compress_context(
-            messages, "sys", approx_tokens=120_000, commit_fence=fence
-        )
+        try:
+            return agent._compress_context(
+                messages, "sys", approx_tokens=120_000, commit_fence=fence
+            )
+        finally:
+            worker_finished.set()
 
     # Step 2: host-owned progress wait times out while summary is blocked.
     result_msgs, _prompt = run_compress_context_with_progress_timeout(
@@ -214,15 +218,10 @@ def test_f4_five_step_stale_holder_regression(tmp_path: Path) -> None:
 
     # Step 4: release the old worker.
     release_summary.set()
-    # Wait for the late worker to fully unwind (it must NOT touch the lock).
-    deadline = time.time() + 5
-    while time.time() < deadline:
-        if db.get_compression_lock_holder(session_id) != new_holder:
-            break  # would be a failure — checked below
-        if cooldown_cleared:
-            break
-        time.sleep(0.02)
-    time.sleep(0.3)  # settle: give the stale worker every chance to misbehave
+    # The timeout contract deliberately detaches the stale worker. Wait on a
+    # test-owned completion signal before assertions and tmp_path teardown so
+    # it cannot race pytest while still unwinding through SessionDB.
+    assert worker_finished.wait(timeout=5), "stale worker did not unwind"
 
     # Step 5a: it cannot clear the cooldown.
     assert not cooldown_cleared, (
