@@ -135,7 +135,12 @@ def agent_env():
     os.environ["HERMES_HOME"] = os.path.join(test_home, ".hermes")
 
     # Import fresh so the patched conversation_loop is exercised even when the
-    # module was imported earlier in the same worker.
+    # module was imported earlier in the same worker. Stop any prior async log
+    # listener before dropping its module reference; otherwise the orphaned
+    # listener keeps handlers bound to a deleted test HERMES_HOME.
+    prior_logging = sys.modules.get("hermes_logging")
+    if prior_logging is not None:
+        prior_logging._reset_queued_handlers()
     for mod in list(sys.modules):
         if mod == "run_agent" or mod.startswith("agent.") or mod.startswith("tools.") or mod.startswith("hermes_"):
             del sys.modules[mod]
@@ -154,6 +159,11 @@ def agent_env():
         yield agent, _MockHandler
     finally:
         srv.shutdown()
+        # This fixture imported and initialized this logging module, so it owns
+        # its async listener. Drain and close it before deleting the log root.
+        current_logging = sys.modules.get("hermes_logging")
+        if current_logging is not None:
+            current_logging._reset_queued_handlers()
         shutil.rmtree(test_home, ignore_errors=True)
         if prev_home is None:
             os.environ.pop("HERMES_HOME", None)
