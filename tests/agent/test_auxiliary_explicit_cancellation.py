@@ -262,7 +262,7 @@ def test_cancelled_codex_orphan_timeout_preserves_cached_shared_client() -> None
             with aux.aux_interrupt_protection(cancel_event=cancel_event):
                 aux._relay_sync_completion(
                     wrapper,
-                    {"model": "owner", "messages": [], "timeout": 0.12},
+                    {"model": "owner", "messages": [], "timeout": 0.5},
                 )
         except BaseException as exc:
             owner_outcome["exc"] = exc
@@ -293,7 +293,7 @@ def test_cancelled_codex_orphan_timeout_preserves_cached_shared_client() -> None
 
         # Let the orphan's real adapter timer fire. It may close the attempt's
         # event stream to wake that worker, but never the process-shared client.
-        assert owner_stream.closed.wait(timeout=1)
+        assert owner_stream.closed.wait(timeout=1.5)
         time.sleep(0.03)
         assert not real_client.closed.is_set()
         with aux._client_cache_lock:
@@ -308,6 +308,60 @@ def test_cancelled_codex_orphan_timeout_preserves_cached_shared_client() -> None
         owner_stream.close()
         with aux._client_cache_lock:
             aux._client_cache.clear()
+
+
+def test_cancelled_codex_timeout_closes_stream_returned_after_timer_decision() -> None:
+    """A stream published after cancelled timeout cleanup is closed attempt-locally."""
+    cancel_event = threading.Event()
+    cleanup_decided = threading.Event()
+
+    class _SignallingDecision:
+        def __init__(self) -> None:
+            self._decision = aux._AuxiliaryCancellationDecision(cancel_event.is_set)
+
+        def __call__(self) -> bool:
+            return self._decision()
+
+        def begin_timeout_cleanup(self) -> bool:
+            result = self._decision.begin_timeout_cleanup()
+            cleanup_decided.set()
+            return result
+
+    decision = _SignallingDecision()
+
+    class _LateStream:
+        def __init__(self) -> None:
+            self.closed = threading.Event()
+
+        def __iter__(self):
+            if not self.closed.is_set():
+                self.closed.wait(timeout=1)
+            raise RuntimeError("late stream closed")
+
+        def close(self) -> None:
+            self.closed.set()
+
+    stream = _LateStream()
+
+    class _DelayedResponses:
+        def create(self, **kwargs: Any) -> Any:
+            cancel_event.set()
+            assert cleanup_decided.wait(timeout=1)
+            return stream
+
+    shared_closed = threading.Event()
+    real_client = SimpleNamespace(
+        responses=_DelayedResponses(),
+        close=shared_closed.set,
+    )
+    adapter = aux._CodexCompletionsAdapter(real_client, "gpt-test")
+
+    with aux.aux_interrupt_protection(cancel_check=decision):
+        with pytest.raises(aux.AuxiliaryExplicitCancellation):
+            adapter.create(model="owner", messages=[], timeout=0.05)
+
+    assert stream.closed.is_set()
+    assert not shared_closed.is_set()
 
 
 @pytest.mark.parametrize("winner", ["timeout", "cancel"])

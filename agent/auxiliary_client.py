@@ -1401,7 +1401,21 @@ class _CodexCompletionsAdapter:
                 timeout_decision = "timed_out" if timeout_won else "cancelled"
                 if not timeout_won:
                     # Explicit cancellation owns this attempt. Never close or
-                    # evict the process-shared client on its behalf.
+                    # evict the process-shared client on its behalf, but wake
+                    # the orphaned worker by closing only its attempt-owned
+                    # response stream.
+                    with attempt_stream_lock:
+                        stream = attempt_stream[0] if attempt_stream else None
+                    close_stream = getattr(stream, "close", None)
+                    if callable(close_stream):
+                        try:
+                            close_stream()
+                        except Exception:
+                            logger.debug(
+                                "Codex auxiliary: cancelled attempt stream close "
+                                "during timeout failed",
+                                exc_info=True,
+                            )
                     return
                 timed_out.set()
 
@@ -1482,14 +1496,13 @@ class _CodexCompletionsAdapter:
             event_stream = self._client.responses.create(**stream_kwargs)
             with attempt_stream_lock:
                 attempt_stream.append(event_stream)
-            # The timer can fire while responses.create() is blocked. If the
-            # cancelled attempt had no stream to close at that instant, close it
-            # now that it is safely attempt-owned; never touch the shared client.
-            if (
-                timed_out.is_set()
-                and callable(protected_cancel_check)
-                and _captured_aux_cancel_requested(protected_cancel_check)
-            ):
+            # The timer can decide cancellation while responses.create() is
+            # blocked, before this attempt-owned stream is publishable. Read
+            # the frozen decision after publication and close the late stream;
+            # never touch the process-shared client.
+            with timeout_cleanup_lock:
+                cancelled_cleanup = timeout_decision == "cancelled"
+            if cancelled_cleanup:
                 close_fn = getattr(event_stream, "close", None)
                 if callable(close_fn):
                     try:
@@ -1499,6 +1512,7 @@ class _CodexCompletionsAdapter:
                             "Codex auxiliary: late cancelled attempt stream close failed",
                             exc_info=True,
                         )
+                raise AuxiliaryExplicitCancellation()
             try:
                 # Some Codex-compatible hosts accept ``stream=True`` but return
                 # a completed Responses object instead of an SSE iterator. Do

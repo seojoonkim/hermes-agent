@@ -3,6 +3,7 @@
 import base64
 import json
 import logging
+import threading
 import time
 from types import SimpleNamespace
 from unittest.mock import patch, MagicMock, AsyncMock
@@ -3163,6 +3164,7 @@ class TestCodexAuxiliaryAdapterTimeout:
 
     def test_enforces_total_timeout_while_stream_keeps_emitting_events(self, monkeypatch):
         cleanup_counts = {"close": 0, "evict": 0}
+        close_finished = threading.Event()
 
         class _SlowAliveCreateStream:
             def __iter__(self):
@@ -3179,6 +3181,7 @@ class TestCodexAuxiliaryAdapterTimeout:
         def blocking_close():
             cleanup_counts["close"] += 1
             time.sleep(0.15)
+            close_finished.set()
 
         def record_evict(client):
             cleanup_counts["evict"] += 1
@@ -3195,15 +3198,16 @@ class TestCodexAuxiliaryAdapterTimeout:
         # a deliberately tiny synthetic timeout.
         from agent.codex_runtime import _consume_codex_event_stream  # noqa: F401
 
-        started = time.monotonic()
         with pytest.raises(TimeoutError):
             adapter.create(
                 messages=[{"role": "user", "content": "summarize this"}],
                 timeout=0.05,
             )
 
-        elapsed = time.monotonic() - started
-        assert elapsed < 0.14
+        # Cleanup is asynchronous: the request owner returned before the
+        # deliberately blocking shared-client close finished. This structural
+        # contract is scheduler-independent, unlike a wall-clock threshold.
+        assert not close_finished.is_set()
 
         # Cleanup is asynchronous so the request owner is not held hostage by
         # a shared OpenAI/httpx client's potentially blocking close().
