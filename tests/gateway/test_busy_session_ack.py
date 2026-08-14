@@ -4,6 +4,7 @@ Verifies that users get an immediate status response instead of total silence
 when the agent is working on a task. See PR fix for the @Lonely__MH report.
 """
 import time
+import weakref
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -31,6 +32,24 @@ from gateway.platforms.base import (
     SessionSource,
     build_session_key,
 )
+from gateway.platform_registry import PlatformIdentity
+
+
+TELEGRAM_TEST_ACCOUNT_ID = "123456789"
+
+
+def _bind_telegram_adapter(adapter):
+    adapter._platform_registry_binding = (
+        "default",
+        PlatformIdentity(platform="telegram", account_id=TELEGRAM_TEST_ACCOUNT_ID),
+    )
+    return adapter
+
+
+def _bind_source_to_adapter(source: SessionSource, adapter):
+    source.account_id = TELEGRAM_TEST_ACCOUNT_ID
+    setattr(source, "_transport_adapter_ref", weakref.ref(adapter))
+    return source
 
 
 # ---------------------------------------------------------------------------
@@ -40,10 +59,11 @@ from gateway.platforms.base import (
 def _make_event(text="hello", chat_id="123", platform_val="telegram"):
     """Build a minimal MessageEvent."""
     source = SessionSource(
-        platform=MagicMock(value=platform_val),
+        platform=Platform.TELEGRAM if platform_val == "telegram" else MagicMock(value=platform_val),
         chat_id=chat_id,
         chat_type="private",
         user_id="user1",
+        account_id=TELEGRAM_TEST_ACCOUNT_ID if platform_val == "telegram" else None,
     )
     evt = MessageEvent(
         text=text,
@@ -88,7 +108,7 @@ def _make_adapter(platform_val="telegram"):
     adapter.platform = MagicMock(value=platform_val)
     adapter._text_debounce = {}
     adapter._busy_text_debounce_seconds = 0.6
-    return adapter
+    return _bind_telegram_adapter(adapter) if platform_val == "telegram" else adapter
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +136,9 @@ class TestBusySessionAck:
             chat_id="123",
             chat_type="dm",
             user_id="user1",
+            account_id=TELEGRAM_TEST_ACCOUNT_ID,
         )
+        _bind_source_to_adapter(source, adapter)
         sk = build_session_key(source)
         runner.adapters[source.platform] = adapter
 
@@ -171,6 +193,7 @@ class TestBusySessionAck:
         runner._running_agents[sk] = agent
         runner._running_agents_ts[sk] = time.time() - 600  # 10 min ago
         runner.adapters[event.source.platform] = adapter
+        _bind_source_to_adapter(event.source, adapter)
 
         result = await runner._handle_active_session_busy_message(event, sk)
 
@@ -203,6 +226,7 @@ class TestBusySessionAck:
         event = _make_event(text="also check the tests")
         sk = build_session_key(event.source)
         runner.adapters[event.source.platform] = adapter
+        _bind_source_to_adapter(event.source, adapter)
 
         agent = MagicMock()
         agent.steer = MagicMock(return_value=True)
@@ -246,6 +270,7 @@ class TestBusySessionAck:
         event.media_types = ["audio/ogg"]
         sk = build_session_key(event.source)
         runner.adapters[event.source.platform] = adapter
+        _bind_source_to_adapter(event.source, adapter)
 
         agent = MagicMock()
         agent.steer = MagicMock(return_value=True)
@@ -274,6 +299,7 @@ class TestBusySessionAck:
         event = _make_event(text="empty or rejected")
         sk = build_session_key(event.source)
         runner.adapters[event.source.platform] = adapter
+        _bind_source_to_adapter(event.source, adapter)
 
         agent = MagicMock()
         agent.steer = MagicMock(return_value=False)  # rejected
@@ -304,6 +330,7 @@ class TestBusySessionAck:
         event = _make_event(text="arrived too early")
         sk = build_session_key(event.source)
         runner.adapters[event.source.platform] = adapter
+        _bind_source_to_adapter(event.source, adapter)
 
         # Agent is still being set up — sentinel in place
         runner._running_agents[sk] = sentinel
@@ -338,7 +365,9 @@ class TestBusySessionAck:
             src = SessionSource(
                 platform=shared_platform, chat_id="123",
                 chat_type="dm", user_id="user1",
+                account_id=TELEGRAM_TEST_ACCOUNT_ID,
             )
+            _bind_source_to_adapter(src, adapter)
             return MessageEvent(text=text, message_type=MessageType.TEXT,
                                 source=src, message_id=f"m-{text[:5]}")
 
@@ -393,6 +422,7 @@ class TestBusySessionAck:
         runner._running_agents[sk] = agent
         runner._running_agents_ts[sk] = time.time() - 600  # 10 min
         runner.adapters[event.source.platform] = adapter
+        _bind_source_to_adapter(event.source, adapter)
 
         await runner._handle_active_session_busy_message(event, sk)
 
@@ -432,6 +462,7 @@ class TestBusySessionOnboardingHint:
         runner._running_agents[sk] = agent
         runner._running_agents_ts[sk] = time.time() - 5
         runner.adapters[event.source.platform] = adapter
+        _bind_source_to_adapter(event.source, adapter)
 
         await runner._handle_active_session_busy_message(event, sk)
 
