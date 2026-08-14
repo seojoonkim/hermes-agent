@@ -17,6 +17,14 @@ def _adapter() -> TelegramAdapter:
     return adapter
 
 
+def test_adapter_construction_does_not_write_read_only_account_identity():
+    adapter = TelegramAdapter(
+        PlatformConfig(enabled=True, token="fake-token", extra={})
+    )
+
+    assert adapter.account_id is None
+
+
 def _message(text="hello"):
     return SimpleNamespace(
         chat=SimpleNamespace(id=100, type="private", title=None, full_name="User", is_forum=False),

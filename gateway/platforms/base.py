@@ -2747,11 +2747,22 @@ class BasePlatformAdapter(ABC):
     # routing is platform-generic instead of Discord-only.
     gateway_runner = None  # type: ignore[assignment]  # set by gateway/run.py
 
+    @property
+    def account_id(self) -> Optional[str]:
+        """Return the authoritative connected account identity, when known."""
+        return self._account_id
+
+    @account_id.setter
+    def account_id(self, value: Optional[str]) -> None:
+        self._account_id = value
+
     def __init__(self, config: PlatformConfig, platform: Platform):
         self.config = config
         self.platform = platform
         # Authoritative connected account identity when the platform exposes one.
-        self.account_id: Optional[str] = None
+        # Initialize the backing field directly because adapters such as
+        # Telegram override ``account_id`` with a read-only getMe identity.
+        self._account_id: Optional[str] = None
         self._message_handler: Optional[MessageHandler] = None
         # Optional gateway-supplied fan-out for platform-native emoji
         # reaction events (see ``set_reaction_handler``).
