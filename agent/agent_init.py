@@ -1553,6 +1553,9 @@ def init_agent(
     
     # SQLite session store (optional -- provided by CLI or gateway)
     agent._session_db = session_db
+    # The caller owns an injected/shared store. Only the lazy recall fallback
+    # created by this agent may be closed by AIAgent.close().
+    agent._owns_session_db = False
     agent._parent_session_id = parent_session_id
     # A close flush and the worker's turn-start flush can overlap. The durable
     # marker is attached to each in-memory message dict, so its test-and-append

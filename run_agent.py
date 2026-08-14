@@ -611,6 +611,7 @@ class AIAgent:
             from hermes_state import SessionDB
 
             self._session_db = SessionDB()
+            self._owns_session_db = True
             return self._session_db
         except Exception:
             logger.debug("SessionDB unavailable for recall", exc_info=True)
@@ -4317,6 +4318,18 @@ class AIAgent:
                     session_db.end_session(session_id, "agent_close")
         except Exception:
             pass
+
+        # 9. Release only a SessionDB lazily created by this agent. Injected
+        # gateway/CLI stores are shared and remain owned by their caller.
+        if getattr(self, "_owns_session_db", False):
+            session_db = getattr(self, "_session_db", None)
+            self._owns_session_db = False
+            self._session_db = None
+            if session_db is not None:
+                try:
+                    session_db.close()
+                except Exception:
+                    pass
 
     def _hydrate_todo_store(self, history: List[Dict[str, Any]]) -> None:
         """
