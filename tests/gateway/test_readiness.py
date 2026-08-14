@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import sqlite3
 from pathlib import Path
 
@@ -9,6 +10,13 @@ from gateway.readiness import collect_runtime_readiness
 
 
 def test_collect_runtime_readiness_reports_healthy_local_runtime(tmp_path, monkeypatch):
+    # Host disk pressure is an input to readiness, not part of this healthy
+    # config/database/gateway scenario. Pin it below the degraded threshold so
+    # the test is independent of CI worker utilization and suite order.
+    monkeypatch.setattr(
+        "gateway.readiness.shutil.disk_usage",
+        lambda _path: shutil._ntuple_diskusage(100, 50, 50),
+    )
     home = tmp_path / ".hermes"
     home.mkdir()
     (home / "config.yaml").write_text(

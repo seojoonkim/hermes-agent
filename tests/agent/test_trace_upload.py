@@ -69,10 +69,20 @@ def test_converter_refuses_unredacted_passthrough_when_redactor_fails(monkeypatc
         raise RuntimeError("redactor unavailable")
 
     monkeypatch.setattr("agent.redact.redact_sensitive_text", boom)
-    msgs = [{"role": "user", "content": "OPENAI_API_KEY=sk-abc123def456ghi789jklmno"}]
+    msgs = [{
+        "role": "user",
+        "content": "OPENAI_API_KEY=" + "sk-abc123" + "def456ghi789jklmno",
+    }]
 
-    with pytest.raises(trace_upload.TraceRedactionError):
+    # The warning normally propagates to Hermes' asynchronous root log
+    # handler. Letting that listener format the record while the process-global
+    # redactor is deliberately broken races monkeypatch teardown and can kill
+    # the listener thread. Mock only this diagnostic; the redaction failure
+    # path itself remains fully exercised.
+    with patch.object(trace_upload.logger, "warning") as warning_mock, \
+         pytest.raises(trace_upload.TraceRedactionError):
         build_trace_jsonl(msgs, session_id="s1", redact=True)
+    warning_mock.assert_called_once()
 
 
 def test_upload_blocks_when_redactor_fails(monkeypatch):
@@ -83,11 +93,13 @@ def test_upload_blocks_when_redactor_fails(monkeypatch):
 
     monkeypatch.setattr("agent.redact.redact_sensitive_text", boom)
     with patch.object(trace_upload, "load_session_messages", return_value=(_sample_messages(), {})), \
-         patch.object(trace_upload, "_do_upload") as upload_mock:
+         patch.object(trace_upload, "_do_upload") as upload_mock, \
+         patch.object(trace_upload.logger, "warning") as warning_mock:
         msg = upload_session_trace("s1")
 
     assert "Trace upload blocked" in msg
     upload_mock.assert_not_called()
+    warning_mock.assert_called_once()
 
 
 def test_converter_keeps_secrets_when_redact_disabled():
