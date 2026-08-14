@@ -10,6 +10,7 @@ never saw verdicts. This test locks in the fix.
 from __future__ import annotations
 
 import asyncio
+import weakref
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -17,7 +18,11 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from gateway.config import GatewayConfig, Platform, PlatformConfig
+from gateway.platform_registry import PlatformIdentity
 from gateway.session import SessionEntry, SessionSource, build_session_key
+
+
+TELEGRAM_TEST_ACCOUNT_ID = "123456789"
 
 
 @pytest.fixture()
@@ -41,6 +46,7 @@ def _make_source() -> SessionSource:
         chat_id="c1",
         user_name="tester",
         chat_type="dm",
+        account_id=TELEGRAM_TEST_ACCOUNT_ID,
     )
 
 
@@ -92,6 +98,12 @@ def _make_runner_with_adapter(session_id: str = None):
     runner.session_store._generate_session_key.return_value = build_session_key(src)
 
     adapter = _RecordingAdapter()
+    setattr(
+        adapter,
+        "_platform_registry_binding",
+        ("default", PlatformIdentity(platform="telegram", account_id=TELEGRAM_TEST_ACCOUNT_ID)),
+    )
+    setattr(src, "_transport_adapter_ref", weakref.ref(adapter))
     runner.adapters[Platform.TELEGRAM] = adapter
     return runner, adapter, session_entry, src
 
