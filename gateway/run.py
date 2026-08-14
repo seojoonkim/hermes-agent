@@ -9481,6 +9481,9 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         msg = f"⚠️ Gateway {action} — {hint}"
 
         notified: set[tuple[str, str, Optional[str]]] = set()
+        notified_active: set[
+            tuple[str, str, Optional[str], Optional[str], Optional[str]]
+        ] = set()
         for session_key in active:
             source = None
             try:
@@ -9515,13 +9518,29 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             # Deduplicate only identical delivery targets. Thread/topic-aware
             # platforms can share a parent chat while still routing to distinct
             # destinations via metadata.
-            dedup_key = (platform_str, chat_id, str(thread_id) if thread_id else None)
-            if dedup_key in notified:
+            source_profile = getattr(source, "profile", None) if source is not None else None
+            source_account = getattr(source, "account_id", None) if source is not None else None
+            dedup_key = (
+                platform_str,
+                chat_id,
+                str(thread_id) if thread_id else None,
+                source_profile,
+                source_account,
+            )
+            if dedup_key in notified_active:
                 continue
 
             try:
                 platform = Platform(platform_str)
-                adapter = self.adapters.get(platform)
+                has_source_identity = source is not None and bool(
+                    getattr(source, "profile", None)
+                    or getattr(source, "account_id", None)
+                )
+                adapter = (
+                    self._adapter_for_source(source)
+                    if has_source_identity
+                    else self.adapters.get(platform)
+                )
                 if not adapter:
                     continue
 
@@ -9539,7 +9558,14 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                         restart_platform = restart_source.platform.value
                         restart_chat_id = str(restart_source.chat_id)
                         restart_thread_id = str(restart_source.thread_id) if restart_source.thread_id else None
-                        if (restart_platform, restart_chat_id, restart_thread_id) == dedup_key:
+                        restart_key = (
+                            restart_platform,
+                            restart_chat_id,
+                            restart_thread_id,
+                            getattr(restart_source, "profile", None),
+                            getattr(restart_source, "account_id", None),
+                        )
+                        if restart_key == dedup_key:
                             reply_to_message_id = getattr(restart_source, "message_id", None)
                     except Exception:
                         pass
@@ -9563,7 +9589,9 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                     )
                     continue
 
-                notified.add(dedup_key)
+                notified_active.add(dedup_key)
+                if not source_profile and not source_account:
+                    notified.add(dedup_key[:3])
                 logger.info(
                     "Sent shutdown notification to active chat %s:%s",
                     platform_str, chat_id,
@@ -21336,18 +21364,46 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             chat_type = data.get("chat_type")
             thread_id = data.get("thread_id")
             message_id = data.get("message_id")
+            profile = data.get("profile")
+            account_id = data.get("account_id")
 
             if not platform_str or not chat_id:
                 return None
 
             platform = Platform(platform_str)
-            transport = resolve_delivery_transport(platform, self.config, self.adapters)
-            if transport is None:
+            exact_adapter = None
+            if profile or account_id:
+                source = SessionSource(
+                    platform=platform,
+                    chat_id=str(chat_id),
+                    chat_type=chat_type or "dm",
+                    thread_id=str(thread_id) if thread_id else None,
+                    message_id=str(message_id) if message_id else None,
+                    profile=str(profile) if profile else None,
+                    account_id=str(account_id) if account_id else None,
+                )
+                source.delivered_via_upstream_relay = (
+                    data.get("delivered_via_upstream_relay") is True
+                )
+                exact_adapter = self._adapter_for_source(source)
+            has_exact_identity = bool(profile or account_id)
+            transport = None
+            if not has_exact_identity or (
+                exact_adapter is not None
+                and data.get("delivered_via_upstream_relay") is True
+            ):
+                transport = resolve_delivery_transport(platform, self.config, self.adapters)
+            if exact_adapter is None and transport is None:
                 logger.debug(
                     "Restart notification skipped: no live transport for %s",
                     platform_str,
                 )
                 return None
+            if exact_adapter is not None and transport is None:
+                delivery_adapter: Any = exact_adapter
+            else:
+                assert transport is not None
+                delivery_adapter = transport.adapter
 
             platform_cfg = self.config.platforms.get(platform)
             if platform_cfg is not None and not platform_cfg.gateway_restart_notification:
@@ -21363,7 +21419,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 thread_id,
                 chat_type=chat_type,
                 reply_to_message_id=message_id,
-                adapter=transport.adapter,
+                adapter=delivery_adapter,
             )
             if data.get("delivered_via_upstream_relay") is True:
                 metadata = dict(metadata or {})
@@ -21371,12 +21427,17 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                     metadata["user_id"] = str(data["user_id"])
                 if data.get("scope_id"):
                     metadata["scope_id"] = str(data["scope_id"])
-            result = await transport.send(
-                platform,
-                str(chat_id),
-                "♻ Gateway restarted successfully. Your session continues.",
-                metadata=_non_conversational_metadata(metadata, platform=platform),
-            )
+            restart_message = "♻ Gateway restarted successfully. Your session continues."
+            send_metadata = _non_conversational_metadata(metadata, platform=platform)
+            result = None
+            if exact_adapter is not None and transport is None:
+                result = await exact_adapter.send(
+                    str(chat_id), restart_message, metadata=send_metadata
+                )
+            elif transport is not None:
+                result = await transport.send(
+                    platform, str(chat_id), restart_message, metadata=send_metadata
+                )
             # adapter.send() catches provider errors (e.g. "Chat not found")
             # and returns SendResult(success=False) rather than raising, so
             # we must inspect the result before claiming success — otherwise
@@ -24633,7 +24694,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         _voice_ack_fired = [False]
         _voice_ack_guild: List[Optional[int]] = [None]
         if source.platform == Platform.DISCORD:
-            _va = self.adapters.get(Platform.DISCORD)
+            _va: Any = self._adapter_for_source(source)
             # source.chat_id is the linked text channel; resolve the guild whose
             # voice connection is bound to it (mirrors DiscordAdapter.play_tts).
             _vtc = getattr(_va, "_voice_text_channels", None)

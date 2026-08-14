@@ -413,3 +413,65 @@ async def test_shutdown_notifications_are_fully_muted_when_flag_disabled():
     adapter.send.assert_not_awaited()
 
 
+@pytest.mark.asyncio
+async def test_restart_notification_uses_exact_account_adapter(tmp_path, monkeypatch):
+    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    (tmp_path / ".restart_notify.json").write_text(json.dumps({
+        "platform": "telegram",
+        "chat_id": "42",
+        "profile": "work",
+        "account_id": "222222",
+    }))
+    runner, primary = make_restart_runner()
+    exact = MagicMock()
+    exact.send = AsyncMock(return_value=SendResult(success=True, message_id="exact"))
+    primary.send = AsyncMock()
+    runner._adapter_for_source = MagicMock(return_value=exact)
+
+    assert await runner._send_restart_notification() == ("telegram", "42", None)
+
+    source = runner._adapter_for_source.call_args.args[0]
+    assert source.profile == "work"
+    assert source.account_id == "222222"
+    exact.send.assert_awaited_once()
+    primary.send.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_restart_notification_exact_identity_miss_fails_closed(tmp_path, monkeypatch):
+    monkeypatch.setattr(gateway_run, "_hermes_home", tmp_path)
+    (tmp_path / ".restart_notify.json").write_text(json.dumps({
+        "platform": "telegram",
+        "chat_id": "42",
+        "profile": "work",
+        "account_id": "222222",
+    }))
+    runner, primary = make_restart_runner()
+    primary.send = AsyncMock()
+    runner._adapter_for_source = MagicMock(return_value=None)
+
+    assert await runner._send_restart_notification() is None
+    primary.send.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_shutdown_notification_uses_source_account_adapter():
+    runner, primary = make_restart_runner()
+    source = make_restart_source(chat_id="shared-chat")
+    source.profile = "work"
+    source.account_id = "222222"
+    session_key = build_session_key(source)
+    exact = MagicMock()
+    exact.send = AsyncMock(return_value=SendResult(success=True, message_id="shutdown"))
+    primary.send = AsyncMock()
+    runner._adapter_for_source = MagicMock(return_value=exact)
+    runner._running_agents[session_key] = object()
+    runner.session_store._entries[session_key] = MagicMock(origin=source)
+
+    await runner._notify_active_sessions_of_shutdown()
+
+    runner._adapter_for_source.assert_called_once_with(source)
+    exact.send.assert_awaited_once()
+    primary.send.assert_not_awaited()
+
+

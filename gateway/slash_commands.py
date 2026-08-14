@@ -1558,6 +1558,10 @@ class GatewaySlashCommandsMixin:
                 "chat_id": event.source.chat_id,
                 "chat_type": event.source.chat_type,
             }
+            if event.source.profile:
+                notify_data["profile"] = event.source.profile
+            if event.source.account_id:
+                notify_data["account_id"] = event.source.account_id
             if event.source.delivered_via_upstream_relay is True:
                 notify_data["delivered_via_upstream_relay"] = True
                 if event.source.user_id:
