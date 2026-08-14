@@ -4129,13 +4129,14 @@ def _run_conversation_impl(
                     agent.api_mode in ("chat_completions", "anthropic_messages")
                     and agent.provider == "nous"
                     and status_code == 401
-                    and not _retry.nous_auth_retry_attempted
                 ):
-                    _retry.nous_auth_retry_attempted = True
-                    if agent._try_refresh_nous_client_credentials(force=True):
-                        print(f"{agent.log_prefix}🔐 Nous agent key refreshed after 401. Retrying request...")
-                        continue
-                    # Credential refresh didn't help — show diagnostic info.
+                    if not _retry.nous_auth_retry_attempted:
+                        _retry.nous_auth_retry_attempted = True
+                        if agent._try_refresh_nous_client_credentials(force=True):
+                            print(f"{agent.log_prefix}🔐 Nous agent key refreshed after 401. Retrying request...")
+                            continue
+                    # Credential refresh failed or the one retry was also
+                    # rejected — show diagnostic info without retrying again.
                     # Most common causes: Portal OAuth expired/revoked,
                     # account out of credits, or agent key blocked.
                     from hermes_constants import display_hermes_home as _dhh_fn
