@@ -47,6 +47,12 @@ _ensure_discord_mock()
 from plugins.platforms.discord.adapter import DiscordAdapter  # noqa: E402
 
 
+def _discord_module_for_tests(discord_platform):
+    if discord_platform.discord is None:
+        discord_platform.discord = _discord_mod
+    return discord_platform.discord
+
+
 def _voice_adapter(reference_obj, *, native_result=None, native_error=None):
     adapter = DiscordAdapter(PlatformConfig(enabled=True, token="***"))
     ref_msg = SimpleNamespace(id=99, to_reference=MagicMock(return_value=reference_obj))
@@ -249,6 +255,7 @@ async def test_send_video_uses_path_based_files_kwarg(tmp_path, monkeypatch):
     channel — silent drop from the user's perspective.
     """
     import plugins.platforms.discord.adapter as discord_platform
+    discord_mod = _discord_module_for_tests(discord_platform)
 
     video = tmp_path / "clip.mp4"
     video.write_bytes(b"\x00\x00\x00\x18ftypmp42fake")
@@ -260,7 +267,7 @@ async def test_send_video_uses_path_based_files_kwarg(tmp_path, monkeypatch):
             captured["fp"] = fp
             captured["filename"] = filename
 
-    monkeypatch.setattr(discord_platform.discord, "File", _FakeFile)
+    monkeypatch.setattr(discord_mod, "File", _FakeFile)
 
     adapter = DiscordAdapter(PlatformConfig(enabled=True, token="***"))
     sent_msg = SimpleNamespace(
@@ -293,12 +300,13 @@ async def test_send_video_uses_path_based_files_kwarg(tmp_path, monkeypatch):
 async def test_send_video_fails_loud_when_message_has_no_attachments(tmp_path, monkeypatch):
     """If Discord accepts the message but attaches nothing, fail loud (#66797)."""
     import plugins.platforms.discord.adapter as discord_platform
+    discord_mod = _discord_module_for_tests(discord_platform)
 
     video = tmp_path / "clip.mp4"
     video.write_bytes(b"fake-mp4")
 
     monkeypatch.setattr(
-        discord_platform.discord,
+        discord_mod,
         "File",
         lambda fp, filename=None, **kwargs: SimpleNamespace(fp=fp, filename=filename),
     )
@@ -346,12 +354,13 @@ async def test_send_file_attachment_forum_uses_files_kwarg(tmp_path, monkeypatch
     plural ``files=[...]`` kwarg (#66797), so the create_thread starter message
     carries the attachment rather than silently dropping it."""
     import plugins.platforms.discord.adapter as discord_platform
+    discord_mod = _discord_module_for_tests(discord_platform)
 
     video = tmp_path / "clip.mp4"
     video.write_bytes(b"fake-mp4")
 
     monkeypatch.setattr(
-        discord_platform.discord,
+        discord_mod,
         "File",
         lambda fp, filename=None, **kwargs: SimpleNamespace(fp=fp, filename=filename),
     )
