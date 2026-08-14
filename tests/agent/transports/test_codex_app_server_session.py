@@ -838,8 +838,6 @@ class TestThreadStartCrossFill:
 
 
     def test_missing_thread_id_raises(self):
-        from agent.transports.codex_app_server import CodexAppServerError
-
         client = FakeClient()
         client._request_handler = lambda method, params: (
             {"thread": {}, "activePermissionProfile": {"id": "x"}}
@@ -847,8 +845,10 @@ class TestThreadStartCrossFill:
             {"turn": {"id": "tu1"}}
         )
         s = make_session(client)
-        with pytest.raises(CodexAppServerError, match="no thread id"):
+        with pytest.raises(RuntimeError, match="no thread id") as excinfo:
             s.ensure_started()
+        assert excinfo.value.__class__.__name__ == "CodexAppServerError"
+        assert getattr(excinfo.value, "code", None) == -32603
 
 
 class TestHasTurnAbortedMarker:

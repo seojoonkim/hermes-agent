@@ -5,23 +5,58 @@ background session) across gateway messenger platforms.
 """
 
 import asyncio
+import weakref
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from gateway.config import Platform
 from gateway.platforms.base import MessageEvent
+from gateway.platform_registry import PlatformIdentity
 from gateway.session import SessionSource
+
+
+TELEGRAM_TEST_ACCOUNT_ID = "123456789"
+
+
+def _bind_telegram_adapter(adapter):
+    adapter._platform_registry_binding = (
+        "default",
+        PlatformIdentity(platform="telegram", account_id=TELEGRAM_TEST_ACCOUNT_ID),
+    )
+    return adapter
+
+
+def _make_telegram_source(
+    adapter=None,
+    *,
+    user_id: str = "12345",
+    chat_id: str = "67890",
+) -> SessionSource:
+    source = SessionSource(
+        platform=Platform.TELEGRAM,
+        user_id=user_id,
+        chat_id=chat_id,
+        user_name="testuser",
+        account_id=TELEGRAM_TEST_ACCOUNT_ID,
+    )
+    if adapter is not None:
+        setattr(source, "_transport_adapter_ref", weakref.ref(adapter))
+    return source
 
 
 def _make_event(text="/background", platform=Platform.TELEGRAM,
                 user_id="12345", chat_id="67890"):
     """Build a MessageEvent for testing."""
-    source = SessionSource(
-        platform=platform,
-        user_id=user_id,
-        chat_id=chat_id,
-        user_name="testuser",
+    source = (
+        _make_telegram_source(user_id=user_id, chat_id=chat_id)
+        if platform == Platform.TELEGRAM
+        else SessionSource(
+            platform=platform,
+            user_id=user_id,
+            chat_id=chat_id,
+            user_name="testuser",
+        )
     )
     return MessageEvent(text=text, source=source)
 
@@ -95,16 +130,11 @@ class TestRunBackgroundTask:
     async def test_no_credentials_sends_error(self):
         """When provider credentials are missing, an error is sent."""
         runner = _make_runner()
-        mock_adapter = AsyncMock()
+        mock_adapter = _bind_telegram_adapter(AsyncMock())
         mock_adapter.send = AsyncMock()
         runner.adapters[Platform.TELEGRAM] = mock_adapter
 
-        source = SessionSource(
-            platform=Platform.TELEGRAM,
-            user_id="12345",
-            chat_id="67890",
-            user_name="testuser",
-        )
+        source = _make_telegram_source(mock_adapter)
 
         with patch("gateway.run._resolve_runtime_agent_kwargs", return_value={"api_key": None}):
             await runner._run_background_task("test prompt", source, "bg_test")
@@ -118,18 +148,13 @@ class TestRunBackgroundTask:
     async def test_successful_task_sends_result(self):
         """When the agent completes successfully, the result is sent."""
         runner = _make_runner()
-        mock_adapter = AsyncMock()
+        mock_adapter = _bind_telegram_adapter(AsyncMock())
         mock_adapter.send = AsyncMock()
         mock_adapter.extract_media = MagicMock(return_value=([], "Hello from background!"))
         mock_adapter.extract_images = MagicMock(return_value=([], "Hello from background!"))
         runner.adapters[Platform.TELEGRAM] = mock_adapter
 
-        source = SessionSource(
-            platform=Platform.TELEGRAM,
-            user_id="12345",
-            chat_id="67890",
-            user_name="testuser",
-        )
+        source = _make_telegram_source(mock_adapter)
 
         mock_result = {"final_response": "Hello from background!", "messages": []}
 
