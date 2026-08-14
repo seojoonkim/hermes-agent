@@ -12,6 +12,7 @@ import sys
 import threading
 import time
 import types
+import weakref
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -31,18 +32,38 @@ sys.modules.setdefault("telegram.ext", types.ModuleType("telegram.ext"))
 from gateway.platforms.base import (  # noqa: E402
     MessageEvent,
     MessageType,
+    Platform,
     SessionSource,
     build_session_key,
 )
+from gateway.platform_registry import PlatformIdentity  # noqa: E402
 from gateway.run import GatewayRunner, _AGENT_PENDING_SENTINEL  # noqa: E402
+
+
+TELEGRAM_TEST_ACCOUNT_ID = "123456789"
+
+
+def _bind_telegram_adapter(adapter: MagicMock) -> MagicMock:
+    adapter._platform_registry_binding = (
+        "default",
+        PlatformIdentity(platform="telegram", account_id=TELEGRAM_TEST_ACCOUNT_ID),
+    )
+    return adapter
+
+
+def _bind_source_to_adapter(source: SessionSource, adapter: MagicMock) -> SessionSource:
+    source.account_id = TELEGRAM_TEST_ACCOUNT_ID
+    setattr(source, "_transport_adapter_ref", weakref.ref(adapter))
+    return source
 
 
 def _make_event(text: str = "hello", chat_id: str = "123") -> MessageEvent:
     source = SessionSource(
-        platform=MagicMock(value="telegram"),
+        platform=Platform.TELEGRAM,
         chat_id=chat_id,
         chat_type="private",
         user_id="user1",
+        account_id=TELEGRAM_TEST_ACCOUNT_ID,
     )
     return MessageEvent(
         text=text,
@@ -88,8 +109,8 @@ def _make_adapter() -> MagicMock:
     adapter._send_with_retry = AsyncMock()
     adapter.config = MagicMock()
     adapter.config.extra = {}
-    adapter.platform = MagicMock(value="telegram")
-    return adapter
+    adapter.platform = Platform.TELEGRAM
+    return _bind_telegram_adapter(adapter)
 
 
 def _make_parent_no_subagents() -> MagicMock:
@@ -124,6 +145,7 @@ class TestBusyHandlerDemotesInterruptForCompression:
         parent = _make_parent_no_subagents()
         runner._running_agents[sk] = parent
         runner.adapters[event.source.platform] = adapter
+        _bind_source_to_adapter(event.source, adapter)
         runner._session_db._db.get_compression_lock_holder.return_value = "compressing"
 
         handled = await runner._handle_active_session_busy_message(event, sk)
@@ -142,6 +164,7 @@ class TestBusyHandlerDemotesInterruptForCompression:
         runner._running_agents[sk] = parent
         runner._running_agents_ts[sk] = time.time() - 120
         runner.adapters[event.source.platform] = adapter
+        _bind_source_to_adapter(event.source, adapter)
         runner._session_db._db.get_compression_lock_holder.return_value = "compressing"
 
         with patch("gateway.run.merge_pending_message_event"):
