@@ -30,9 +30,24 @@ Usage (gateway side):
 
 import logging
 from dataclasses import dataclass, field
+from threading import RLock
 from typing import Any, Awaitable, Callable, Optional
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True, slots=True)
+class PlatformIdentity:
+    """Stable identity of one account connected to a platform."""
+
+    platform: str
+    account_id: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.platform, str) or not self.platform.strip():
+            raise ValueError("platform must be a non-empty string")
+        if not isinstance(self.account_id, str) or not self.account_id.strip():
+            raise ValueError("account_id must be a non-empty string")
 
 
 @dataclass
@@ -181,6 +196,78 @@ class PlatformRegistry:
         # actually asks for that platform (gateway start, cron delivery,
         # `hermes setup`/`gateway status`, send_message).
         self._deferred: dict[str, Callable[[], None]] = {}
+        # Live adapters are scoped by profile independently of the plugin
+        # factory entries above. Keeping this index here gives every caller a
+        # single, fail-closed source of truth for adapter identity resolution.
+        self._live_adapters: dict[str, dict[PlatformIdentity, Any]] = {}
+        self._live_adapters_lock = RLock()
+
+    # -- live adapter identity -----------------------------------------------
+
+    def register_live_adapter(
+        self,
+        profile: str,
+        identity: PlatformIdentity,
+        adapter: Any,
+    ) -> None:
+        """Register a live adapter under an exact profile/account identity.
+
+        A live identity is unique within a profile. Duplicate registration is
+        rejected rather than replacing whichever adapter registered first.
+        """
+        with self._live_adapters_lock:
+            adapters = self._live_adapters.setdefault(profile, {})
+            if identity in adapters:
+                raise ValueError(
+                    "live adapter already registered for "
+                    f"profile={profile!r}, platform={identity.platform!r}, "
+                    f"account_id={identity.account_id!r}"
+                )
+            adapters[identity] = adapter
+
+    def unregister_live_adapter(
+        self,
+        profile: str,
+        identity: PlatformIdentity,
+    ) -> bool:
+        """Remove an exact live adapter identity from one profile."""
+        with self._live_adapters_lock:
+            adapters = self._live_adapters.get(profile)
+            if adapters is None or identity not in adapters:
+                return False
+            del adapters[identity]
+            if not adapters:
+                del self._live_adapters[profile]
+            return True
+
+    def resolve_adapter(
+        self,
+        profile: str,
+        platform: str,
+        account_id: Optional[str] = None,
+    ) -> Optional[Any]:
+        """Resolve a live adapter, failing closed on unknown or ambiguity.
+
+        When *account_id* is supplied, only that exact identity can match. If
+        it is absent, resolution succeeds only when the profile has exactly
+        one live adapter for *platform*.
+        """
+        with self._live_adapters_lock:
+            adapters = self._live_adapters.get(profile)
+            if not adapters:
+                return None
+
+            if account_id is not None:
+                if not isinstance(account_id, str) or not account_id.strip():
+                    return None
+                return adapters.get(PlatformIdentity(platform, account_id))
+
+            matches = [
+                adapter
+                for identity, adapter in adapters.items()
+                if identity.platform == platform
+            ]
+            return matches[0] if len(matches) == 1 else None
 
     # -- deferred loading ----------------------------------------------------
 
