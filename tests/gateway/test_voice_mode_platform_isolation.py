@@ -11,6 +11,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
 
 from gateway.config import Platform
 from gateway.run import GatewayRunner
@@ -23,14 +24,34 @@ class TestVoiceKeyHelper:
     def test_voice_key_different_platforms_same_chat_id(self):
         """Same chat_id on different platforms yields different keys."""
         runner = _make_runner()
-        key_telegram = runner._voice_key(Platform.TELEGRAM, "123")
+        key_telegram = runner._voice_key(Platform.TELEGRAM, "123", "111")
         key_slack = runner._voice_key(Platform.SLACK, "123")
         key_discord = runner._voice_key(Platform.DISCORD, "123")
         assert key_telegram != key_slack
         assert key_slack != key_discord
-        assert key_telegram == "telegram:123"
+        assert key_telegram == "telegram:111:123"
         assert key_slack == "slack:123"
         assert key_discord == "discord:123"
+
+    def test_telegram_key_isolated_by_bot_account(self):
+        runner = _make_runner()
+
+        assert runner._voice_key(Platform.TELEGRAM, "123", "111") != runner._voice_key(
+            Platform.TELEGRAM, "123", "222"
+        )
+
+    @pytest.mark.parametrize("account_id", [None, ""])
+    def test_telegram_legacy_key_without_account_remains_compatible(self, account_id):
+        runner = _make_runner()
+
+        assert runner._voice_key(Platform.TELEGRAM, "123", account_id) == "telegram:123"
+
+    def test_non_telegram_key_isolated_by_account(self):
+        runner = _make_runner()
+
+        assert runner._voice_key(Platform.DISCORD, "123", "one") != runner._voice_key(
+            Platform.DISCORD, "123", "two"
+        )
 
 
 class TestVoiceModePlatformIsolation:
@@ -41,17 +62,17 @@ class TestVoiceModePlatformIsolation:
         runner = _make_runner()
 
         # Enable voice mode for Telegram chat '123'
-        runner._voice_mode[runner._voice_key(Platform.TELEGRAM, "123")] = "all"
+        runner._voice_mode[runner._voice_key(Platform.TELEGRAM, "123", "111")] = "all"
         # Enable voice mode for Slack chat '123' to a different mode
         runner._voice_mode[runner._voice_key(Platform.SLACK, "123")] = "voice_only"
 
         # Verify they are independent
-        assert runner._voice_mode.get(runner._voice_key(Platform.TELEGRAM, "123")) == "all"
+        assert runner._voice_mode.get(runner._voice_key(Platform.TELEGRAM, "123", "111")) == "all"
         assert runner._voice_mode.get(runner._voice_key(Platform.SLACK, "123")) == "voice_only"
 
         # Disabling Telegram should not affect Slack
-        runner._voice_mode[runner._voice_key(Platform.TELEGRAM, "123")] = "off"
-        assert runner._voice_mode.get(runner._voice_key(Platform.TELEGRAM, "123")) == "off"
+        runner._voice_mode[runner._voice_key(Platform.TELEGRAM, "123", "111")] = "off"
+        assert runner._voice_mode.get(runner._voice_key(Platform.TELEGRAM, "123", "111")) == "off"
         assert runner._voice_mode.get(runner._voice_key(Platform.SLACK, "123")) == "voice_only"
 
 
@@ -98,8 +119,9 @@ class TestSyncVoiceModeStateToAdapter:
 
         # Set up voice mode state with multiple platforms
         runner._voice_mode = {
-            "telegram:123": "off",      # Should sync
-            "telegram:456": "all",       # Should NOT sync (mode is not "off")
+            "telegram:111:123": "off",      # Should sync
+            "telegram:222:456": "off",      # Should NOT sync (different account)
+            "telegram:789": "off",          # Legacy account-less key must not sync
             "slack:123": "off",          # Should NOT sync (different platform)
             "discord:789": "off",        # Should NOT sync (different platform)
         }
@@ -107,6 +129,7 @@ class TestSyncVoiceModeStateToAdapter:
         # Create a mock Telegram adapter
         mock_adapter = MagicMock()
         mock_adapter.platform = Platform.TELEGRAM
+        mock_adapter.account_id = "111"
         mock_adapter._auto_tts_disabled_chats = set()
 
         runner._sync_voice_mode_state_to_adapter(mock_adapter)

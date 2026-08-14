@@ -2750,6 +2750,8 @@ class BasePlatformAdapter(ABC):
     def __init__(self, config: PlatformConfig, platform: Platform):
         self.config = config
         self.platform = platform
+        # Authoritative connected account identity when the platform exposes one.
+        self.account_id: Optional[str] = None
         self._message_handler: Optional[MessageHandler] = None
         # Optional gateway-supplied fan-out for platform-native emoji
         # reaction events (see ``set_reaction_handler``).
@@ -6657,6 +6659,9 @@ class BasePlatformAdapter(ABC):
             parent_chat_id=str(parent_chat_id) if parent_chat_id else None,
             message_id=str(message_id) if message_id else None,
             profile=profile,
+            account_id=(
+                str(getattr(self, "account_id", "") or "").strip() or None
+            ),
             role_authorized=role_authorized,
             auto_thread_created=auto_thread_created,
             auto_thread_initial_name=auto_thread_initial_name,

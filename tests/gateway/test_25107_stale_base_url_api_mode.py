@@ -29,9 +29,18 @@ import yaml
 import pytest
 
 from gateway.config import Platform
+from gateway.platform_registry import PlatformIdentity, platform_registry
 from gateway.platforms.base import MessageEvent, MessageType
 from gateway.run import GatewayRunner
 from gateway.session import SessionSource
+
+
+@pytest.fixture(autouse=True)
+def _clean_live_adapter_registry():
+    yield
+    platform_registry.unregister_live_adapter(
+        "default", PlatformIdentity("telegram", "123456")
+    )
 
 
 class _FakePickerAdapter:
@@ -49,6 +58,13 @@ def _make_runner(adapter=None):
     runner._voice_mode = {}
     runner._session_model_overrides = {}
     runner._running_agents = {}
+    runner._profile_adapters = {}
+    runner._active_profile_name = lambda: "default"
+    if adapter is not None:
+        adapter.account_id = "123456"
+        platform_registry.register_live_adapter(
+            "default", PlatformIdentity("telegram", "123456"), adapter
+        )
     return runner
 
 
@@ -56,7 +72,12 @@ def _make_event(text):
     return MessageEvent(
         text=text,
         message_type=MessageType.TEXT,
-        source=SessionSource(platform=Platform.TELEGRAM, chat_id="12345", chat_type="dm"),
+        source=SessionSource(
+            platform=Platform.TELEGRAM,
+            chat_id="12345",
+            chat_type="dm",
+            account_id="123456",
+        ),
     )
 
 

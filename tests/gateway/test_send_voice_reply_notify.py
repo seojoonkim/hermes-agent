@@ -16,9 +16,18 @@ from unittest.mock import AsyncMock
 import pytest
 
 from gateway.config import Platform
+from gateway.platform_registry import PlatformIdentity, platform_registry
 from gateway.platforms.base import MessageEvent, MessageType
 from gateway.run import GatewayRunner
 from gateway.session import SessionSource
+
+
+@pytest.fixture(autouse=True)
+def _clean_live_adapter_registry():
+    yield
+    platform_registry.unregister_live_adapter(
+        "default", PlatformIdentity("telegram", "123456")
+    )
 
 
 def _make_event(thread_id=None):
@@ -28,6 +37,7 @@ def _make_event(thread_id=None):
         user_id="208214988",
         chat_type="dm",
         thread_id=thread_id,
+        account_id="123456",
     )
     return MessageEvent(
         text="hi",
@@ -40,10 +50,16 @@ def _make_event(thread_id=None):
 def _runner_with_adapter(send_voice_mock):
     runner = object.__new__(GatewayRunner)
     adapter = SimpleNamespace(
+        account_id="123456",
         send_voice=send_voice_mock,
         is_in_voice_channel=lambda *_a, **_k: False,
     )
     runner.adapters = {Platform.TELEGRAM: adapter}
+    runner._profile_adapters = {}
+    runner._active_profile_name = lambda: "default"
+    platform_registry.register_live_adapter(
+        "default", PlatformIdentity("telegram", "123456"), adapter
+    )
     return runner
 
 

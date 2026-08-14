@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from gateway.config import Platform, PlatformConfig
+from gateway.platform_registry import PlatformIdentity, platform_registry
 from gateway.platforms.base import BasePlatformAdapter, MessageEvent, MessageType, SendResult
 from plugins.platforms.telegram.adapter import TelegramAdapter
 from gateway.run import GatewayRunner
@@ -21,7 +22,12 @@ from gateway.session import SessionSource
 
 
 def _source():
-    return SessionSource(platform=Platform.TELEGRAM, chat_id="12345", chat_type="dm")
+    return SessionSource(
+        platform=Platform.TELEGRAM,
+        chat_id="12345",
+        chat_type="dm",
+        account_id="123456",
+    )
 
 
 def _runner(adapter=None):
@@ -32,11 +38,26 @@ def _runner(adapter=None):
         thread_sessions_per_user=False,
     )
     runner.adapters = {Platform.TELEGRAM: adapter} if adapter else {}
+    runner._profile_adapters = {}
+    runner._active_profile_name = lambda: "default"
+    if adapter is not None:
+        adapter.account_id = "123456"
+        platform_registry.register_live_adapter(
+            "default", PlatformIdentity("telegram", "123456"), adapter
+        )
     runner._consume_pending_native_image_paths = lambda _key: []
     runner._session_key_for_source = lambda _source: "telegram:dm:12345"
     runner._thread_metadata_for_source = lambda *_args, **_kwargs: {}
     runner._reply_anchor_for_event = lambda _event: None
     return runner
+
+
+@pytest.fixture(autouse=True)
+def _clean_live_adapter_registry():
+    yield
+    platform_registry.unregister_live_adapter(
+        "default", PlatformIdentity("telegram", "123456")
+    )
 
 
 class _PendingVoiceAdapter(BasePlatformAdapter):

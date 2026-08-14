@@ -1326,7 +1326,17 @@ class DiscordAdapter(BasePlatformAdapter):
             # Register event handlers
             @self._client.event
             async def on_ready():
-                logger.info("[%s] Connected as %s", adapter_self.name, adapter_self._client.user)
+                client = adapter_self._client
+                bot_user = client.user if client is not None else None
+                logger.info("[%s] Connected as %s", adapter_self.name, bot_user)
+                account_id = str(getattr(bot_user, "id", None) or "").strip()
+                if not account_id.isascii() or not account_id.isdigit():
+                    logger.error(
+                        "[%s] Discord returned no valid numeric bot identity",
+                        adapter_self.name,
+                    )
+                    return
+                adapter_self.account_id = account_id
 
                 # Resolve any usernames in the allowed list to numeric IDs
                 await adapter_self._resolve_allowed_usernames()

@@ -304,6 +304,7 @@ class TestSendVoiceReply:
         event = _make_event()
         event.source.platform = Platform.TELEGRAM
         runner.adapters[event.source.platform] = mock_adapter
+        runner._adapter_for_source = lambda source: mock_adapter
 
         tts_result = json.dumps({"success": True, "file_path": "/tmp/test.ogg"})
 
@@ -332,6 +333,7 @@ class TestSendVoiceReply:
         event.source.thread_id = "20197"
         event.message_id = "462"
         runner.adapters[event.source.platform] = mock_adapter
+        runner._adapter_for_source = lambda source: mock_adapter
 
         tts_result = json.dumps({"success": True, "file_path": "/tmp/test.ogg"})
 
@@ -562,15 +564,17 @@ class TestVoiceChannelCommands:
         mock_adapter._voice_sources = {}
         mock_adapter._voice_input_callback = None
         event = self._make_discord_event()
+        event.source.account_id = "222"
         event.source.chat_type = "group"
         event.source.chat_name = "Hermes Server / #general"
         runner.adapters[event.source.platform] = mock_adapter
         result = await runner._handle_voice_channel_join(event)
         assert "joined" in result.lower()
         assert "General" in result
-        assert runner._voice_mode["discord:123"] == "all"
+        assert runner._voice_mode["discord:222:123"] == "all"
         assert mock_adapter._voice_sources[111]["chat_id"] == "123"
         assert mock_adapter._voice_sources[111]["chat_type"] == "group"
+        assert mock_adapter._voice_sources[111]["account_id"] == "222"
 
 
     @pytest.mark.asyncio
@@ -622,6 +626,7 @@ class TestVoiceChannelCommands:
         mock_adapter._client = MagicMock()
         mock_adapter._client.get_channel = MagicMock(return_value=mock_channel)
         mock_adapter.handle_message = AsyncMock()
+        mock_adapter._resolve_channel_prompt = MagicMock(return_value=None)
         runner.adapters[Platform.DISCORD] = mock_adapter
         await runner._handle_voice_channel_input(111, 42, "Hello from VC")
         mock_adapter.handle_message.assert_called_once()
@@ -670,6 +675,7 @@ class TestVoiceChannelCommands:
         mock_adapter._client = MagicMock()
         mock_adapter._client.get_channel = MagicMock(return_value=mock_channel)
         mock_adapter.handle_message = AsyncMock()
+        mock_adapter._resolve_channel_prompt = MagicMock(return_value=None)
         runner.adapters[Platform.DISCORD] = mock_adapter
 
         await runner._handle_voice_channel_input(111, 42, "Hello from VC")
@@ -680,6 +686,38 @@ class TestVoiceChannelCommands:
         assert event.source.chat_type == "group"
         assert event.source.chat_name == "Hermes Server / #general"
         assert event.source.user_id == "42"
+
+    @pytest.mark.asyncio
+    async def test_input_uses_explicit_receiving_adapter(self, runner):
+        """Secondary Discord audio must not dispatch through the primary adapter."""
+        from gateway.config import Platform
+
+        primary = AsyncMock()
+        primary.handle_message = AsyncMock()
+        runner.adapters[Platform.DISCORD] = primary
+
+        secondary = AsyncMock()
+        secondary.account_id = "222"
+        secondary._voice_text_channels = {111: 123}
+        secondary._voice_sources = {}
+        secondary._client = MagicMock()
+        secondary._client.get_channel = MagicMock(return_value=AsyncMock())
+        secondary._resolve_channel_prompt = MagicMock(return_value=None)
+        secondary.handle_message = AsyncMock()
+
+        authorized_sources = []
+        runner._is_user_authorized = lambda source: (
+            authorized_sources.append(source) or source.account_id == "222"
+        )
+
+        await runner._handle_voice_channel_input(
+            111, 42, "Secondary account", adapter=secondary
+        )
+
+        assert len(authorized_sources) == 1
+        assert authorized_sources[0].account_id == "222"
+        secondary.handle_message.assert_awaited_once()
+        primary.handle_message.assert_not_awaited()
 
 
     # -- _get_guild_id --
@@ -949,6 +987,7 @@ class TestCallbackWiringOrder:
         event = _make_event("/voice channel")
         event.raw_message = SimpleNamespace(guild_id=111, guild=None)
         runner.adapters[event.source.platform] = mock_adapter
+        runner._adapter_for_source = lambda source: mock_adapter
 
         result = await runner._handle_voice_channel_join(event)
         assert "failed" in result.lower()
@@ -979,6 +1018,7 @@ class TestLeaveExceptionHandling:
         event = _make_event("/voice leave")
         event.raw_message = SimpleNamespace(guild_id=111, guild=None)
         runner.adapters[event.source.platform] = mock_adapter
+        runner._adapter_for_source = lambda source: mock_adapter
         runner._voice_mode["telegram:123"] = "all"
 
         result = await runner._handle_voice_channel_leave(event)

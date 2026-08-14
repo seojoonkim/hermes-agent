@@ -93,6 +93,7 @@ def test_source_sensitive_slash_handlers_do_not_read_primary_adapter_map():
     for method_name in (
         "_handle_status_command",
         "_handle_goal_command",
+        "_handle_voice_command",
         "_handle_approve_command",
         "_handle_deny_command",
     ):
@@ -143,7 +144,11 @@ def test_voice_reply_uses_source_adapter_auto_tts(monkeypatch):
 
     runner = _runner()
     runner._voice_mode = {}
-    runner._voice_key = lambda platform, chat_id: f"{platform.value}:{chat_id}"
+    runner._voice_key = (
+        lambda platform, chat_id, account_id=None:
+        f"{platform.value}:{account_id}:{chat_id}"
+        if account_id else f"{platform.value}:{chat_id}"
+    )
     adapter = SimpleNamespace(_should_auto_tts_for_chat=lambda chat_id: True)
     monkeypatch.setattr(runner, "_adapter_for_source", lambda source: adapter)
     source = _source("123456")
