@@ -307,6 +307,7 @@ async def test_gateway_runner_busy_ack_replies_to_triggering_message_for_telegra
 
     class BusyAdapter:
         def __init__(self):
+            self.account_id = "123456"
             self._pending_messages = {}
             self.calls = []
 
@@ -348,17 +349,22 @@ async def test_gateway_runner_busy_ack_replies_to_triggering_message_for_telegra
     runner._draining = False
     runner._busy_input_mode = "interrupt"
     runner._is_user_authorized = lambda _source: True
+    runner._active_profile_name = lambda: "default"
+    runner._publish_live_adapter("default", Platform.TELEGRAM, adapter)
 
-    assert await runner._handle_active_session_busy_message(event, session_key) is True
+    try:
+        assert await runner._handle_active_session_busy_message(event, session_key) is True
 
-    assert adapter.calls
-    assert adapter.calls[0]["reply_to"] == "463"
-    assert adapter.calls[0]["metadata"] == {
-        "thread_id": "20197",
-        "telegram_dm_topic_reply_fallback": True,
-        "direct_messages_topic_id": "20197",
-        "telegram_reply_to_message_id": "463",
-    }
+        assert adapter.calls
+        assert adapter.calls[0]["reply_to"] == "463"
+        assert adapter.calls[0]["metadata"] == {
+            "thread_id": "20197",
+            "telegram_dm_topic_reply_fallback": True,
+            "direct_messages_topic_id": "20197",
+            "telegram_reply_to_message_id": "463",
+        }
+    finally:
+        runner._unpublish_live_adapter(adapter)
 
 
 @pytest.mark.asyncio

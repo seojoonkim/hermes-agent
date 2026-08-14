@@ -6524,6 +6524,46 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         task.add_done_callback(consume_detached_task_result)
         return False
 
+    def _publish_live_adapter(self, profile: str, platform: Platform, adapter) -> None:
+        """Publish a connected adapter under its authoritative live identity.
+
+        Telegram identity comes only from the ASCII-decimal bot user id learned
+        from ``getMe`` by the adapter. Names, tokens, and chat ids are never
+        accepted as routing identities. Non-Telegram platforms keep their
+        existing routing until they expose an equally authoritative account id.
+        """
+        if platform is not Platform.TELEGRAM:
+            return
+        account_id = str(getattr(adapter, "account_id", None) or "").strip()
+        if not account_id or not account_id.isascii() or not account_id.isdigit():
+            raise ValueError("Telegram adapter has no valid numeric account identity")
+
+        from gateway.platform_registry import PlatformIdentity, platform_registry
+
+        identity = PlatformIdentity(platform.value, account_id)
+        platform_registry.register_live_adapter(profile, identity, adapter)
+        adapter._platform_registry_binding = (profile, identity)
+
+    @staticmethod
+    def _unpublish_live_adapter(adapter) -> bool:
+        """Remove only the registry binding currently owned by *adapter*."""
+        binding = getattr(adapter, "_platform_registry_binding", None)
+        if not (
+            isinstance(binding, tuple)
+            and len(binding) == 2
+            and isinstance(binding[0], str)
+        ):
+            return False
+        from gateway.platform_registry import platform_registry
+
+        profile, identity = binding
+        removed = platform_registry.unregister_live_adapter(
+            profile, identity, expected_adapter=adapter
+        )
+        if removed:
+            adapter._platform_registry_binding = None
+        return removed
+
     async def _safe_adapter_disconnect(self, adapter, platform) -> None:
         """Call adapter.disconnect() defensively, swallowing any error.
 
@@ -6535,6 +6575,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         Must tolerate partial-init state and never raise, since callers
         use it inside error-handling blocks.
         """
+        self._unpublish_live_adapter(adapter)
         timeout = self._adapter_disconnect_timeout_secs()
         try:
             completed = await self._await_adapter_cleanup_with_timeout(
@@ -6571,6 +6612,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         the loop never hangs even if an adapter swallows cancellation. Never
         raises.
         """
+        self._unpublish_live_adapter(adapter)
         timeout = self._adapter_disconnect_timeout_secs()
         suffix = f" (profile: {profile})" if profile else ""
         started_at = time.monotonic()
@@ -11259,6 +11301,9 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 if await self._abort_startup_if_shutdown_requested(adapter, platform):
                     return True
                 if success:
+                    self._publish_live_adapter(
+                        self._active_profile_name(), platform, adapter
+                    )
                     self.adapters[platform] = adapter
                     self._sync_voice_mode_state_to_adapter(adapter)
                     # Wire voice input callback at connect time so voice
@@ -12623,6 +12668,9 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                         adapter, platform, is_reconnect=True
                     )
                     if success:
+                        self._publish_live_adapter(
+                            self._active_profile_name(), platform, adapter
+                        )
                         self.adapters[platform] = adapter
                         self._sync_voice_mode_state_to_adapter(adapter)
                         # Wire voice input callback on reconnect as well (#60623).
@@ -13523,6 +13571,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                         adapter, platform
                     )
                 if success:
+                    self._publish_live_adapter(profile_name, platform, adapter)
                     profile_map[platform] = adapter
                     if credential_claim is not None:
                         claimed[credential_claim] = profile_name
@@ -13596,6 +13645,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                     if success and self._running:
                         profile_map = self._profile_adapters.setdefault(profile_name, {})
                         if platform not in profile_map:
+                            self._publish_live_adapter(profile_name, platform, adapter)
                             profile_map[platform] = adapter
                             self._sync_voice_mode_state_to_adapter(adapter)
                             logger.info(

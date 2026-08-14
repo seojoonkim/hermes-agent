@@ -107,6 +107,22 @@ class TestLivePlatformAdapterRegistry:
         registry.register_live_adapter("default", identity, replacement)
         assert registry.resolve_adapter("default", "discord", "work-bot") is replacement
 
+    def test_stale_adapter_cannot_unregister_replacement(self):
+        registry = PlatformRegistry()
+        identity = PlatformIdentity("telegram", "123456")
+        stale = object()
+        replacement = object()
+        registry.register_live_adapter("default", identity, stale)
+        assert registry.unregister_live_adapter(
+            "default", identity, expected_adapter=stale
+        ) is True
+        registry.register_live_adapter("default", identity, replacement)
+
+        assert registry.unregister_live_adapter(
+            "default", identity, expected_adapter=stale
+        ) is False
+        assert registry.resolve_adapter("default", "telegram", "123456") is replacement
+
     def test_factory_registry_api_remains_independent(self):
         registry = PlatformRegistry()
         live_adapter = object()

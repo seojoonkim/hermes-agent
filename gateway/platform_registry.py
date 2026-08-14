@@ -229,11 +229,15 @@ class PlatformRegistry:
         self,
         profile: str,
         identity: PlatformIdentity,
+        *,
+        expected_adapter: Any = None,
     ) -> bool:
-        """Remove an exact live adapter identity from one profile."""
+        """Remove an exact live identity, optionally checking its current owner."""
         with self._live_adapters_lock:
             adapters = self._live_adapters.get(profile)
             if adapters is None or identity not in adapters:
+                return False
+            if expected_adapter is not None and adapters[identity] is not expected_adapter:
                 return False
             del adapters[identity]
             if not adapters:

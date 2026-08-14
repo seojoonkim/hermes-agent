@@ -131,9 +131,6 @@ class GatewayAuthorizationMixin:
         """Resolve the live adapter for an inbound ``SessionSource``."""
         if source is None:
             return None
-        transport_adapter = self._registered_transport_adapter(source)
-        if transport_adapter is not None:
-            return transport_adapter
         # Relay ingress deliberately keeps the underlying platform on the
         # source so session keys and display policy remain Slack/Discord/etc.
         # Delivery still has to use the one live RelayAdapter that owns the
@@ -147,10 +144,30 @@ class GatewayAuthorizationMixin:
             # fail and suppress streamed delivery for those profiles.
             adapters = getattr(self, "adapters", None) or {}
             return adapters.get(Platform.RELAY)
+        platform = getattr(source, "platform", None)
+        account_id = getattr(source, "account_id", None)
+        platform_name = getattr(platform, "value", platform)
+        if platform_name == Platform.TELEGRAM.value and account_id is not None:
+            from gateway.platform_registry import platform_registry
+
+            profile = str(getattr(source, "profile", None) or "").strip()
+            if not profile:
+                active_profile_fn = getattr(self, "_active_profile_name", None)
+                profile = (
+                    str(active_profile_fn() or "default")
+                    if callable(active_profile_fn)
+                    else "default"
+                )
+            return platform_registry.resolve_adapter(
+                profile, Platform.TELEGRAM.value, str(account_id)
+            )
+        transport_adapter = self._registered_transport_adapter(source)
+        if transport_adapter is not None:
+            return transport_adapter
         # ``getattr`` guards test fixtures that build a bare source via
         # SimpleNamespace and omit ``profile`` (see AGENTS.md pitfall #17).
         return self._authorization_adapter(
-            getattr(source, "platform", None),
+            platform,
             getattr(source, "profile", None),
         )
 

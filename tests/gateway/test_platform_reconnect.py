@@ -7,8 +7,17 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from gateway.config import GatewayConfig, Platform, PlatformConfig
+from gateway.platform_registry import PlatformRegistry
 from gateway.platforms.base import BasePlatformAdapter, SendResult
 from gateway.run import GatewayRunner
+
+
+@pytest.fixture(autouse=True)
+def isolated_live_platform_registry(monkeypatch):
+    """Keep reconnect tests from publishing identities into process-global state."""
+    monkeypatch.setattr(
+        "gateway.platform_registry.platform_registry", PlatformRegistry()
+    )
 
 
 class StubAdapter(BasePlatformAdapter):
@@ -26,6 +35,9 @@ class StubAdapter(BasePlatformAdapter):
         self._succeed = succeed
         self._fatal_error = fatal_error
         self._fatal_retryable = fatal_retryable
+        # A successful Telegram connect has resolved getMe and therefore owns
+        # an authoritative ASCII-decimal bot user id before publication.
+        self.account_id = "123456" if platform is Platform.TELEGRAM else None
         # Records the is_reconnect value of every connect() call so tests can
         # assert that the watcher distinguishes reconnect from cold boot (#46621).
         self.connect_calls: list[bool] = []
