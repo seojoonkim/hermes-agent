@@ -5438,6 +5438,8 @@ class GatewaySlashCommandsMixin:
             "chat_id": event.source.chat_id,
             "chat_type": event.source.chat_type,
             "user_id": event.source.user_id,
+            "profile": event.source.profile,
+            "account_id": event.source.account_id,
             "session_key": session_key,
             "timestamp": datetime.now().isoformat(),
         }

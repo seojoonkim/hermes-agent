@@ -155,6 +155,25 @@ class GatewayAuthorizationMixin:
                 or not normalized_account_id.isdigit()
             ):
                 return None
+            # A chat/profile router may change ``source.profile`` after intake,
+            # while the receiving bot remains owned by the transport/default
+            # profile. Provenance may bridge that namespace difference, but only
+            # when the retained adapter is still registered and its authoritative
+            # getMe identity exactly matches the stamped account.
+            transport_adapter = self._registered_transport_adapter(source)
+            if transport_adapter is not None:
+                binding = getattr(transport_adapter, "_platform_registry_binding", None)
+                identity = (
+                    binding[1]
+                    if isinstance(binding, tuple) and len(binding) == 2
+                    else None
+                )
+                if (
+                    getattr(identity, "platform", None) == Platform.TELEGRAM.value
+                    and getattr(identity, "account_id", None) == normalized_account_id
+                ):
+                    return transport_adapter
+
             from gateway.platform_registry import platform_registry
 
             profile = str(getattr(source, "profile", None) or "").strip()

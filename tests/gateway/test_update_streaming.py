@@ -12,12 +12,14 @@ import os
 import time
 import asyncio
 from unittest.mock import patch, MagicMock, AsyncMock
+from types import SimpleNamespace
 
 import pytest
 
 from gateway.config import Platform
 from gateway.platforms.base import MessageEvent
 from gateway.session import SessionSource
+from gateway.session_state import SessionState
 
 
 def _make_event(text="/update", platform=Platform.TELEGRAM,
@@ -28,6 +30,8 @@ def _make_event(text="/update", platform=Platform.TELEGRAM,
         user_id=user_id,
         chat_id=chat_id,
         user_name="testuser",
+        profile="routed-profile",
+        account_id="123456",
     )
     return MessageEvent(text=text, source=source)
 
@@ -44,6 +48,7 @@ def _make_runner(hermes_home=None):
     runner._pending_messages = {}
     runner._pending_approvals = {}
     runner._failed_platforms = {}
+    runner._active_profile_name = lambda: "default"
     # config is accessed by _check_slash_access and quick_commands lookup;
     # None makes policy_for_source return a disabled (allow-all) policy.
     runner.config = None
@@ -52,7 +57,79 @@ def _make_runner(hermes_home=None):
     runner._read_user_config = lambda: {
         "approvals": {"destructive_slash_confirm": False}
     }
+    runner._thread_metadata_for_target = lambda *args, **kwargs: None
+    runner._peek_session_state = lambda session_key: None
     return runner
+
+
+@pytest.mark.asyncio
+async def test_update_streaming_resolves_source_adapter_without_primary_fallback(tmp_path):
+    runner = _make_runner()
+    hermes_home = tmp_path / "hermes"
+    hermes_home.mkdir()
+    pending = {
+        "platform": "telegram",
+        "chat_id": "111",
+        "chat_type": "dm",
+        "user_id": "222",
+        "profile": "routed-profile",
+        "account_id": "123456",
+        "session_key": "agent:routed-profile:telegram:123456:dm:111",
+    }
+    (hermes_home / ".update_pending.json").write_text(json.dumps(pending))
+    (hermes_home / ".update_output.txt").write_text("done\n", encoding="utf-8")
+    (hermes_home / ".update_exit_code").write_text("0")
+
+    primary = AsyncMock(name="wrong_primary")
+    expected = AsyncMock(name="source_adapter")
+    runner.adapters = {Platform.TELEGRAM: primary}
+
+    def resolve(source):
+        assert source.profile == "routed-profile"
+        assert source.account_id == "123456"
+        return expected
+
+    runner._adapter_for_source = resolve
+    with patch("gateway.run._hermes_home", hermes_home):
+        await runner._watch_update_progress(poll_interval=0.01, stream_interval=0.01, timeout=1.0)
+
+    assert expected.send.await_count >= 1
+    primary.send.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_update_completion_resolves_source_adapter_without_primary_fallback(tmp_path):
+    runner = _make_runner()
+    hermes_home = tmp_path / "hermes"
+    hermes_home.mkdir()
+    pending = {
+        "platform": "telegram",
+        "chat_id": "111",
+        "chat_type": "dm",
+        "user_id": "222",
+        "profile": "routed-profile",
+        "account_id": "123456",
+        "session_key": "agent:routed-profile:telegram:123456:dm:111",
+    }
+    (hermes_home / ".update_pending.json").write_text(json.dumps(pending))
+    (hermes_home / ".update_output.txt").write_text("done\n", encoding="utf-8")
+    (hermes_home / ".update_exit_code").write_text("0")
+
+    primary = AsyncMock(name="wrong_primary")
+    expected = AsyncMock(name="source_adapter")
+    runner.adapters = {Platform.TELEGRAM: primary}
+
+    def resolve(source):
+        assert source.profile == "routed-profile"
+        assert source.account_id == "123456"
+        return expected
+
+    runner._adapter_for_source = resolve
+    with patch("gateway.run._hermes_home", hermes_home):
+        assert await runner._send_update_notification() is True
+
+    expected.send.assert_awaited_once()
+    primary.send.assert_not_called()
 
 
 # ---------------------------------------------------------------------------
@@ -159,6 +236,9 @@ class TestUpdateCommandGatewayFlag:
         assert "rc=$?" in cmd_string
         assert "status=$?" not in cmd_string
         assert "stream progress" in result
+        persisted = json.loads((hermes_home / ".update_pending.json").read_text())
+        assert persisted["profile"] == "routed-profile"
+        assert persisted["account_id"] == "123456"
 
 
 # ---------------------------------------------------------------------------
@@ -176,14 +256,14 @@ class TestWatchUpdateProgress:
         hermes_home = tmp_path / "hermes"
         hermes_home.mkdir()
 
-        pending = {"platform": "telegram", "chat_id": "111", "user_id": "222",
-                   "session_key": "agent:main:telegram:dm:111"}
+        pending = {"platform": "discord", "chat_id": "111", "user_id": "222",
+                   "session_key": "agent:main:discord:dm:111"}
         (hermes_home / ".update_pending.json").write_text(json.dumps(pending))
         # Write output
         (hermes_home / ".update_output.txt").write_text("→ Fetching updates...\n", encoding="utf-8")
 
         mock_adapter = AsyncMock()
-        runner.adapters = {Platform.TELEGRAM: mock_adapter}
+        runner.adapters = {Platform.DISCORD: mock_adapter}
 
         # Write exit code after a brief delay
         async def write_exit_code():
@@ -214,13 +294,13 @@ class TestWatchUpdateProgress:
         hermes_home = tmp_path / "hermes"
         hermes_home.mkdir()
 
-        pending = {"platform": "telegram", "chat_id": "111", "user_id": "222",
-                   "session_key": "agent:main:telegram:dm:111"}
+        pending = {"platform": "discord", "chat_id": "111", "user_id": "222",
+                   "session_key": "agent:main:discord:dm:111"}
         (hermes_home / ".update_pending.json").write_text(json.dumps(pending))
         (hermes_home / ".update_output.txt").write_text("output\n")
 
         mock_adapter = AsyncMock()
-        runner.adapters = {Platform.TELEGRAM: mock_adapter}
+        runner.adapters = {Platform.DISCORD: mock_adapter}
 
         # Write a prompt, then respond and finish
         async def simulate_prompt_cycle():
@@ -258,10 +338,10 @@ class TestWatchUpdateProgress:
         hermes_home.mkdir()
 
         pending = {
-            "platform": "telegram",
+            "platform": "discord",
             "chat_id": "111",
             "user_id": "222",
-            "session_key": "agent:main:telegram:dm:111",
+            "session_key": "agent:main:discord:dm:111",
         }
         prompt = {
             "prompt": "Restore local changes? [Y/n]",
@@ -272,9 +352,25 @@ class TestWatchUpdateProgress:
         (hermes_home / ".update_output.txt").write_text("")
         (hermes_home / ".update_prompt.json").write_text(json.dumps(prompt))
 
+        def install_session_state(runner):
+            states = {}
+
+            def session_state(key):
+                return states.setdefault(
+                    key,
+                    SimpleNamespace(
+                        persistent=SimpleNamespace(update_prompt_pending=False)
+                    ),
+                )
+
+            runner._session_state = session_state
+            runner._peek_session_state = states.get
+
         runner1 = _make_runner()
+        install_session_state(runner1)
         adapter1 = AsyncMock()
-        runner1.adapters = {Platform.TELEGRAM: adapter1}
+        adapter1.typed_command_prefix = "/"
+        runner1.adapters = {Platform.DISCORD: adapter1}
 
         with patch("gateway.run._hermes_home", hermes_home):
             watch1 = asyncio.create_task(
@@ -297,8 +393,10 @@ class TestWatchUpdateProgress:
                 await watch1
 
             runner2 = _make_runner()
+            install_session_state(runner2)
             adapter2 = AsyncMock()
-            runner2.adapters = {Platform.TELEGRAM: adapter2}
+            adapter2.typed_command_prefix = "/"
+            runner2.adapters = {Platform.DISCORD: adapter2}
 
             async def respond_and_finish():
                 await asyncio.sleep(0.2)
@@ -344,8 +442,10 @@ class TestUpdatePromptInterception:
         hermes_home.mkdir()
 
         event = _make_event(text="/new", chat_id="67890")
-        session_key = "agent:main:telegram:dm:67890"
-        runner._update_prompt_pending[session_key] = True
+        session_key = "agent:routed-profile:telegram:123456:dm:67890"
+        prompt_state = SessionState()
+        prompt_state.persistent.update_prompt_pending = True
+        runner._peek_session_state = MagicMock(return_value=prompt_state)
         runner._is_user_authorized = MagicMock(return_value=True)
         runner._session_key_for_source = MagicMock(return_value=session_key)
         runner._handle_reset_command = AsyncMock(return_value="reset ok")

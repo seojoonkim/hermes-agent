@@ -78,6 +78,34 @@ def test_telegram_transport_reference_cannot_bypass_exact_account_identity():
     assert runner._adapter_for_source(_source("999999", transport=transport)) is None
 
 
+def test_runtime_routed_profile_can_use_registered_transport_with_exact_account():
+    runner = _runner()
+    transport = runner.adapters[Platform.TELEGRAM]
+    identity = PlatformIdentity("telegram", "123456")
+    platform_registry.register_live_adapter("default", identity, transport)
+    setattr(transport, "_platform_registry_binding", ("default", identity))
+    source = _source("123456", transport=transport)
+    source.profile = "runtime-route"
+    try:
+        assert runner._adapter_for_source(source) is transport
+    finally:
+        platform_registry.unregister_live_adapter("default", identity)
+
+
+def test_runtime_routed_transport_still_fails_closed_on_account_mismatch():
+    runner = _runner()
+    transport = runner.adapters[Platform.TELEGRAM]
+    identity = PlatformIdentity("telegram", "123456")
+    platform_registry.register_live_adapter("default", identity, transport)
+    setattr(transport, "_platform_registry_binding", ("default", identity))
+    source = _source("999999", transport=transport)
+    source.profile = "runtime-route"
+    try:
+        assert runner._adapter_for_source(source) is None
+    finally:
+        platform_registry.unregister_live_adapter("default", identity)
+
+
 def test_non_telegram_account_id_keeps_existing_transport_routing():
     runner = _runner()
     transport = _WeakrefableTransport()

@@ -4321,12 +4321,12 @@ class TurnRunner:
         if not ctx._run_still_current():
             return
         ctx._voice_ack_fired[0] = True
-        _adapter = self._runner.adapters.get(Platform.DISCORD)
+        _adapter = self._runner._adapter_for_source(ctx.source)
         if _adapter is None or not hasattr(_adapter, "play_ack_in_voice"):
             return
         try:
             safe_schedule_threadsafe(
-                _adapter.play_ack_in_voice(ctx._voice_ack_guild[0]),
+                getattr(_adapter, "play_ack_in_voice")(ctx._voice_ack_guild[0]),
                 ctx._voice_ack_loop,
                 logger=logger,
                 log_message="voice ack scheduling error",
@@ -19192,7 +19192,9 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             adapter = self.adapters.get(Platform.DISCORD)
         self._set_adapter_auto_tts_disabled(adapter, chat_id, disabled=True)
 
-    def _is_duplicate_voice_transcript(self, guild_id: int, user_id: int, transcript: str) -> bool:
+    def _is_duplicate_voice_transcript(
+        self, guild_id: int, user_id: int, transcript: str, account_id: str | None = None
+    ) -> bool:
         """Suppress repeated STT outputs for the same recent utterance.
 
         Voice capture can occasionally emit the same utterance twice a few
@@ -19209,7 +19211,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
 
         now = time.monotonic()
         window_seconds = 12.0
-        key = (guild_id, user_id)
+        key = (str(account_id or ""), guild_id, user_id)
         recent_store = getattr(self, "_recent_voice_transcripts", None)
         if not isinstance(recent_store, dict):
             recent_store = {}
@@ -19273,7 +19275,9 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             logger.debug("Unauthorized voice input from user %d, ignoring", user_id)
             return
 
-        if self._is_duplicate_voice_transcript(guild_id, user_id, transcript):
+        if self._is_duplicate_voice_transcript(
+            guild_id, user_id, transcript, getattr(source, "account_id", None)
+        ):
             logger.info(
                 "Suppressing duplicate voice transcript for guild=%s user=%s: %s",
                 guild_id,
@@ -20973,7 +20977,16 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                     message_id = pending.get("message_id")
                     if platform_str and chat_id:
                         platform = Platform(platform_str)
-                        adapter = self.adapters.get(platform)
+                        update_source = SessionSource(
+                            platform=platform,
+                            chat_id=str(chat_id),
+                            chat_type=chat_type or "dm",
+                            user_id=pending.get("user_id"),
+                            thread_id=thread_id,
+                            profile=pending.get("profile"),
+                            account_id=pending.get("account_id"),
+                        )
+                        adapter = cast(Any, self._adapter_for_source(update_source))
                         metadata = self._thread_metadata_for_target(
                             platform,
                             chat_id,
@@ -21215,6 +21228,8 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             chat_type = pending.get("chat_type")
             thread_id = pending.get("thread_id")
             message_id = pending.get("message_id")
+            profile = pending.get("profile")
+            account_id = pending.get("account_id")
 
             if not exit_code_path.exists():
                 logger.info("Update notification deferred: update still running")
@@ -21231,9 +21246,19 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             if output_path.exists():
                 output = output_path.read_text(encoding="utf-8")
 
-            # Resolve adapter
+            # Resolve the exact source account. Telegram intentionally has no
+            # primary-adapter fallback when identity is absent or mismatched.
             platform = Platform(platform_str)
-            adapter = self.adapters.get(platform)
+            update_source = SessionSource(
+                platform=platform,
+                chat_id=str(chat_id or ""),
+                chat_type=chat_type or "dm",
+                user_id=pending.get("user_id"),
+                thread_id=thread_id,
+                profile=profile,
+                account_id=account_id,
+            )
+            adapter = cast(Any, self._adapter_for_source(update_source))
 
             if not adapter and chat_id:
                 # The update finished, but the target platform has not
@@ -23376,12 +23401,12 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         """
         if source.platform != Platform.DISCORD:
             return None
-        adapter = self.adapters.get(Platform.DISCORD)
+        adapter = self._adapter_for_source(source)
         guild_id = self._get_guild_id(event)
         if not (guild_id and adapter and hasattr(adapter, "get_voice_channel_context")):
             return None
         try:
-            vc_now = adapter.get_voice_channel_context(guild_id) or ""
+            vc_now = getattr(adapter, "get_voice_channel_context")(guild_id) or ""
         except Exception:
             logger.debug("voice-channel context read failed", exc_info=True)
             return None
