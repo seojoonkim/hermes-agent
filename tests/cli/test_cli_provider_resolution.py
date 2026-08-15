@@ -26,7 +26,7 @@ def _reset_modules(prefixes: tuple[str, ...]):
 @pytest.fixture(autouse=True)
 def _restore_cli_and_tool_modules():
     """Save and restore tools/cli/run_agent modules around every test."""
-    prefixes = ("tools", "cli", "run_agent")
+    prefixes = ("tools", "cli", "run_agent", "hermes_cli")
     original_modules = {
         name: module
         for name, module in sys.modules.items()
@@ -110,7 +110,14 @@ def _install_prompt_toolkit_stubs():
 
 def _import_cli():
     for name in list(sys.modules):
-        if name == "cli" or name == "run_agent" or name == "tools" or name.startswith("tools."):
+        if (
+            name == "cli"
+            or name == "run_agent"
+            or name == "tools"
+            or name.startswith("tools.")
+            or name == "hermes_cli"
+            or name.startswith("hermes_cli.")
+        ):
             sys.modules.pop(name, None)
 
     if "firecrawl" not in sys.modules:
@@ -120,7 +127,10 @@ def _import_cli():
         importlib.import_module("prompt_toolkit")
     except ModuleNotFoundError:
         _install_prompt_toolkit_stubs()
-    return importlib.import_module("cli")
+    cli = importlib.import_module("cli")
+    global hermes_main
+    hermes_main = importlib.import_module("hermes_cli.main")
+    return cli
 
 
 def test_hermes_cli_init_does_not_eagerly_resolve_runtime_provider(monkeypatch):
@@ -352,6 +362,11 @@ def test_codex_provider_uses_config_model(monkeypatch):
 
 
 def test_model_flow_custom_saves_verified_v1_base_url(monkeypatch, capsys):
+    _import_cli()
+    global hermes_main
+    hermes_main = importlib.import_module("hermes_cli.main")
+    model_flows = importlib.import_module("hermes_cli.model_setup_flows")
+    models = importlib.import_module("hermes_cli.models")
     monkeypatch.setattr(
         "hermes_cli.config.get_env_value",
         lambda key: "" if key in {"OPENAI_BASE_URL", "OPENAI_API_KEY"} else "",
@@ -362,7 +377,8 @@ def test_model_flow_custom_saves_verified_v1_base_url(monkeypatch, capsys):
     monkeypatch.setattr("hermes_cli.auth.deactivate_provider", lambda: None)
     monkeypatch.setattr("hermes_cli.main._save_custom_provider", lambda *args, **kwargs: None)
     monkeypatch.setattr(
-        "hermes_cli.models.probe_api_models",
+        models,
+        "probe_api_models",
         lambda api_key, base_url: {
             "models": ["llm"],
             "probed_url": "http://localhost:8000/v1/models",
@@ -384,7 +400,7 @@ def test_model_flow_custom_saves_verified_v1_base_url(monkeypatch, capsys):
     monkeypatch.setattr("builtins.input", lambda _prompt="": next(answers))
     monkeypatch.setattr("hermes_cli.secret_prompt.masked_secret_prompt", lambda _prompt="": next(answers))
 
-    hermes_main._model_flow_custom({})
+    model_flows._model_flow_custom({})
     output = capsys.readouterr().out
 
     assert "Saving the working base URL instead" in output
@@ -395,6 +411,11 @@ def test_model_flow_custom_saves_verified_v1_base_url(monkeypatch, capsys):
 
 
 def test_model_flow_custom_persists_selected_api_mode(monkeypatch):
+    _import_cli()
+    global hermes_main
+    hermes_main = importlib.import_module("hermes_cli.main")
+    model_flows = importlib.import_module("hermes_cli.model_setup_flows")
+    models = importlib.import_module("hermes_cli.models")
     saved_cfg = {"model": {"default": "", "provider": "custom", "base_url": ""}}
     captured_provider = {}
 
@@ -405,7 +426,8 @@ def test_model_flow_custom_persists_selected_api_mode(monkeypatch):
     monkeypatch.setattr("hermes_cli.auth._save_model_choice", lambda model: None)
     monkeypatch.setattr("hermes_cli.auth.deactivate_provider", lambda: None)
     monkeypatch.setattr(
-        "hermes_cli.models.probe_api_models",
+        models,
+        "probe_api_models",
         lambda api_key, base_url: {
             "models": [],
             "probed_url": f"{base_url.rstrip('/')}/models",
@@ -448,7 +470,7 @@ def test_model_flow_custom_persists_selected_api_mode(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _prompt="": next(answers))
     monkeypatch.setattr("hermes_cli.secret_prompt.masked_secret_prompt", lambda _prompt="": "test-key")
 
-    hermes_main._model_flow_custom({"model": {"provider": "custom"}})
+    model_flows._model_flow_custom({"model": {"provider": "custom"}})
 
     assert saved_cfg["model"]["provider"] == "custom"
     assert saved_cfg["model"]["base_url"] == "https://codex.example.com/v1"
