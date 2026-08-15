@@ -370,6 +370,10 @@ class TestFailureAttribution:
     """
 
     def _make_pool(self, tmp_path, monkeypatch, entries):
+        # Credential pools also discover external CLI credentials via
+        # Path.home(). Keep exact-cardinality tests isolated from the developer's
+        # real ~/.claude credentials as well as from HERMES_HOME.
+        monkeypatch.setenv("HOME", str(tmp_path / "home"))
         monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
         hermes_home = tmp_path / "hermes"
         hermes_home.mkdir(parents=True, exist_ok=True)
