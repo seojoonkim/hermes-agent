@@ -1,6 +1,8 @@
 """Regression coverage for CLI async-delegation completion ownership."""
 
 import queue
+import sys
+import types
 
 from cli import HermesCLI
 
@@ -26,18 +28,21 @@ def test_cli_completion_drain_uses_visible_session_identity(monkeypatch):
     claimed = []
     completed = []
 
-    monkeypatch.setattr(
-        "tools.process_registry.process_registry",
-        FakeRegistry(),
-    )
-    monkeypatch.setattr(
-        "tools.async_delegation.claim_event_delivery",
+    registry_module = types.ModuleType("tools.process_registry")
+    setattr(registry_module, "process_registry", FakeRegistry())
+    delegation_module = types.ModuleType("tools.async_delegation")
+    setattr(
+        delegation_module,
+        "claim_event_delivery",
         lambda evt, consumer: claimed.append((evt, consumer)) or "claim-token",
     )
-    monkeypatch.setattr(
-        "tools.async_delegation.complete_event_delivery",
+    setattr(
+        delegation_module,
+        "complete_event_delivery",
         lambda evt, token: completed.append((evt, token)),
     )
+    monkeypatch.setitem(sys.modules, "tools.process_registry", registry_module)
+    monkeypatch.setitem(sys.modules, "tools.async_delegation", delegation_module)
 
     cli._drain_process_notifications("cli-idle")
 
