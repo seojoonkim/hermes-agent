@@ -78,6 +78,74 @@ def make_async_session_db(sync_mock=None):
     return AsyncSessionDB(sync_mock), sync_mock
 
 
+# These legacy unit modules exercise queueing, progress, persistence, and other
+# runner behavior -- never account routing.  Their hand-built SessionSource
+# objects predate mandatory Telegram getMe identity and their bare runners do
+# not own an authoritative live-adapter registry.  Give only those modules the
+# narrow seam they actually need instead of weakening production's exact-
+# account fail-closed resolver (which has dedicated gateway contract tests).
+_LEGACY_NON_ROUTING_RUNNER_TESTS = {
+    "test_model_picker_persist.py",
+    "test_notice_rendering.py",
+    "test_plaintext_approval_routing.py",
+    "test_priority_path_compression_demotion_56391.py",
+    "test_queue_command.py",
+    "test_queue_consumption.py",
+    "test_queued_native_image_session_key.py",
+    "test_restart_resume_pending.py",
+    "test_run_cleanup_progress.py",
+    "test_run_progress_interrupt.py",
+    "test_run_progress_topics.py",
+    "test_session_hygiene.py",
+    "test_session_race_guard.py",
+    "test_stale_finalize_suppression.py",
+    "test_steer_command.py",
+    "test_steer_fifo_overwrite.py",
+    "test_subagent_protection_30170.py",
+    "test_telegram_photo_interrupts.py",
+    "test_telegram_topic_mode.py",
+    "test_update_command.py",
+}
+
+
+@pytest.fixture(autouse=True)
+def _legacy_non_routing_adapter_seam(request, monkeypatch):
+    """Resolve a test runner's sole platform adapter in non-routing unit tests.
+
+    Production ``GatewayRunner._adapter_for_source`` remains untouched.  New
+    tests must stamp a numeric Telegram ``account_id`` and register the live
+    adapter; this compatibility seam is intentionally allowlisted rather than
+    becoming a permissive global fixture.
+    """
+    if request.path.name not in _LEGACY_NON_ROUTING_RUNNER_TESTS:
+        return
+
+    from gateway.config import Platform
+    from gateway.run import GatewayRunner
+
+    production_resolver = GatewayRunner._adapter_for_source
+
+    def resolve_test_adapter(runner, source):
+        if source is None:
+            return None
+        platform = getattr(source, "platform", None)
+        platform_name = getattr(platform, "value", platform)
+        if platform == Platform.TELEGRAM or platform_name == Platform.TELEGRAM.value:
+            profile = getattr(source, "profile", None)
+            profile = profile.strip() if isinstance(profile, str) else ""
+            adapters = getattr(runner, "adapters", None) or {}
+            if profile and profile != "default":
+                return (
+                    (getattr(runner, "_profile_adapters", None) or {})
+                    .get(profile, {})
+                    .get(Platform.TELEGRAM)
+                )
+            return adapters.get(platform) or adapters.get(Platform.TELEGRAM)
+        return production_resolver(runner, source)
+
+    monkeypatch.setattr(GatewayRunner, "_adapter_for_source", resolve_test_adapter)
+
+
 class _FakeEnumMember(str):
     """A python-telegram-bot-faithful stand-in for a ``StrEnum`` member.
 

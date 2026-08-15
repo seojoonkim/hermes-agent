@@ -1465,7 +1465,9 @@ def _load_local_whisper_model(model_name: str, device: str = "auto", compute_typ
     We try the requested config first (fast CUDA path when it works), and on
     any CUDA library load failure fall back to CPU + int8.
     """
-    force_cpu = _should_force_faster_whisper_cpu()
+    # Protect native auto-device probing on Apple Silicon, while respecting an
+    # explicit user device/compute configuration.
+    force_cpu = device == "auto" and _should_force_faster_whisper_cpu()
     if force_cpu:
         # Importing ctranslate2/faster-whisper itself can abort on some
         # Apple Silicon/Rosetta installs because multiple Intel OpenMP runtimes

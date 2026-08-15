@@ -19,23 +19,49 @@ from tui_gateway import server
 
 
 @pytest.fixture(autouse=True)
-def _neuter_agent_prewarm_timer(request, monkeypatch):
-    """Stub the deferred agent pre-warm timer for every test in this module.
+def _isolate_background_session_workers(request, monkeypatch):
+    """Keep deferred TUI workers inside the test that started them.
 
     ``session.create`` and non-eager ``session.resume`` fire a 50 ms
     background ``threading.Timer`` (``_schedule_agent_build``) that calls
     whatever ``server._make_agent`` is patched in AT FIRE TIME. Left live,
     a timer armed by one test outlives it and lands in the NEXT test's
-    ``_make_agent`` mock, racily corrupting its captured state (the
-    ``'tip' == 'cont_tip'`` flakes in the session_resume tests). Tests that
-    exercise the deferred build itself opt back in with
-    ``@pytest.mark.real_agent_prewarm``.
+    ``_make_agent`` mock, racily corrupting its captured state.
+
+    Session initialization also starts a notification poller. Several unit
+    tests intentionally remove their synthetic session with ``_sessions.pop``
+    instead of exercising production teardown; without test-owned cleanup,
+    those pollers survive and can consume a later test's patched global
+    completion queue. Track and stop only pollers started by this test.
     """
-    if request.node.get_closest_marker("real_agent_prewarm"):
-        yield
-        return
-    monkeypatch.setattr(server, "_schedule_agent_build", lambda *a, **k: None)
+    pollers = []
+    poller_threads = []
+    real_start_poller = server._start_notification_poller
+    real_poller_loop = server._notification_poller_loop
+
+    def _tracked_poller_loop(*args, **kwargs):
+        thread = threading.current_thread()
+        if thread is not threading.main_thread():
+            poller_threads.append(thread)
+        return real_poller_loop(*args, **kwargs)
+
+    def _tracked_start_poller(*args, **kwargs):
+        stop = real_start_poller(*args, **kwargs)
+        pollers.append(stop)
+        return stop
+
+    monkeypatch.setattr(server, "_notification_poller_loop", _tracked_poller_loop)
+    monkeypatch.setattr(server, "_start_notification_poller", _tracked_start_poller)
+    if not request.node.get_closest_marker("real_agent_prewarm"):
+        monkeypatch.setattr(server, "_schedule_agent_build", lambda *a, **k: None)
     yield
+    for stop in pollers:
+        stop.set()
+    # The production poller waits on the queue for at most 0.5 s. Join every
+    # test-owned poller before monkeypatch restores the shared queue/functions.
+    for thread in poller_threads:
+        thread.join(timeout=2.0)
+        assert not thread.is_alive(), "test-owned notification poller leaked"
 
 
 def test_session_slot_is_claimed_on_first_turn_not_on_create(monkeypatch, tmp_path):
@@ -680,6 +706,10 @@ def test_profile_scoped_agent_build_starts_mcp_discovery_in_profile_home(
     try:
         server._start_agent_build(sid, session)
         assert built.wait(timeout=2)
+        # ``built`` fires inside _make_agent, before the worker finishes its
+        # callbacks/emits. Await its real completion signal to prevent output
+        # from leaking into a sibling test's patched stdout.
+        assert ready.wait(timeout=2)
     finally:
         server._sessions.pop(sid, None)
 
@@ -735,6 +765,7 @@ def test_profile_scoped_agent_build_installs_secret_scope(monkeypatch, tmp_path)
     try:
         server._start_agent_build(sid, session)
         assert built.wait(timeout=2)
+        assert ready.wait(timeout=2)
     finally:
         server._sessions.pop(sid, None)
 

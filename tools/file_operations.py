@@ -2267,52 +2267,58 @@ class ShellFileOperations(FileOperations):
 
     def _zero_match_probe(self, pattern: str, path: str,
                           file_glob: Optional[str]) -> Optional[str]:
-        """Return a hint for a 0-match content search, or None.
-
-        13.9% of production content searches return zero matches and give
-        the model nothing to steer by. Run ONE cheap case-insensitive count
-        probe; if it hits, say so. If the pattern contains regex
-        metacharacters, also probe it as a fixed string. Bounded: two rg
-        invocations max, count-only output.
-        """
-        if not self._has_command('rg'):
+        """Return a hint for a 0-match content search, or None."""
+        has_rg = self._has_command('rg')
+        if not has_rg and not self._has_command('grep'):
             return None
-        glob_expr = f" --glob {self._escape_shell_arg(file_glob)}" if file_glob else ""
-        probe = self._exec(
-            f"rg -i --count-matches{glob_expr} "
-            f"{self._escape_shell_arg(pattern)} {self._escape_shell_arg(path)} "
-            f"2>/dev/null | head -50",
-            timeout=30,
-        )
-        ci_total = 0
-        ci_files = 0
-        for line in (probe.stdout or "").strip().splitlines():
-            _p, _sep, n = line.rpartition(":")
-            if n.isdigit():
-                ci_total += int(n)
-                ci_files += 1
+        glob_expr = f" --glob {self._escape_shell_arg(file_glob)}" if file_glob and has_rg else ""
+        include_expr = f" --include {self._escape_shell_arg(file_glob)}" if file_glob and not has_rg else ""
+
+        def run_probe(*, insensitive: bool = False, hidden: bool = False,
+                      fixed: bool = False) -> tuple[int, int]:
+            if has_rg:
+                flags = ""
+                if insensitive:
+                    flags += " -i"
+                if hidden:
+                    flags += " --hidden --no-ignore"
+                if fixed:
+                    flags += " -F"
+                command = (
+                    f"rg{flags} --count-matches{glob_expr} "
+                    f"{self._escape_shell_arg(pattern)} {self._escape_shell_arg(path)} "
+                    "2>/dev/null | head -50"
+                )
+            else:
+                flags = "-rnH"
+                if insensitive:
+                    flags += "i"
+                if fixed:
+                    flags += "F"
+                exclude = "" if hidden else " --exclude-dir='.*'"
+                command = (
+                    f"grep {flags}{exclude}{include_expr} "
+                    f"{self._escape_shell_arg(pattern)} {self._escape_shell_arg(path)} "
+                    "2>/dev/null | head -50"
+                )
+            output = self._exec(command, timeout=30).stdout or ""
+            if has_rg:
+                counts = [
+                    int(line.rpartition(":")[2])
+                    for line in output.strip().splitlines()
+                    if line.rpartition(":")[2].isdigit()
+                ]
+                return sum(counts), len(counts)
+            lines = [line for line in output.splitlines() if line]
+            return len(lines), len({line.rsplit(":", 2)[0] for line in lines})
+
+        ci_total, ci_files = run_probe(insensitive=True)
         if ci_total > 0:
             return (
                 f"0 exact matches, but {ci_total} case-insensitive match(es) "
                 f"in {ci_files} file(s) — the pattern's casing may be wrong."
             )
-        # Hidden/ignored probe: rg skips dotdirs and .gitignore'd files by
-        # default. When the pattern exists only there, say so instead of
-        # returning a bare zero (bench case: match in .hidden/ silently
-        # missing from results).
-        hidden = self._exec(
-            f"rg --hidden --no-ignore --count-matches{glob_expr} "
-            f"{self._escape_shell_arg(pattern)} {self._escape_shell_arg(path)} "
-            f"2>/dev/null | head -50",
-            timeout=30,
-        )
-        h_total = 0
-        h_files = 0
-        for line in (hidden.stdout or "").strip().splitlines():
-            _p, _sep, n = line.rpartition(":")
-            if n.isdigit():
-                h_total += int(n)
-                h_files += 1
+        h_total, h_files = run_probe(hidden=True)
         if h_total > 0:
             return (
                 f"0 matches in visible files, but {h_total} match(es) in "
@@ -2320,17 +2326,7 @@ class ShellFileOperations(FileOperations):
                 "by default. Search the hidden path explicitly to include them."
             )
         if re.search(r"[.\[\](){}?*+^$\\|]", pattern):
-            fixed = self._exec(
-                f"rg -F --count-matches{glob_expr} "
-                f"{self._escape_shell_arg(pattern)} {self._escape_shell_arg(path)} "
-                f"2>/dev/null | head -50",
-                timeout=30,
-            )
-            f_total = sum(
-                int(line.rpartition(":")[2])
-                for line in (fixed.stdout or "").strip().splitlines()
-                if line.rpartition(":")[2].isdigit()
-            )
+            f_total, _ = run_probe(fixed=True)
             if f_total > 0:
                 return (
                     f"0 regex matches, but {f_total} literal match(es) — the "
@@ -2480,6 +2476,13 @@ class ShellFileOperations(FileOperations):
             used_rg = True
             result = self._search_with_rg(pattern, path, file_glob, limit, offset,
                                           output_mode, context)
+        elif _pattern_has_regex_newline(pattern) and self._has_command('python3'):
+            # grep is line-oriented. Use a small stdlib fallback so explicit
+            # newline regexes remain portable on hosts without ripgrep.
+            result = self._search_multiline_with_python(
+                pattern, path, file_glob, limit, offset, output_mode
+            )
+            used_rg = True  # Multiline-aware; skip the grep-only warning.
         elif self._has_command('grep'):
             result = self._search_with_grep(pattern, path, file_glob, limit, offset,
                                             output_mode, context)
@@ -2508,6 +2511,67 @@ class ShellFileOperations(FileOperations):
         if used_rg:
             return result
         return _maybe_warn_line_oriented_newline_pattern(result, pattern)
+
+    def _search_multiline_with_python(self, pattern: str, path: str,
+                                      file_glob: Optional[str], limit: int,
+                                      offset: int, output_mode: str) -> SearchResult:
+        """Portable multiline content search for hosts without ripgrep."""
+        import json
+
+        script = """import fnmatch,json,os,re,sys
+pattern,root,file_glob,mode=sys.argv[1:5]
+rx=re.compile(pattern,re.MULTILINE)
+if os.path.isfile(root):
+ targets=[(os.path.dirname(root) or '.',[],[os.path.basename(root)])]
+else:
+ targets=os.walk(root)
+for base,dirs,files in targets:
+ dirs[:]=[d for d in dirs if not d.startswith('.')]
+ for name in files:
+  if file_glob and not fnmatch.fnmatch(name,file_glob): continue
+  file_path=os.path.join(base,name)
+  try:
+   with open(file_path,encoding='utf-8') as fh: text=fh.read()
+  except (OSError,UnicodeError): continue
+  found=list(rx.finditer(text))
+  if not found: continue
+  if mode=='files_only': print(json.dumps({'path':file_path})); continue
+  if mode=='count': print(json.dumps({'path':file_path,'count':len(found)})); continue
+  for match in found:
+   lines=match.group(0).splitlines()
+   print(json.dumps({'path':file_path,'line':text.count('\\n',0,match.start())+1,'content':(lines[0] if lines else '')[:500]}))
+"""
+        command = " ".join([
+            "python3", "-c", self._escape_shell_arg(script),
+            self._escape_shell_arg(pattern), self._escape_shell_arg(path),
+            self._escape_shell_arg(file_glob or ""),
+            self._escape_shell_arg(output_mode),
+        ])
+        executed = self._exec(command, timeout=60)
+        if executed.exit_code != 0:
+            return SearchResult(error=f"Search failed: {executed.stdout.strip()}")
+        try:
+            rows = [json.loads(line) for line in executed.stdout.splitlines() if line]
+        except (TypeError, ValueError) as exc:
+            return SearchResult(error=f"Search failed: {exc}")
+        note = (
+            "Pattern contains \\n — multiline mode was enabled automatically "
+            "so the regex can match across line boundaries."
+        )
+        if output_mode == "files_only":
+            files = [row["path"] for row in rows]
+            return SearchResult(files=files[offset:offset + limit],
+                                total_count=len(files), warning=note)
+        if output_mode == "count":
+            counts = {row["path"]: row["count"] for row in rows}
+            return SearchResult(counts=counts, total_count=sum(counts.values()),
+                                warning=note)
+        matches = [SearchMatch(path=row["path"], line_number=row["line"],
+                               content=row["content"]) for row in rows]
+        return SearchResult(matches=matches[offset:offset + limit],
+                            total_count=len(matches),
+                            truncated=len(matches) > offset + limit,
+                            warning=note)
     
     def _search_with_rg(self, pattern: str, path: str, file_glob: Optional[str],
                         limit: int, offset: int, output_mode: str, context: int) -> SearchResult:

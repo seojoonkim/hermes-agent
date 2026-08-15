@@ -71,6 +71,11 @@ def _install_modal_test_modules(
     tools_package = types.ModuleType("tools")
     tools_package.__path__ = [str(TOOLS_DIR)]  # type: ignore[attr-defined]
     sys.modules["tools"] = tools_package
+    # A fake SDK is already installed below. Keep these snapshot tests isolated
+    # from the real optional-dependency policy and host package availability.
+    lazy_deps = types.ModuleType("tools.lazy_deps")
+    lazy_deps.ensure = lambda *_args, **_kwargs: None  # type: ignore[attr-defined]
+    sys.modules["tools.lazy_deps"] = lazy_deps
 
     env_package = types.ModuleType("tools.environments")
     env_package.__path__ = [str(TOOLS_DIR / "environments")]  # type: ignore[attr-defined]

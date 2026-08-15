@@ -252,12 +252,10 @@ class MemKraftMemoryProvider(MemoryProvider):
 
     def save_config(self, values, hermes_home):
         import yaml
+        from hermes_cli.config import read_user_config_raw
 
         cfg_path = Path(hermes_home) / "config.yaml"
-        raw = {}
-        if cfg_path.exists():
-            with open(cfg_path, encoding="utf-8-sig") as f:
-                raw = yaml.safe_load(f) or {}
+        raw = read_user_config_raw(cfg_path)
         raw.setdefault("plugins", {})["memkraft"] = values
         with open(cfg_path, "w", encoding="utf-8") as f:
             yaml.safe_dump(raw, f, allow_unicode=True, sort_keys=False)

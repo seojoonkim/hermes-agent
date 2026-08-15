@@ -1193,7 +1193,7 @@ class TestRunCommandSttIdleTimeout:
                 "import sys, time",
                 "for idx in range(4):",
                 "    print(f'tick {idx}', file=sys.stderr, flush=True)",
-                "    time.sleep(0.04)",
+                "    time.sleep(0.18)",
                 "print('done', flush=True)",
             ]),
             encoding="utf-8",
@@ -1201,7 +1201,9 @@ class TestRunCommandSttIdleTimeout:
 
         result = _run_command_stt(
             self._shell_command(sys.executable, "-u", str(script)),
-            timeout=0.1,
+            # Keep the total runtime above this idle window while leaving
+            # enough scheduling margin for a loaded parallel test worker.
+            timeout=0.5,
         )
 
         assert result.returncode == 0

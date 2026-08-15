@@ -42,8 +42,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, Future
@@ -305,7 +307,21 @@ def _run_one_file_once(
     file_timeout: float,
 ) -> Tuple[Path, int, str, dict[str, int], float]:
     """Single attempt of a per-file pytest subprocess (see _run_one_file)."""
-    cmd = [sys.executable, "-m", "pytest", str(file), *pytest_args]
+    # Parallel pytest processes otherwise share pytest's system-wide
+    # ``pytest-of-<user>/pytest-current`` symlink. Concurrent cleanup races can
+    # raise FileNotFoundError after every test in a file has passed. Give each
+    # attempt an isolated base temp unless the caller supplied one explicitly.
+    owns_basetemp = not any(
+        arg == "--basetemp" or arg.startswith("--basetemp=")
+        for arg in pytest_args
+    )
+    basetemp = tempfile.mkdtemp(prefix="hermes-pytest-") if owns_basetemp else None
+    isolated_args = (
+        [f"--basetemp={basetemp}", *pytest_args]
+        if basetemp is not None
+        else pytest_args
+    )
+    cmd = [sys.executable, "-m", "pytest", str(file), *isolated_args]
     
     subproc_start = time.monotonic()
     # launch the pytest process
@@ -359,6 +375,9 @@ def _run_one_file_once(
         _kill_tree(proc, pgid=pgid)
 
         output +=  "\n"
+    finally:
+        if basetemp is not None:
+            shutil.rmtree(basetemp, ignore_errors=True)
 
     if rc == 5:
         # No tests collected in THIS file — legitimate per-file: a

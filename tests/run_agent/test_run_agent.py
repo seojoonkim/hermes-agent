@@ -2696,18 +2696,16 @@ class TestRunConversation:
         assert result["completed"] is True
         system = agent.client.chat.completions.create.call_args.kwargs["messages"][0]
         assert system["role"] == "system"
-        assert system["content"] == [
-            {
-                "type": "text",
-                "text": "stable instructions",
-                "cache_control": {"type": "ephemeral"},
-            },
-            {
-                "type": "text",
-                "text": "\n\nsession context",
-                "cache_control": {"type": "ephemeral"},
-            },
-        ]
+        assert system["content"][0] == {
+            "type": "text",
+            "text": "stable instructions",
+            "cache_control": {"type": "ephemeral"},
+        }
+        dynamic = system["content"][1]
+        assert dynamic["type"] == "text"
+        assert dynamic["text"].startswith("\n\nsession context")
+        assert "[TASK INTENSITY: standard]" in dynamic["text"]
+        assert dynamic["cache_control"] == {"type": "ephemeral"}
 
     def test_codex_content_filter_incomplete_routes_to_policy_fallback(self, agent):
         self._setup_agent(agent)

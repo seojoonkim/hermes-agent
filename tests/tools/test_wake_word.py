@@ -218,8 +218,17 @@ def test_openwakeword_ensures_base_models_for_custom_path(monkeypatch):
     # so a fresh install crashed at load time on a missing melspectrogram.onnx.
     # The base feature models must be ensured for a custom path too.
     calls = _install_fake_openwakeword(monkeypatch)
+    # This regression is for the ONNX path; isolate it from the host's
+    # macOS-ARM64 safety coercion while preserving the Linux code path.
+    monkeypatch.setattr(ww.sys, "platform", "linux")
     eng = ww._OpenWakeWordEngine(
-        {"provider": "openwakeword", "openwakeword": {"model": "/models/hey_hermes.onnx"}}
+        {
+            "provider": "openwakeword",
+            "openwakeword": {
+                "model": "/models/hey_hermes.onnx",
+                "inference_framework": "onnx",
+            },
+        }
     )
     assert calls["download"] == [["/models/hey_hermes.onnx"]]
     assert eng._labels == ["hey_hermes"]

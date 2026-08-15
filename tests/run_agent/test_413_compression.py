@@ -423,10 +423,10 @@ class TestHTTP413Compression:
         assert result["completed"] is True
         assert len(request_payloads) == 2
         assert len(request_payloads[1]["messages"]) < len(request_payloads[0]["messages"])
-        assert request_payloads[1]["messages"][0] == {
-            "role": "system",
-            "content": "compressed prompt",
-        }
+        compressed_system = request_payloads[1]["messages"][0]
+        assert compressed_system["role"] == "system"
+        assert compressed_system["content"].startswith("compressed prompt")
+        assert "[TASK INTENSITY: standard]" in compressed_system["content"]
         assert request_payloads[1]["messages"][1] == {
             "role": "user",
             "content": "compressed summary",

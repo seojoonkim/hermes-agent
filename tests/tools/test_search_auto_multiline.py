@@ -49,3 +49,45 @@ class TestAutoMultiline:
         r = json.loads(search_tool(r"def missing\(\):\n    nope\(\)", path=str(proj), task_id="t-ml"))
         assert "error" not in r
         assert r["total_count"] == 0
+
+    @staticmethod
+    def _disable_rg(monkeypatch):
+        from tools import file_tools
+
+        ops = file_tools._get_file_ops()
+        real_has_command = ops._has_command
+        monkeypatch.setattr(
+            ops,
+            "_has_command",
+            lambda command: False if command == "rg" else real_has_command(command),
+        )
+
+    def test_python_fallback_searches_single_file(self, proj, monkeypatch):
+        """The no-rg multiline fallback must not treat a file as a directory."""
+        self._disable_rg(monkeypatch)
+        target = proj / "mod.py"
+
+        r = json.loads(
+            search_tool(
+                r"def setup\(\):\n    init_db\(\)",
+                path=str(target),
+                task_id="t-ml",
+            )
+        )
+
+        assert "error" not in r
+        assert r["total_count"] == 1
+        assert r["matches"][0]["path"] == str(target)
+
+    def test_python_fallback_handles_zero_width_match(self, proj, monkeypatch):
+        """A valid empty match must not crash result serialization."""
+        from tools import file_tools
+
+        self._disable_rg(monkeypatch)
+        result = file_tools._get_file_ops()._search_multiline_with_python(
+            r"\n?", str(proj / "mod.py"), None, 3, 0, "content"
+        )
+
+        assert result.error is None
+        assert result.total_count >= 1
+        assert result.matches[0].content == ""
