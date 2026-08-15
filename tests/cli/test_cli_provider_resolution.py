@@ -552,13 +552,16 @@ def test_auto_provider_name_localhost():
 def test_save_custom_provider_uses_provided_name(monkeypatch, tmp_path):
     """When a display name is passed, it should appear in the saved entry."""
     import yaml
-    from hermes_cli.main import _save_custom_provider
+    _import_cli()
+    main = importlib.import_module("hermes_cli.main")
+    config = importlib.import_module("hermes_cli.config")
+    _save_custom_provider = main._save_custom_provider
 
     cfg_path = tmp_path / "config.yaml"
     cfg_path.write_text(yaml.dump({}))
 
     monkeypatch.setattr(
-        "hermes_cli.config.load_config", lambda: yaml.safe_load(cfg_path.read_text()) or {},
+        config, "load_config", lambda: yaml.safe_load(cfg_path.read_text()) or {},
     )
     saved = {}
     def _save(cfg):
@@ -574,15 +577,18 @@ def test_save_custom_provider_uses_provided_name(monkeypatch, tmp_path):
 def test_save_custom_provider_references_the_key_instead_of_inlining_it(monkeypatch, tmp_path):
     """With key_env set the entry must not carry the secret (#69449)."""
     import yaml
-    from hermes_cli.main import _save_custom_provider
+    _import_cli()
+    main = importlib.import_module("hermes_cli.main")
+    config = importlib.import_module("hermes_cli.config")
+    _save_custom_provider = main._save_custom_provider
 
     cfg_path = tmp_path / "config.yaml"
     cfg_path.write_text(yaml.dump({}))
     monkeypatch.setattr(
-        "hermes_cli.config.load_config", lambda: yaml.safe_load(cfg_path.read_text()) or {},
+        config, "load_config", lambda: yaml.safe_load(cfg_path.read_text()) or {},
     )
     saved = {}
-    monkeypatch.setattr("hermes_cli.config.save_config", lambda cfg: saved.update(cfg))
+    monkeypatch.setattr(config, "save_config", lambda cfg: saved.update(cfg))
 
     _save_custom_provider(
         "http://localhost:11434/v1",
