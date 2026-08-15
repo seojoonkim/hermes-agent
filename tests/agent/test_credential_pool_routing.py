@@ -370,9 +370,12 @@ class TestFailureAttribution:
     """
 
     def _make_pool(self, tmp_path, monkeypatch, entries):
-        # Credential pools also discover external CLI credentials via
-        # Path.home(). Keep exact-cardinality tests isolated from the developer's
-        # real ~/.claude credentials as well as from HERMES_HOME.
+        # Credential pools also discover external CLI credentials. Redirect the
+        # file source and stub the canonical runtime reader so macOS Keychain
+        # credentials cannot change exact-cardinality assertions.
+        import agent.anthropic_adapter as anthropic_adapter
+
+        monkeypatch.setattr(anthropic_adapter, "read_claude_code_credentials", lambda: None)
         monkeypatch.setenv("HOME", str(tmp_path / "home"))
         monkeypatch.setenv("HERMES_HOME", str(tmp_path / "hermes"))
         hermes_home = tmp_path / "hermes"
