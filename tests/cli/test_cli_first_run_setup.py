@@ -28,7 +28,7 @@ def _reset_modules(prefixes: tuple[str, ...]):
 
 @pytest.fixture(autouse=True)
 def _restore_cli_and_tool_modules():
-    prefixes = ("tools", "cli", "run_agent")
+    prefixes = ("tools", "cli", "run_agent", "hermes_cli")
     original_modules = {
         name: module
         for name, module in sys.modules.items()
@@ -43,7 +43,14 @@ def _restore_cli_and_tool_modules():
 
 def _import_cli():
     for name in list(sys.modules):
-        if name == "cli" or name == "run_agent" or name == "tools" or name.startswith("tools."):
+        if (
+            name == "cli"
+            or name == "run_agent"
+            or name == "tools"
+            or name.startswith("tools.")
+            or name == "hermes_cli"
+            or name.startswith("hermes_cli.")
+        ):
             sys.modules.pop(name, None)
     if "firecrawl" not in sys.modules:
         sys.modules["firecrawl"] = types.SimpleNamespace(Firecrawl=object)
