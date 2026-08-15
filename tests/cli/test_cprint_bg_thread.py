@@ -100,6 +100,30 @@ def test_cprint_same_thread_as_app_loop_direct_print(monkeypatch):
     assert direct_prints == ["x"]
 
 
+def test_cprint_stale_app_loop_does_not_schedule_worker_output(monkeypatch, capsys):
+    """A dead app loop cannot consume callbacks from a worker thread."""
+    import threading
+
+    monkeypatch.setattr(cli, "_PT_ANSI", lambda t: t)
+
+    class DeadLoop:
+        def is_running(self):
+            return False
+
+        def call_soon_threadsafe(self, *_args):
+            raise AssertionError("dead loop must not be scheduled")
+
+    fake_app = SimpleNamespace(_is_running=True, loop=DeadLoop())
+    fake_pt_app = types.ModuleType("prompt_toolkit.application")
+    setattr(fake_pt_app, "get_app_or_none", lambda: fake_app)
+    setattr(fake_pt_app, "run_in_terminal", lambda *a, **kw: None)
+    monkeypatch.setitem(sys.modules, "prompt_toolkit.application", fake_pt_app)
+
+    thread = threading.Thread(target=lambda: cli._cprint("worker"))
+    thread.start()
+    thread.join()
+
+    assert "worker" in capsys.readouterr().out
 
 
 def test_cprint_swallows_prompt_toolkit_import_error(monkeypatch):

@@ -3125,16 +3125,28 @@ def _cprint(text: str):
     try:
         # Use get_running_loop() instead of get_event_loop() to avoid the
         # DeprecationWarning / RuntimeWarning emitted by Python 3.10+ when
-        # get_event_loop() is called from a thread that has no current event
-        # loop set (e.g. the process_loop background thread).  Fixes #19285.
+        # called from a thread without a current event loop.
         current_loop = _asyncio.get_running_loop()
     except RuntimeError:
         current_loop = None
     except Exception:
-        current_loop = None
+        # Compatibility with older asyncio shims and test doubles.
+        try:
+            current_loop = _asyncio.get_event_loop_policy().get_event_loop()
+        except Exception:
+            current_loop = None
+
     # Same thread as the app's loop → safe to print directly.
     if current_loop is loop and loop.is_running():
         _pt_print(_PT_ANSI(text))
+        return
+
+    # A stale prompt_toolkit application may remain visible after its loop has
+    # been torn down. A dead loop cannot execute a scheduled callback, so
+    # preserve output synchronously regardless of the caller thread. A live
+    # loop in another thread must continue to the scheduling path below.
+    if not loop.is_running():
+        print(text)
         return
 
     # Cross-thread emission: ask the app's event loop to schedule a
