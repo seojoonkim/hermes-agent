@@ -8,6 +8,7 @@ import subprocess
 from unittest.mock import patch
 
 from cli import HermesCLI
+import hermes_cli.browser_connect as browser_connect
 from hermes_cli.browser_connect import (
     _wait_for_browser_debug_ready_or_exit,
     get_chrome_debug_candidates,
@@ -126,14 +127,12 @@ class TestChromeDebugLaunch:
             def poll(self):
                 return 127
 
-        monkeypatch.setattr(
-            "hermes_cli.browser_connect.chrome_debug_data_dir", lambda: str(tmp_path)
-        )
+        monkeypatch.setattr(browser_connect, "chrome_debug_data_dir", lambda: str(tmp_path))
         stderr_path = tmp_path / "launch-stderr.log"
-        with patch("hermes_cli.browser_connect.get_chrome_debug_candidates", return_value=[chrome]), \
-             patch("hermes_cli.browser_connect.is_browser_debug_ready", return_value=False), \
+        with patch.object(browser_connect, "get_chrome_debug_candidates", return_value=[chrome]), \
+             patch.object(browser_connect, "is_browser_debug_ready", return_value=False), \
              patch("subprocess.Popen", side_effect=lambda *a, **k: _Proc(stderr_path)):
-            result = launch_chrome_debug(9222, "Linux")
+            result = browser_connect.launch_chrome_debug(9222, "Linux")
 
         assert result.launched is False
         assert result.attempts[0].returncode == 127
