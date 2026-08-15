@@ -1,5 +1,6 @@
 """Tests for save_config_value() in cli.py — atomic write behavior."""
 
+import importlib
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -51,12 +52,13 @@ class TestSaveConfigValueAtomic:
 
     def test_model_write_runs_shared_cron_drift_warning(self, config_env, monkeypatch):
         warning = MagicMock()
+        cli_module = importlib.import_module("cli")
+        config_module = importlib.import_module("hermes_cli.config")
         monkeypatch.setattr(
-            "hermes_cli.config.warn_unpinned_cron_jobs_after_model_config_change",
-            warning,
+            config_module, "warn_unpinned_cron_jobs_after_model_config_change", warning
         )
 
-        from cli import save_config_value
+        save_config_value = cli_module.save_config_value
 
         assert save_config_value("model.default", "new-model") is True
         warning.assert_called_once_with("model.default", "new-model")
