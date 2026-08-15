@@ -11,6 +11,7 @@ Tests are parametrized over platforms via the ``platform`` fixture in conftest.
 """
 
 import asyncio
+import weakref
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -204,6 +205,11 @@ class TestAuthorization:
         runner._is_user_authorized = lambda _source: False
 
         event = make_event(platform, "/help")
+        # Real inbound events are created by adapter.build_source(), which
+        # stamps exact account identity and in-process transport provenance.
+        # This test builds MessageEvent directly, so preserve that contract.
+        event.source.account_id = getattr(adapter, "account_id", None)
+        setattr(event.source, "_transport_adapter_ref", weakref.ref(adapter))
         adapter.send.reset_mock()
         await adapter.handle_message(event)
         await asyncio.sleep(0.3)

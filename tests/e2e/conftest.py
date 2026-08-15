@@ -19,6 +19,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from gateway.config import GatewayConfig, Platform, PlatformConfig
+from gateway.platform_registry import PlatformIdentity
 from gateway.platforms.base import MessageEvent, SendResult
 from gateway.session import SessionEntry, SessionSource, build_session_key
 
@@ -176,7 +177,14 @@ def make_runner(platform: Platform, session_entry: SessionEntry = None) -> "Gate
 
     runner = object.__new__(GatewayRunner)
     runner.config = GatewayConfig(
-        platforms={platform: PlatformConfig(enabled=True, token="e2e-test-token")}
+        platforms={
+            platform: PlatformConfig(
+                enabled=True,
+                token="e2e-test-token",
+                # Make authorization behavior independent of host allowlists.
+                extra={"unauthorized_dm_behavior": "pair"},
+            )
+        }
     )
     runner.adapters = {}
     runner._voice_mode = {}
@@ -238,6 +246,8 @@ def make_runner(platform: Platform, session_entry: SessionEntry = None) -> "Gate
     runner.pairing_store = MagicMock()
     runner.pairing_store._is_rate_limited = MagicMock(return_value=False)
     runner.pairing_store.generate_code = MagicMock(return_value="ABC123")
+    # Multiplex-aware lookup prefers per-profile stores only when present.
+    runner.pairing_stores = {}
 
     return runner
 
@@ -247,7 +257,13 @@ def make_adapter(platform: Platform, runner=None):
     if runner is None:
         runner = make_runner(platform)
 
-    config = PlatformConfig(enabled=True, token="e2e-test-token")
+    config = PlatformConfig(
+        enabled=True,
+        token="e2e-test-token",
+        # The host running E2E may have real gateway allowlists exported.
+        # Explicit pairing keeps the fixture contract hermetic.
+        extra={"unauthorized_dm_behavior": "pair"},
+    )
 
     if platform == Platform.DISCORD:
         from gateway.platforms.helpers import ThreadParticipationTracker
@@ -259,6 +275,18 @@ def make_adapter(platform: Platform, runner=None):
         platform_key = Platform.SLACK
     else:
         adapter = TelegramAdapter(config)
+        # Telegram source routing is account-identity exact and fail-closed.
+        # E2E fixtures do not connect/getMe, so stamp a realistic ASCII bot ID
+        # and let MessageEvent construction retain this adapter as provenance.
+        adapter._note_bot_account_id("900000001")
+        setattr(
+            adapter,
+            "_platform_registry_binding",
+            (
+                "default",
+                PlatformIdentity(platform="telegram", account_id="900000001"),
+            ),
+        )
         platform_key = Platform.TELEGRAM
 
     adapter.send = AsyncMock(return_value=SendResult(success=True, message_id="e2e-resp-1"))
