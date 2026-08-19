@@ -13,7 +13,10 @@ full parent environment (provider API keys included):
 - ``permissions._run`` (every permission probe) — telemetry env only
 """
 
+import asyncio
 import json
+import sys
+import types
 from unittest.mock import MagicMock
 
 SECRET = "sk-super-secret-should-not-leak"
@@ -138,7 +141,86 @@ def test_cli_fallback_sanitizes_env_and_hides_console_on_windows(monkeypatch):
     assert captured["creationflags"] == CREATE_NO_WINDOW
 
 
-def test_embedded_daemon_popen_uses_real_home_with_profile_context(
+def test_standard_macos_runtime_uses_real_home_with_sanitized_profile_context(
+    monkeypatch, tmp_path
+):
+    """The standard MCP transport owns a GUI launch on macOS."""
+    from tools.computer_use import cua_backend
+
+    real_home = tmp_path / "user-home"
+    profile_root = tmp_path / "profiles" / "work"
+    profile_home = profile_root / "home"
+    real_home.mkdir()
+    profile_home.mkdir(parents=True)
+
+    monkeypatch.setattr(cua_backend.sys, "platform", "darwin")
+    monkeypatch.setenv("HOME", str(profile_home))
+    monkeypatch.setenv("HERMES_HOME", str(profile_root))
+    monkeypatch.setenv("HERMES_REAL_HOME", str(real_home))
+    monkeypatch.setenv("ANTHROPIC_API_KEY", SECRET)
+    from tools.environments import local
+
+    monkeypatch.setattr(
+        local,
+        "_sanitize_subprocess_env",
+        lambda env: {k: v for k, v in env.items() if k != "ANTHROPIC_API_KEY"},
+    )
+    monkeypatch.setattr(cua_backend, "resolve_cua_driver_cmd", lambda: "cua-driver")
+    monkeypatch.setattr(
+        cua_backend,
+        "_resolve_mcp_invocation",
+        lambda command: (command, ["mcp"]),
+    )
+    monkeypatch.setattr(cua_backend, "_cua_grant_existing_profile", lambda: False)
+
+    captured = {}
+    owner = cua_backend._CuaDriverSession(bridge=MagicMock())
+
+    class _StdioServerParameters:
+        def __init__(self, **kwargs):
+            captured.update(kwargs)
+
+    class _AsyncContext:
+        def __init__(self, value):
+            self.value = value
+
+        async def __aenter__(self):
+            return self.value
+
+        async def __aexit__(self, *args):
+            return None
+
+    class _ClientSession:
+        async def initialize(self):
+            assert owner._shutdown_event is not None
+            owner._shutdown_event.set()
+
+        async def list_tools(self):
+            return types.SimpleNamespace(tools=[])
+
+    mcp = types.ModuleType("mcp")
+    stdio = types.ModuleType("mcp.client.stdio")
+    monkeypatch.setattr(
+        mcp, "ClientSession", lambda *args: _AsyncContext(_ClientSession()), raising=False
+    )
+    monkeypatch.setattr(mcp, "StdioServerParameters", _StdioServerParameters, raising=False)
+    monkeypatch.setattr(
+        stdio,
+        "stdio_client",
+        lambda params: _AsyncContext((object(), object())),
+        raising=False,
+    )
+    monkeypatch.setitem(sys.modules, "mcp", mcp)
+    monkeypatch.setitem(sys.modules, "mcp.client.stdio", stdio)
+
+    asyncio.run(owner._lifecycle_coro())
+
+    assert captured["env"]["HOME"] == str(real_home)
+    assert captured["env"]["HERMES_HOME"] == str(profile_root)
+    assert "ANTHROPIC_API_KEY" not in captured["env"]
+
+
+def test_embedded_macos_daemon_uses_real_home_with_sanitized_profile_context(
     monkeypatch, tmp_path
 ):
     """GUI children must not inherit terminal profile-HOME isolation."""
@@ -154,6 +236,15 @@ def test_embedded_daemon_popen_uses_real_home_with_profile_context(
     monkeypatch.setenv("HERMES_HOME", str(profile_root))
     monkeypatch.setenv("HERMES_REAL_HOME", str(real_home))
     monkeypatch.setenv("TERMINAL_HOME_MODE", "profile")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", SECRET)
+    monkeypatch.setattr(cua_backend.sys, "platform", "darwin")
+    from tools.environments import local
+
+    monkeypatch.setattr(
+        local,
+        "_sanitize_subprocess_env",
+        lambda env: {k: v for k, v in env.items() if k != "ANTHROPIC_API_KEY"},
+    )
     monkeypatch.setattr(
         cua_backend,
         "_resolve_mcp_invocation",
@@ -186,6 +277,25 @@ def test_embedded_daemon_popen_uses_real_home_with_profile_context(
     assert captured["env"]["HOME"] == str(real_home)
     assert captured["env"]["HOME"] != str(profile_home)
     assert captured["env"]["HERMES_HOME"] == str(profile_root)
+    assert "ANTHROPIC_API_KEY" not in captured["env"]
+
+
+def test_gui_runtime_env_preserves_profile_home_off_macos(monkeypatch, tmp_path):
+    from tools.computer_use import cua_backend
+
+    profile_root = tmp_path / "profiles" / "work"
+    profile_home = profile_root / "home"
+    monkeypatch.setattr(cua_backend.sys, "platform", "linux")
+    monkeypatch.setenv("HOME", str(profile_home))
+    monkeypatch.setenv("HERMES_HOME", str(profile_root))
+    monkeypatch.setenv("HERMES_REAL_HOME", str(tmp_path / "user-home"))
+    monkeypatch.setenv("ANTHROPIC_API_KEY", SECRET)
+
+    env = cua_backend._cua_gui_runtime_env(cua_backend.cua_driver_child_env())
+
+    assert env["HOME"] == str(profile_home)
+    assert env["HERMES_HOME"] == str(profile_root)
+    assert "ANTHROPIC_API_KEY" not in env
 
 
 def test_permissions_run_sanitizes_env(monkeypatch):

@@ -398,6 +398,18 @@ def cua_driver_child_env(base_env: Optional[Dict[str, str]] = None) -> Dict[str,
     return env
 
 
+def _cua_gui_runtime_env(base_env: Dict[str, str]) -> Dict[str, str]:
+    """Sanitize a GUI-launching CUA runtime env and preserve macOS identity."""
+    from tools.environments.local import _sanitize_subprocess_env
+
+    env = _sanitize_subprocess_env(base_env)
+    if sys.platform == "darwin":
+        from hermes_constants import get_real_home
+
+        env["HOME"] = get_real_home(env)
+    return env
+
+
 def _linux_session_locked() -> Optional[bool]:
     """Best-effort: is the graphical session locked? (Linux only.)
 
@@ -673,18 +685,13 @@ class _EmbeddedCuaDaemon:
     def start(self) -> None:
         if self._process is not None and self._process.poll() is None:
             return
-        from tools.environments.local import _sanitize_subprocess_env
 
         if not self._driver_cmd:
             self._driver_cmd = resolve_cua_driver_cmd() or ""
         if not self._driver_cmd:
             raise RuntimeError(cua_driver_install_hint())
         self._command, self._mcp_args = _resolve_mcp_invocation(self._driver_cmd)
-        env = _sanitize_subprocess_env(self.child_env())
-        # cua-driver launches GUI processes whose macOS identity/keychain lookup
-        # must use the OS account HOME, not terminal profile-HOME isolation.
-        from hermes_constants import get_real_home
-        env["HOME"] = get_real_home(env)
+        env = _cua_gui_runtime_env(self.child_env())
         command = [
             self._command,
             "serve",
@@ -1584,7 +1591,6 @@ class _CuaDriverSession:
         import time as _time
         from mcp import ClientSession, StdioServerParameters
         from mcp.client.stdio import stdio_client
-        from tools.environments.local import _sanitize_subprocess_env
 
         # Build the shutdown event on the loop's thread so the asyncio
         # primitive belongs to the correct loop.
@@ -1621,9 +1627,7 @@ class _CuaDriverSession:
             params = StdioServerParameters(
                 command=command,
                 args=args,
-                # Apply the telemetry policy first (default: disabled), then
-                # sanitize Hermes-managed secrets out of the child env.
-                env=_sanitize_subprocess_env(child_env),
+                env=_cua_gui_runtime_env(child_env),
             )
 
             async with stdio_client(params) as (read, write):
