@@ -21188,6 +21188,67 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
 
         await _deliver()
 
+    async def _post_turn_requirements_continuation(
+        self,
+        *,
+        source: Any,
+        result: Any,
+        event: Any = None,
+    ) -> bool:
+        """After the visible result lands, explain and resume unmet requirements."""
+        if not isinstance(result, dict) or source is None:
+            return False
+
+        from gateway.requirements_continuation import (
+            build_requirements_continuation,
+            parse_continuation_payload,
+        )
+
+        continuation_result = dict(result)
+        prior = parse_continuation_payload(getattr(event, "text", None))
+        if prior is not None:
+            continuation_result["requirements_continuation_attempt"] = prior["attempt"]
+        continuation = build_requirements_continuation(continuation_result)
+        if continuation is None:
+            return False
+
+        adapter = self._adapter_for_source(source)
+        if adapter is None and not getattr(self.config, "multiplex_profiles", False):
+            adapter = self.adapters.get(source.platform)
+        if adapter is None:
+            return False
+        session_key = self._session_key_for_source(source)
+        if not session_key:
+            return False
+
+        async def _deliver_and_enqueue() -> None:
+            metadata = self._thread_metadata_for_source(source)
+            await adapter.send(source.chat_id, continuation.notice, metadata=metadata)
+            if continuation.prompt:
+                continuation_event = MessageEvent(
+                    text=continuation.prompt,
+                    message_type=MessageType.TEXT,
+                    source=source,
+                    message_id=None,
+                    channel_prompt=None,
+                    internal=True,
+                )
+                self._enqueue_fifo(session_key, continuation_event, adapter)
+
+        if hasattr(adapter, "register_post_delivery_callback"):
+            generation = None
+            active = getattr(adapter, "_active_sessions", {}).get(session_key)
+            if active is not None:
+                generation = getattr(active, "_hermes_run_generation", None)
+            adapter.register_post_delivery_callback(
+                session_key,
+                _deliver_and_enqueue,
+                generation=generation,
+            )
+        else:
+            await _deliver_and_enqueue()
+        return True
+
     async def _post_turn_goal_continuation(
         self,
         *,
@@ -21286,7 +21347,16 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         is_internal: bool,
         event: Any = None,
     ) -> None:
-        """Run goal and loop bookkeeping after an agent turn returns."""
+        """Run requirements, goal, and loop bookkeeping after an agent turn returns."""
+        try:
+            await self._post_turn_requirements_continuation(
+                source=source,
+                result=agent_result,
+                event=event,
+            )
+        except Exception as exc:
+            logger.debug("requirements continuation hook failed: %s", exc)
+
         final_text = self._final_text_for_post_turn_hooks(agent_result, event)
 
         try:
