@@ -138,6 +138,56 @@ def test_cli_fallback_sanitizes_env_and_hides_console_on_windows(monkeypatch):
     assert captured["creationflags"] == CREATE_NO_WINDOW
 
 
+def test_embedded_daemon_popen_uses_real_home_with_profile_context(
+    monkeypatch, tmp_path
+):
+    """GUI children must not inherit terminal profile-HOME isolation."""
+    from tools.computer_use import cua_backend
+
+    real_home = tmp_path / "user-home"
+    profile_root = tmp_path / "profiles" / "work"
+    profile_home = profile_root / "home"
+    real_home.mkdir()
+    profile_home.mkdir(parents=True)
+
+    monkeypatch.setenv("HOME", str(profile_home))
+    monkeypatch.setenv("HERMES_HOME", str(profile_root))
+    monkeypatch.setenv("HERMES_REAL_HOME", str(real_home))
+    monkeypatch.setenv("TERMINAL_HOME_MODE", "profile")
+    monkeypatch.setattr(
+        cua_backend,
+        "_resolve_mcp_invocation",
+        lambda command: (command, ["mcp"]),
+    )
+
+    captured = {}
+
+    class _FakeProcess:
+        stderr = ()
+
+        def poll(self):
+            return None
+
+    def _fake_popen(command, **kwargs):
+        captured["command"] = command
+        captured["env"] = kwargs["env"]
+        return _FakeProcess()
+
+    monkeypatch.setattr(cua_backend.subprocess, "Popen", _fake_popen)
+    monkeypatch.setattr(
+        cua_backend.subprocess,
+        "run",
+        lambda *args, **kwargs: _fake_completed_process(""),
+    )
+
+    daemon = cua_backend._EmbeddedCuaDaemon("cua-driver", "unrestricted")
+    daemon.start()
+
+    assert captured["env"]["HOME"] == str(real_home)
+    assert captured["env"]["HOME"] != str(profile_home)
+    assert captured["env"]["HERMES_HOME"] == str(profile_root)
+
+
 def test_permissions_run_sanitizes_env(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", SECRET)
     monkeypatch.setenv("PATH", "/usr/bin:/bin")

@@ -681,6 +681,10 @@ class _EmbeddedCuaDaemon:
             raise RuntimeError(cua_driver_install_hint())
         self._command, self._mcp_args = _resolve_mcp_invocation(self._driver_cmd)
         env = _sanitize_subprocess_env(self.child_env())
+        # cua-driver launches GUI processes whose macOS identity/keychain lookup
+        # must use the OS account HOME, not terminal profile-HOME isolation.
+        from hermes_constants import get_real_home
+        env["HOME"] = get_real_home(env)
         command = [
             self._command,
             "serve",
