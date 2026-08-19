@@ -64,6 +64,11 @@ from agent.interrupt_compat import request_hard_interrupt
 from agent.turn_context import (
     compression_made_progress,
 )
+from agent.runtime_resume import (
+    MemKraftResumeStore,
+    build_incomplete_handoff,
+    build_resume_prompt,
+)
 from hermes_cli.config import _is_ssh_remote_tilde_cwd, cfg_get
 from hermes_cli.fallback_config import get_fallback_chain
 
@@ -6843,6 +6848,8 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         self._completion_notification_batch_flush_tasks: set[asyncio.Task] = set()
         self._completion_notification_batch_window = 0.1
         self._completion_notification_batches_stopping = False
+        # Durable handoffs are separate from transcripts and prompt-cache state.
+        self._runtime_resume_store = MemKraftResumeStore(Path(self.config.sessions_dir).parent)
 
         # Cache AIAgent instances per session to preserve prompt caching.
         # Without this, a new AIAgent is created per message, rebuilding the
@@ -13936,6 +13943,103 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             return get_active_profile_name() or "default"
         except Exception:
             return "default"
+
+    def _runtime_resume_channel_key(self, source: SessionSource) -> str:
+        return ":".join(
+            (
+                str(getattr(source.platform, "value", source.platform) or ""),
+                str(source.user_id or ""),
+                str(source.chat_id or ""),
+                str(getattr(source, "thread_id", None) or ""),
+            )
+        )
+
+    def _arm_runtime_resume_after_delivery(
+        self,
+        *,
+        agent_result,
+        source,
+        session_entry,
+        session_key,
+        run_generation,
+        incomplete_goal,
+    ):
+        if (
+            not isinstance(agent_result, dict)
+            or agent_result.get("completed") is not False
+            or not str(agent_result.get("turn_exit_reason") or "").startswith(
+                "max_iterations_reached"
+            )
+            or not agent_result.get("final_response")
+        ):
+            return None
+        handoff = build_incomplete_handoff(
+            profile=str(getattr(source, "profile", None) or self._active_profile_name()),
+            session_id=str(session_entry.session_id),
+            channel_key=self._runtime_resume_channel_key(source),
+            turn_exit_reason=str(agent_result["turn_exit_reason"]),
+            incomplete_goal=incomplete_goal,
+            messages=agent_result.get("messages") or (),
+        )
+        if not handoff.last_verified_commit:
+            return None
+        adapter = self._adapter_for_source(source)
+        if adapter is None:
+            return None
+
+        def _persist() -> None:
+            self._runtime_resume_store.persist(handoff)
+
+        try:
+            adapter.register_post_delivery_callback(
+                session_key, _persist, generation=run_generation
+            )
+        except Exception:
+            return None
+        return handoff.resume_token
+
+    def _schedule_durable_resume_checkpoints(self) -> int:
+        store = getattr(self, "_runtime_resume_store", None)
+        if store is None:
+            return 0
+        scheduled = 0
+        active_profile = self._active_profile_name()
+        for path in sorted(store._directory.glob("*.json")):
+            token = path.stem
+            # Validate profile scope before mutating durable state. A checkpoint
+            # from another profile must remain untouched for its rightful runner.
+            raw = store.load(token, profile=active_profile)
+            if not raw:
+                continue
+            parts = str(raw.get("channel_key") or "").split(":", 3)
+            if len(parts) != 4:
+                continue
+            try:
+                source = SessionSource(
+                    platform=Platform(parts[0]),
+                    chat_id=parts[2],
+                    user_id=parts[1] or None,
+                    thread_id=parts[3] or None,
+                    profile=raw.get("profile") or self._active_profile_name(),
+                )
+                adapter = self._adapter_for_source(source)
+                if adapter is None:
+                    continue
+                event = MessageEvent(
+                    text=build_resume_prompt(raw),
+                    message_type=MessageType.TEXT,
+                    source=source,
+                    internal=True,
+                )
+                if not store.mark_dispatched(token):
+                    continue
+                task = asyncio.create_task(adapter.handle_message(event))
+                self._background_tasks.add(task)
+                task.add_done_callback(self._background_tasks.discard)
+                scheduled += 1
+            except Exception:
+                continue
+        return scheduled
 
     # ── Kanban board watchers ───────────────────────────────────────────
     # The kanban notifier/dispatcher watcher loops + their helpers live in
