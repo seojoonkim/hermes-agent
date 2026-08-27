@@ -1,7 +1,4 @@
-"""Shared gateway restart constants and supervisor detection helpers."""
-
-import os
-from collections.abc import Mapping
+"""Shared gateway restart constants and parsing helpers."""
 
 from hermes_cli.config import DEFAULT_CONFIG
 
@@ -9,61 +6,14 @@ from hermes_cli.config import DEFAULT_CONFIG
 # the gateway after a graceful drain/reload path completes.
 GATEWAY_SERVICE_RESTART_EXIT_CODE = 75
 
-# EX_CONFIG from sysexits.h — fatal configuration error (e.g. token
-# collision, no messaging platforms).  The s6 finish script translates
-# this into exit 125 (permanent failure) so the supervisor stops
-# restarting the gateway.  See #51228.
-GATEWAY_FATAL_CONFIG_EXIT_CODE = 78
-
-# Set by ``hermes gateway run --external-supervisor``. Unlike systemd's
-# INVOCATION_ID and launchd's XPC_SERVICE_NAME, this survives wrappers that
-# intentionally replace the child environment (for example ``sudo env -i``).
-EXTERNAL_GATEWAY_SUPERVISOR_ENV = "HERMES_GATEWAY_EXTERNAL_SUPERVISOR"
+# The model emits this only after it has completed and verified every item from
+# the interrupted request. The gateway consumes it before user delivery and
+# uses it as the durable resume_pending clear condition.
+RESTART_RESUME_COMPLETE_MARKER = "[GATEWAY_RESUME_COMPLETE]"
 
 DEFAULT_GATEWAY_RESTART_DRAIN_TIMEOUT = float(
     DEFAULT_CONFIG["agent"]["restart_drain_timeout"]
 )
-
-# In-band restart (``/restart``, SIGUSR1, self-restart from a child CLI)
-# waits for active turns to finish *before* ``stop()`` begins. Distinct
-# from ``restart_drain_timeout``, which is the force-interrupt budget
-# once ``stop()`` is running (and must stay short under systemd
-# TimeoutStopSec). See #77184.
-DEFAULT_GATEWAY_RESTART_AFTER_TURN_TIMEOUT = float(
-    DEFAULT_CONFIG["agent"]["restart_after_turn_timeout"]
-)
-
-
-def is_gateway_supervisor_process(
-    environ: Mapping[str, str] | None = None,
-) -> bool:
-    """Return whether this gateway process is owned by a supervisor."""
-    env = os.environ if environ is None else environ
-    if env.get("INVOCATION_ID"):
-        return True
-    if env.get("HERMES_S6_SUPERVISED_CHILD"):
-        return True
-    xpc_service = env.get("XPC_SERVICE_NAME", "")
-    if xpc_service and xpc_service != "0":
-        return True
-    return str(env.get(EXTERNAL_GATEWAY_SUPERVISOR_ENV, "")).strip().lower() in {
-        "1",
-        "true",
-        "yes",
-        "on",
-    }
-
-
-def is_container_restart_context() -> bool:
-    """Return whether the gateway is running inside a container for restart
-    routing purposes (Docker/Podman ⇒ the detached setsid path dies with the
-    cgroup; exit-75 service restart is the only viable path).
-
-    Extracted from the inline probe in the /restart handler so tests can mock
-    container detection hermetically — a real ``/.dockerenv`` on a
-    containerized CI runner otherwise flips the routing under the test.
-    """
-    return os.path.exists("/.dockerenv") or os.path.exists("/run/.containerenv")
 
 
 def parse_restart_drain_timeout(raw: object) -> float:
@@ -75,46 +25,47 @@ def parse_restart_drain_timeout(raw: object) -> float:
     return max(0.0, value)
 
 
-def parse_restart_after_turn_timeout(raw: object) -> float:
-    """Parse the after-turn wait cap for in-band restart, falling back to default.
+def build_restart_resume_note(reason: str | None) -> str:
+    """Build the durable recovery instruction for an interrupted gateway turn.
 
-    ``0`` is a deliberate disable (legacy immediate drain) and must not fall
-    through to the default — unlike empty/missing input.
+    A persisted assistant progress update can describe actions that were still
+    pending when the process stopped. Recovery must therefore audit the whole
+    original request and transcript, not only an unfinished tool-result tail.
     """
-    if raw is None:
-        return DEFAULT_GATEWAY_RESTART_AFTER_TURN_TIMEOUT
-    if isinstance(raw, str) and not raw.strip():
-        return DEFAULT_GATEWAY_RESTART_AFTER_TURN_TIMEOUT
-    try:
-        value = float(raw)
-    except (TypeError, ValueError):
-        return DEFAULT_GATEWAY_RESTART_AFTER_TURN_TIMEOUT
-    return max(0.0, value)
+    reason_phrase = (
+        "the agent reaching its bounded tool-iteration limit"
+        if reason == "runtime_max_iterations"
+        else "a gateway restart"
+        if reason == "restart_timeout"
+        else "a gateway shutdown"
+        if reason == "shutdown_timeout"
+        else "a gateway interruption"
+    )
+    return (
+        "[System note: Your previous turn in this session was interrupted "
+        f"by {reason_phrase}. The conversation history below is intact. "
+        "Limit recovery to the current chat/topic session lineage. Never audit, "
+        "resume, or report unfinished work from an unrelated room, chat, channel, "
+        "topic, thread, or session key. The conversation history supplied to this "
+        "turn is the complete recovery scope. Resume the original user request "
+        "before treating any newer message as "
+        "a replacement. Audit the transcript for unfinished tool results and "
+        "for promised actions or deliverables in assistant progress updates. "
+        "Statements of progress or intent are not evidence of completion. "
+        "For every still-pending item, execute and verify it, then report what was "
+        "actually completed. Treat each promised post-restart check and final report "
+        "as pending until the transcript contains its concrete verification evidence; "
+        "a related but narrower success (for example, saving a preference) does not "
+        "complete the promised runtime checks. Only after every item is complete and "
+        "verified, append "
+        f"{RESTART_RESUME_COMPLETE_MARKER} to your final response. Do not append it "
+        "to a progress update, partial result, blocker report, or plan. Address the "
+        "user's new message only after recovering the original request.]"
+    )
 
 
-def resolve_restart_exit_wait_budget(
-    drain_timeout: float,
-    after_turn_timeout: float,
-    *,
-    headroom: float = 15.0,
-) -> float:
-    """Seconds a CLI should wait for the gateway PID to exit after SIGUSR1.
-
-    In-band restart may defer ``stop()`` until active turns finish
-    (``after_turn_timeout``) and then spend up to ``drain_timeout`` inside
-    ``stop()``. Callers that fall back to a hard kill on wait expiry must
-    cover both phases or they reintroduce #77184.
-    """
-    try:
-        drain = max(float(drain_timeout), 0.0)
-    except (TypeError, ValueError):
-        drain = 0.0
-    try:
-        after_turn = max(float(after_turn_timeout), 0.0)
-    except (TypeError, ValueError):
-        after_turn = 0.0
-    try:
-        margin = max(float(headroom), 0.0)
-    except (TypeError, ValueError):
-        margin = 0.0
-    return drain + after_turn + margin
+def consume_restart_resume_marker(text: object) -> tuple[str, bool]:
+    """Strip the internal completion marker and return whether it was present."""
+    value = str(text or "")
+    completed = RESTART_RESUME_COMPLETE_MARKER in value
+    return value.replace(RESTART_RESUME_COMPLETE_MARKER, "").rstrip(), completed
