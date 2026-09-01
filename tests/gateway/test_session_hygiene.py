@@ -649,6 +649,9 @@ async def test_session_hygiene_timeout_continues_to_agent_and_sets_cooldown(monk
     assert worker_started.is_set()
     assert runner._run_agent.await_count == 1
     assert runner.session_store.reset_session.call_count == 1
+    # The process-wide slot stays occupied until the detached worker really
+    # exits, preventing repeated timeouts from filling the executor queue.
+    assert runner._try_acquire_hygiene_slot() is None
     run_kwargs = runner._run_agent.await_args_list[0].kwargs
     assert run_kwargs["session_id"] == "sess-timeout-fresh"
     assert run_kwargs["history"] == []
@@ -658,13 +661,22 @@ async def test_session_hygiene_timeout_continues_to_agent_and_sets_cooldown(monk
     _cd_args = fake_db.record_compression_failure_cooldown.call_args[0]
     assert _cd_args[0] == "sess-timeout"
     assert _cd_args[1] > time.time()
-    timeout_warnings = [s for s in adapter.sent if "Context compression timed out" in s["content"]]
+    timeout_warnings = [
+        s for s in adapter.sent
+        if "Organizing the earlier conversation did not finish within 30 seconds" in s["content"]
+    ]
     assert len(timeout_warnings) == 1
+    assert "summary model" not in timeout_warnings[0]["content"]
+    assert "auxiliary.compression" not in timeout_warnings[0]["content"]
     fake_db.archive_and_compact.assert_not_called()
     SlowCompressAgent.last_instance.close.assert_not_called()
 
     release_worker.set()
     await asyncio.wait_for(asyncio.to_thread(cleanup_done.wait), timeout=2)
+
+    probe_slot = runner._try_acquire_hygiene_slot()
+    assert probe_slot is not None
+    probe_slot.release()
 
     # The late worker observed cancellation at the commit fence, so it never
     # mutated the live session after the new turn began. Cleanup still ran once

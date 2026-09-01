@@ -125,6 +125,23 @@ _STALL_NOTIFY_SEND_TIMEOUT_SECONDS = 15.0
 _GATEWAY_PROXY_SSE_BUFFER_MAX_CHARS = 16 * 1024 * 1024
 _TELEGRAM_COMMAND_MENTION_RE = re.compile(r"(?<![\w:/])/([A-Za-z0-9][A-Za-z0-9_-]*)")
 _GATEWAY_HYGIENE_PLATFORM = "gateway_hygiene"
+_GATEWAY_HYGIENE_SLOT = threading.BoundedSemaphore(1)
+
+
+class _HygieneSlotLease:
+    """Idempotent lease so timeout and completion can race safely."""
+
+    def __init__(self, semaphore: threading.BoundedSemaphore) -> None:
+        self._semaphore = semaphore
+        self._release_lock = threading.Lock()
+        self._released = False
+
+    def release(self) -> None:
+        with self._release_lock:
+            if self._released:
+                return
+            self._released = True
+            self._semaphore.release()
 
 _TELEGRAM_NOISY_STATUS_RE = re.compile(
     r"("  # transient/auxiliary status that should stay in logs, not gateway chats
@@ -173,6 +190,22 @@ _HYGIENE_COOLDOWN_LADDER_MULTIPLIERS = (1, 3, 9)
 # from "compaction silently switched off". 1h is well past the point where a
 # retry is cheap and still recovers within a session.
 _HYGIENE_COOLDOWN_MAX_SECONDS = 3600.0
+
+
+def resolve_hygiene_wait_budgets(compression_cfg: Optional[dict] = None) -> tuple[float, float]:
+    """Return bounded pre-agent hygiene idle and total wait budgets."""
+    cfg = compression_cfg if isinstance(compression_cfg, dict) else {}
+
+    def _positive_float(key: str, default: float) -> float:
+        try:
+            value = float(cfg.get(key, default))
+        except (TypeError, ValueError):
+            return default
+        return value if value > 0 else default
+
+    idle = _positive_float("hygiene_timeout_seconds", 30.0)
+    ceiling = _positive_float("hygiene_total_ceiling_seconds", 30.0)
+    return idle, max(idle, ceiling)
 
 
 def _hygiene_cooldown_for_failure(
@@ -6788,6 +6821,12 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
     _profile_failed_platforms: Optional[Dict[str, Dict[Platform, asyncio.Task]]] = None
     _systemd_watchdog: Optional[Any] = None
     _startup_restore_in_progress: bool = False
+
+    def _try_acquire_hygiene_slot(self):
+        """Acquire the process-wide hygiene compressor slot without waiting."""
+        if not _GATEWAY_HYGIENE_SLOT.acquire(blocking=False):
+            return None
+        return _HygieneSlotLease(_GATEWAY_HYGIENE_SLOT)
 
     # Deliberately finite exact-match surface for the natural-language room
     # policy command.  Do not replace this with fuzzy/LLM intent detection: this
@@ -20489,8 +20528,9 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             _hyg_threshold_pct = 0.85
             _hyg_compression_enabled = True
             _hyg_hard_msg_limit = 5000
-            _hyg_timeout_seconds = 30.0
-            _hyg_total_ceiling_seconds = 600.0
+            _hyg_timeout_seconds, _hyg_total_ceiling_seconds = (
+                resolve_hygiene_wait_budgets({})
+            )
             _hyg_failure_cooldown_seconds = 300.0
             _hyg_config_context_length = None
             _hyg_provider = None
@@ -20537,26 +20577,11 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                                     _hyg_hard_msg_limit = _parsed
                             except (TypeError, ValueError):
                                 pass
-                        _raw_timeout = _comp_cfg.get("hygiene_timeout_seconds")
-                        if _raw_timeout is not None:
-                            try:
-                                _parsed = float(_raw_timeout)
-                                if _parsed > 0:
-                                    _hyg_timeout_seconds = _parsed
-                            except (TypeError, ValueError):
-                                pass
-                        _raw_ceiling = _comp_cfg.get("hygiene_total_ceiling_seconds")
-                        if _raw_ceiling is not None:
-                            try:
-                                _parsed = float(_raw_ceiling)
-                                if _parsed > 0:
-                                    _hyg_total_ceiling_seconds = _parsed
-                            except (TypeError, ValueError):
-                                pass
-                        # The ceiling can never be tighter than one idle
-                        # window, or the extension loop would be dead code.
-                        _hyg_total_ceiling_seconds = max(
-                            _hyg_total_ceiling_seconds, _hyg_timeout_seconds,
+                        (
+                            _hyg_timeout_seconds,
+                            _hyg_total_ceiling_seconds,
+                        ) = resolve_hygiene_wait_budgets(
+                            _comp_cfg
                         )
                         _raw_cooldown = _comp_cfg.get("hygiene_failure_cooldown_seconds")
                         if _raw_cooldown is not None:
@@ -20700,6 +20725,17 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                                 )
                                 _needs_compress = False
 
+                _hygiene_slot = None
+                if _needs_compress:
+                    _hygiene_slot = self._try_acquire_hygiene_slot()
+                    if _hygiene_slot is None:
+                        logger.info(
+                            "Session hygiene: another compression worker is active; "
+                            "skipping this pre-agent pass for %s",
+                            session_entry.session_id,
+                        )
+                        _needs_compress = False
+
                 if _needs_compress:
                     logger.info(
                         "Session hygiene: %s messages, ~%s tokens (%s) — auto-compressing "
@@ -20825,6 +20861,11 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                                             commit_fence=_hyg_commit_fence,
                                         ),
                                     )
+                                    _hygiene_worker_slot = _hygiene_slot
+                                    _hyg_future.add_done_callback(
+                                        lambda _future, slot=_hygiene_worker_slot: slot.release()
+                                    )
+                                    _hygiene_slot = None
                                     try:
                                         # Progress-aware wait: the timeout is an
                                         # INACTIVITY budget, not a total one. The
@@ -20967,6 +21008,19 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                                                     "Failed to deliver compression-timeout "
                                                     "warning to user: %s",
                                                     _werr,
+                                                )
+                                            _fresh_entry = await self.async_session_store.reset_session(
+                                                session_key
+                                            )
+                                            if _fresh_entry is not None:
+                                                session_entry = _fresh_entry
+                                                history = []
+                                                self._evict_cached_agent(session_key)
+                                                await asyncio.to_thread(
+                                                    self._sync_telegram_topic_binding,
+                                                    source,
+                                                    session_entry,
+                                                    reason="hygiene-timeout-reset",
                                                 )
                                             raise
                                     except BaseException:
@@ -21242,6 +21296,9 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                         logger.warning(
                             "Session hygiene auto-compress failed: %s", e
                         )
+                    finally:
+                        if _hygiene_slot is not None:
+                            _hygiene_slot.release()
 
         # First-message onboarding -- only on the very first interaction ever.
         # Delivered on the current user message (sidecar), NOT the ephemeral

@@ -24,15 +24,15 @@ from agent.conversation_compression import (
 class TestResolveContextCompressionTimeouts:
     def test_defaults_when_empty_cfg(self):
         idle, ceiling = resolve_context_compression_timeouts({})
-        assert idle == 30.0
-        assert ceiling == 30.0
+        assert idle == 90.0
+        assert ceiling == 180.0
 
     def test_zero_idle_disables_wrapper(self):
         idle, ceiling = resolve_context_compression_timeouts(
             {"context_timeout_seconds": 0}
         )
         assert idle == 0.0
-        assert ceiling == 30.0
+        assert ceiling == 180.0
 
     def test_ceiling_clamped_to_idle(self):
         idle, ceiling = resolve_context_compression_timeouts(
@@ -424,6 +424,13 @@ class TestCompressContextForwarderOwnsTimeout:
         assert out_prompt == "sys"
         assert calls["n"] == 1
         agent._emit_warning.assert_called_once()
+        warning = agent._emit_warning.call_args.args[0]
+        assert "이전 대화 정리" in warning
+        assert "기존 메시지는 그대로 보존" in warning
+        assert "summary model" not in warning
+        assert "auxiliary.compression" not in warning
+        assert "/compress" not in warning
+        assert "/new" not in warning
         assert agent.context_compressor._consecutive_timeout_failures == 1
         agent.context_compressor._record_compression_failure_cooldown.assert_called_once()
         cooldown_args = (

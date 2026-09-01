@@ -181,9 +181,9 @@ COMPRESSION_RETRY_CONTEXT_REDUCED_STATUS_TEMPLATE = (
 # (_TELEGRAM_NOISY_STATUS_RE); it is pinned un-swallowed in
 # tests/gateway/test_telegram_noise_filter.py::VISIBLE_COMPRESSION_MESSAGES.
 CONTEXT_OVERFLOW_BLOCKED_WARNING_TEMPLATE = (
-    "⚠ This conversation is above its normal compaction threshold "
-    "(~{tokens:,} tokens >= {threshold:,}). I am preserving the history and will "
-    "retry or switch to deterministic compaction automatically; no user action is required."
+    "⚠ 이전 대화가 자동 정리 기준을 넘었지만 지금은 정리를 바로 실행할 수 없어. "
+    "기존 대화는 그대로 보존하고 다음 가능한 시점에 다시 정리할게. "
+    "별도로 할 일은 없어."
 )
 
 # Sample-formatted instances of every routine compression status line, for
@@ -717,8 +717,8 @@ class CompressionCommitFence:
 
 # Defaults for the in-agent (non-hygiene) progress-aware compress_context wrap.
 # Mirror hermes_cli.config.DEFAULT_CONFIG["compression"] keys of the same name.
-DEFAULT_CONTEXT_TIMEOUT_SECONDS = 30.0
-DEFAULT_CONTEXT_TOTAL_CEILING_SECONDS = 30.0
+DEFAULT_CONTEXT_TIMEOUT_SECONDS = 90.0
+DEFAULT_CONTEXT_TOTAL_CEILING_SECONDS = 180.0
 
 # Shared daemon pool for sync compress_context timeout wraps — analogous to
 # asyncio's default executor used by gateway session hygiene's

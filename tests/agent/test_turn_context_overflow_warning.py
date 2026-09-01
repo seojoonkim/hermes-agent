@@ -407,7 +407,10 @@ class TestWarningSurvivesNoiseFilter:
         message = self._emitted_warning("cooldown:30")
         assert "/new" not in message
         assert "/compress" not in message
-        assert "no user action is required" in message
+        assert "기존 대화는 그대로 보존" in message
+        assert "별도로 할 일은 없어" in message
+        assert "compaction threshold" not in message
+        assert "tokens" not in message
         assert (
             _prepare_gateway_status_message(Platform.TELEGRAM, "warn", message)
             == message
