@@ -301,6 +301,7 @@ from gateway.platforms.base import (
 )
 from plugins.platforms.telegram.telegram_ids import (
     normalize_telegram_chat_id,
+    telegram_chat_id_key,
 )
 from plugins.platforms.telegram.telegram_network import (
     SEED_FALLBACK_IPS,
@@ -5461,7 +5462,7 @@ class TelegramAdapter(BasePlatformAdapter):
         message in place. If the edit fails (message deleted, too old, etc.)
         we drop the cached id and send fresh.
         """
-        key = (str(chat_id), str(status_key))
+        key = (telegram_chat_id_key(chat_id), str(status_key))
         cached_id = self._status_message_ids.get(key)
         if cached_id is not None:
             result = await self.edit_message(
@@ -5919,6 +5920,19 @@ class TelegramAdapter(BasePlatformAdapter):
                 chat_id=normalize_telegram_chat_id(chat_id),
                 message_id=int(message_id),
             )
+            # ``send_or_update_status`` caches the Telegram message id so later
+            # updates can edit the same bubble. Once cleanup deletes that
+            # bubble, retaining the id makes the next turn edit a message that
+            # no longer exists ("Message to edit not found"). Invalidate only
+            # entries that point at this exact chat/message pair.
+            chat_key = telegram_chat_id_key(chat_id)
+            message_key = str(message_id)
+            for status_cache_key, cached_id in list(self._status_message_ids.items()):
+                if (
+                    telegram_chat_id_key(status_cache_key[0]) == chat_key
+                    and str(cached_id) == message_key
+                ):
+                    self._status_message_ids.pop(status_cache_key, None)
             return True
         except Exception as e:
             logger.debug(
