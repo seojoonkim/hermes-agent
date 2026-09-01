@@ -12177,6 +12177,21 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             task = session_tasks.get(session_key) if isinstance(session_tasks, dict) else None
             if task is not None:
                 await asyncio.shield(task)
+            try:
+                with self.session_store._lock:  # noqa: SLF001
+                    self.session_store._ensure_loaded_locked()  # noqa: SLF001
+                    entry = self.session_store._entries.get(session_key)  # noqa: SLF001
+                    still_pending = bool(entry and entry.resume_pending)
+            except Exception:
+                still_pending = True
+            if still_pending:
+                logger.warning(
+                    "Startup auto-resume for %s finished without clearing "
+                    "resume_pending; it remains eligible for retry",
+                    session_key,
+                )
+            else:
+                logger.info("Completed startup auto-resume for %s", session_key)
         finally:
             # _schedule_resume_pending_sessions pre-claims the runner slot
             # before spawning this task.  If adapter.handle_message raises
@@ -12185,6 +12200,15 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             _pre_state = self._peek_session_state(session_key)
             if (_pre_state.turn.agent if _pre_state else None) is _AGENT_PENDING_SENTINEL:
                 self._release_running_agent_state(session_key)
+
+    def _startup_recovery_active(self) -> bool:
+        """Return whether boot recovery still owns or may create agent work."""
+        if getattr(self, "_startup_restore_in_progress", False):
+            return True
+        return any(
+            not task.done()
+            for task in (getattr(self, "_startup_restore_tasks", None) or [])
+        )
 
     def _queue_startup_restore_event(self, event: MessageEvent) -> None:
         queue = getattr(self, "_startup_restore_queue", None)
@@ -32191,6 +32215,14 @@ async def start_gateway(config: Optional[GatewayConfig] = None, replace: bool = 
                 _drain = float(_get_restart_drain_timeout())
             except Exception:
                 _drain = 30.0
+            if runner._startup_recovery_active():
+                return {
+                    "pausing": False,
+                    "already_stopping": False,
+                    "deferred_reason": "startup_recovery_active",
+                    "pid": os.getpid(),
+                    "drain_timeout": _drain,
+                }
             accepted_box: list[bool] = []
             _done = threading.Event()
 

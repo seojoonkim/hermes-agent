@@ -777,6 +777,56 @@ async def test_startup_restore_waits_for_resume_before_draining_inbound():
     assert runner._startup_restore_in_progress is False
 
 
+def test_startup_recovery_activity_blocks_update_pause():
+    """A queued/running recovery turn is active work even before agent dispatch."""
+    runner, _adapter = make_restart_runner()
+    runner._startup_restore_in_progress = True
+    runner._startup_restore_tasks = []
+    assert runner._startup_recovery_active() is True
+
+    runner._startup_restore_in_progress = False
+    pending = MagicMock()
+    pending.done.return_value = False
+    runner._startup_restore_tasks = [pending]
+    assert runner._startup_recovery_active() is True
+
+    pending.done.return_value = True
+    assert runner._startup_recovery_active() is False
+
+
+@pytest.mark.asyncio
+async def test_startup_resume_without_clearing_pending_is_not_reported_complete(caplog):
+    """Task return is not recovery success while durable pending remains set."""
+    runner, adapter = make_restart_runner()
+    source = make_restart_source(chat_id="still-pending")
+    entry = SessionEntry(
+        session_key="agent:main:telegram:dm:still-pending",
+        session_id="sid",
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+        origin=source,
+        platform=Platform.TELEGRAM,
+        chat_type="dm",
+        resume_pending=True,
+        resume_reason="restart_interrupted",
+        last_resume_marked_at=datetime.now(),
+    )
+    runner.session_store._entries = {entry.session_key: entry}
+    adapter.handle_message = AsyncMock()
+
+    with caplog.at_level("WARNING", logger="gateway.run"):
+        await runner._run_startup_resume_event(
+            adapter,
+            MessageEvent(
+                text="", message_type=MessageType.TEXT, source=source, internal=True
+            ),
+            entry.session_key,
+        )
+
+    assert "finished without clearing resume_pending" in caplog.text
+    assert "Completed startup auto-resume" not in caplog.text
+
+
 # ---------------------------------------------------------------------------
 # Shutdown banner wording
 # ---------------------------------------------------------------------------
