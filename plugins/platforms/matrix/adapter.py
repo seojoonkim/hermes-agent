@@ -1273,6 +1273,19 @@ class MatrixAdapter(BasePlatformAdapter):
             self._free_rooms: Set[str] = {
                 r.strip() for r in str(free_rooms_raw).split(",") if r.strip()
             }
+        required_rooms_raw = config.extra.get("require_mention_rooms")
+        if required_rooms_raw is None:
+            required_rooms_raw = os.getenv("MATRIX_REQUIRE_MENTION_ROOMS", "")
+        if isinstance(required_rooms_raw, list):
+            self._require_mention_rooms: Set[str] = {
+                str(r).strip() for r in required_rooms_raw if str(r).strip()
+            }
+        else:
+            self._require_mention_rooms = {
+                r.strip()
+                for r in str(required_rooms_raw).split(",")
+                if r.strip()
+            }
         # If non-empty, bot ONLY responds in these rooms (whitelist); DMs exempt.
         allowed_rooms_raw = config.extra.get("allowed_rooms")
         if allowed_rooms_raw is None:
@@ -3391,9 +3404,22 @@ class MatrixAdapter(BasePlatformAdapter):
                 return None
 
             is_free_room = room_id in self._free_rooms
+            force_mention = room_id in self._require_mention_rooms
             in_bot_thread = bool(thread_id and thread_id in self._threads)
             is_command = body.startswith("/")
-            if self._require_mention and not is_free_room and not in_bot_thread:
+            if force_mention and not is_mentioned:
+                logger.debug(
+                    "Matrix: ignoring message %s in %s — explicit room mention required",
+                    event_id,
+                    room_id,
+                )
+                return None
+            if (
+                not force_mention
+                and self._require_mention
+                and not is_free_room
+                and not in_bot_thread
+            ):
                 if not is_mentioned and not is_command:
                     logger.debug(
                         "Matrix: ignoring message %s in %s — no @mention "
@@ -5390,6 +5416,11 @@ def _apply_yaml_config(yaml_cfg: dict, matrix_cfg: dict) -> dict | None:
         if isinstance(frc, list):
             frc = ",".join(str(v) for v in frc)
         os.environ["MATRIX_FREE_RESPONSE_ROOMS"] = str(frc)
+    rmr = matrix_cfg.get("require_mention_rooms")
+    if rmr is not None and not os.getenv("MATRIX_REQUIRE_MENTION_ROOMS"):
+        if isinstance(rmr, list):
+            rmr = ",".join(str(v) for v in rmr)
+        os.environ["MATRIX_REQUIRE_MENTION_ROOMS"] = str(rmr)
     ar = matrix_cfg.get("allowed_rooms")
     if ar is not None and not os.getenv("MATRIX_ALLOWED_ROOMS"):
         if isinstance(ar, list):

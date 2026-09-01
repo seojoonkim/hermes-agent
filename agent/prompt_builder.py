@@ -475,7 +475,27 @@ PARALLEL_TOOL_CALL_GUIDANCE = (
     "the whole conversation on every extra round-trip.\n"
     "Only serialize calls when a later call genuinely depends on an earlier "
     "call's result (e.g. you must read a file before you can patch it). When "
-    "in doubt and the calls are independent, batch them."
+    "doubt and the calls are independent, batch them."
+)
+
+ACTION_START_NOTE = (
+    "# Starting actionable work\n"
+    "Before the first tool call for a non-trivial actionable request, briefly "
+    "confirm the concrete target, the intended outcome, and the first action "
+    "you are starting now. Make the first tool call in the same response. The "
+    "confirmation must be specific to the request; do not use a reusable generic "
+    "receipt or an empty promise of future work. For a simple informational "
+    "question that needs no tools, answer it directly without a ceremonial "
+    "acknowledgment.\n\n"
+    "# Deferred follow-through\n"
+    "A background process, delegated agent, queued restart, or external wait is not "
+    "completion. Enable a completion notification before ending the turn. Never use "
+    "one silent wait longer than 300 seconds: wait in bounded checkpoints of at most "
+    "five minutes. When each checkpoint wakes the session, verify the real state, "
+    "send a concrete progress update when work remains, and re-arm the next bounded "
+    "checkpoint or continue execution without waiting for a user nudge. On final wake, "
+    "read back the external state before claiming success. Do not phrase pending work "
+    "as final closure."
 )
 
 # OpenAI GPT/Codex-specific execution guidance.  Addresses known failure modes
@@ -675,6 +695,24 @@ STEER_CHANNEL_NOTE += (
     "message follows the marker, it is historical context that you already "
     "received; do not treat it as a new message or repeat completed work solely "
     "because it remains in the conversation history."
+)
+
+# A gateway acknowledgment only proves delivery. The model still owns the
+# human response at the next boundary, so keep this shared across every
+# profile instead of duplicating it in profile-specific instructions.
+STEER_CHANNEL_NOTE += (
+    "\n\nWhen a newly delivered message asks for status, clarification, or a "
+    "correction, acknowledge it before starting another tool batch. Respond in "
+    "the user's language with ordinary, human-readable wording: confirm what "
+    "you received, name the concrete current stage, and state the next action. "
+    "For a status or ETA question, answer it directly before another tool batch; "
+    "do not substitute generic receipt-only text. Include the verified completed "
+    "stage, current stage, remaining bounded gates, and next action. Give an ETA only "
+    "when repeats or external waits are bounded. Do not expose internal terms such "
+    "as steer, queue, iteration, tool call, context compression, subagent, process "
+    "ID, provider, or raw commands unless the user explicitly asks for diagnostics. "
+    "A status question does not cancel the active task; after answering, continue "
+    "unless the user asked you to stop or change scope."
 )
 
 

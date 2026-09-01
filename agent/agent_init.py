@@ -910,7 +910,7 @@ def init_agent(
     # iteration. Message-role alternation is preserved (we modify an
     # existing tool message rather than inserting a new user turn).
     agent._pending_steer: Optional[str] = None
-    agent._pending_steer_lock = threading.Lock()
+    agent._pending_steer_lock = threading.RLock()
 
     # Active-turn redirect mechanism. A regular follow-up sent while the model
     # is generating is different from a hard /stop: preserve the valid turn
@@ -1792,7 +1792,10 @@ def init_agent(
     
     # In-memory todo list for task planning (one per agent/session)
     from tools.todo_tool import TodoStore
-    agent._todo_store = TodoStore()
+    agent._requirements_ledger = None
+    agent._requirements_turn_sequence = 0
+    agent._requirements_finalized = True
+    agent._todo_store = TodoStore(lock=agent._pending_steer_lock)
     
     # Load config once for memory, skills, and compression sections
     try:

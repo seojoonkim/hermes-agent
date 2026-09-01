@@ -114,18 +114,20 @@ def _finalize(
     )
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+def test_reserved_final_response_tail_uses_toolless_summary(monkeypatch):
+    """Stopping with three iterations left must still finalize once."""
+    monkeypatch.setattr("hermes_cli.plugins.invoke_hook", lambda *_a, **_kw: [])
+    agent = _LimitAgent(max_iterations=60, budget_remaining=3)
+    result = _finalize(
+        agent,
+        final_response=None,
+        exit_reason="final_response_reserved",
+        api_call_count=57,
+    )
+    assert agent._handle_max_iterations_called is True
+    assert result["final_response"] == "summary from extra call"
+    assert result["turn_exit_reason"] == "max_iterations_reached(57/60)"
+    assert result["completed"] is False
 
 
 @pytest.mark.parametrize(

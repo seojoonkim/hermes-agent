@@ -1,0 +1,5 @@
+name: active-model
+version: 1.0.0
+description: "OpenAI-compatible image generation using the active conversation model endpoint and credentials."
+author: NousResearch
+kind: backend

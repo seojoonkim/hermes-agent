@@ -370,3 +370,59 @@ def test_multiplex_closure_handler_without_callback_falls_back_to_env(monkeypatc
     assert adapter._is_user_authorized_from_message(
         _make_message(from_user_id=555, chat_id=-100123, chat_type="group")
     ) is False
+
+
+def test_approval_button_authorized_under_multiplex_closure_handler(monkeypatch):
+    """Approval buttons must use the profile-bound auth callback under multiplex.
+
+    The multiplex message handler is a closure without ``__self__``.  Inline
+    approval callbacks must therefore consult the callback installed by
+    ``set_authorization_check`` instead of falling back to env-only auth.
+    """
+    monkeypatch.delenv("TELEGRAM_ALLOWED_USERS", raising=False)
+    monkeypatch.delenv("GATEWAY_ALLOW_ALL_USERS", raising=False)
+
+    adapter = _make_adapter(group_allow_from=["46291309"])
+
+    async def closure_handler(event):
+        return None
+
+    adapter._message_handler = closure_handler
+
+    calls = []
+
+    def auth_check(user_id, chat_type=None, chat_id=None):
+        calls.append((user_id, chat_type, chat_id))
+        return user_id == "46291309" and chat_id == "-5459373215"
+
+    adapter.set_authorization_check(auth_check)
+
+    assert adapter._is_callback_user_authorized(
+        "46291309",
+        chat_id="-5459373215",
+        chat_type="supergroup",
+        user_name="Simon",
+    ) is True
+    assert calls == [("46291309", "group", "-5459373215")]
+
+
+def test_approval_button_denies_other_user_under_multiplex_closure_handler(monkeypatch):
+    """The multiplex callback path must remain fail-closed for other users."""
+    monkeypatch.delenv("TELEGRAM_ALLOWED_USERS", raising=False)
+    monkeypatch.delenv("GATEWAY_ALLOW_ALL_USERS", raising=False)
+
+    adapter = _make_adapter(group_allow_from=["46291309"])
+
+    async def closure_handler(event):
+        return None
+
+    adapter._message_handler = closure_handler
+    adapter.set_authorization_check(
+        lambda user_id, chat_type=None, chat_id=None: user_id == "46291309"
+    )
+
+    assert adapter._is_callback_user_authorized(
+        "99999999",
+        chat_id="-5459373215",
+        chat_type="supergroup",
+    ) is False

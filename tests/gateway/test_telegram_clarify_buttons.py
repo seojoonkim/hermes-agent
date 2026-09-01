@@ -7,6 +7,7 @@ Mirrors test_telegram_approval_buttons.py for the new ``send_clarify`` and
 import os
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -31,6 +32,9 @@ def _make_adapter(extra=None):
     config = PlatformConfig(enabled=True, token="test-token", extra=extra or {})
     adapter = TelegramAdapter(config)
     adapter._bot = AsyncMock()
+    adapter._bot.get_me = AsyncMock(
+        return_value=SimpleNamespace(id=123456789, username="hermes_test_bot")
+    )
     adapter._app = MagicMock()
     return adapter
 

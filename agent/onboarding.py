@@ -34,38 +34,22 @@ PROFILE_BUILD_FLAG = "profile_build_offered"
 # -------------------------------------------------------------------------
 
 def busy_input_hint_gateway(mode: str) -> str:
-    """Hint shown the first time a user messages while the agent is busy.
-
-    ``mode`` is the effective busy_input_mode that was just applied, so the
-    message matches reality ("I just interrupted…" vs "I just queued…").
-    """
+    """처음으로 작업 중 메시지를 보냈을 때 표시하는 한국어 안내."""
     if mode == "queue":
-        return (
-            "💡 First-time tip — I queued your message instead of interrupting. "
-            "Send `/busy interrupt` to make new messages stop the current task "
-            "immediately, or `/busy status` to check. This notice won't appear again."
-        )
+        return ("💡 처음 안내할게. 방금 메시지는 현재 작업을 중단하지 않고 다음 차례에 처리하도록 대기시켰어. "
+                "새 메시지로 현재 작업을 바로 중단하려면 `/busy interrupt`, 상태를 확인하려면 `/busy status`를 입력해줘. "
+                "이 안내는 다시 표시하지 않아.")
     if mode == "steer":
-        return (
-            "💡 First-time tip — I steered your message into the current run; "
-            "it will arrive after the next tool call instead of interrupting. "
-            "Send `/busy interrupt` or `/busy queue` to change this, or "
-            "`/busy status` to check. This notice won't appear again."
-        )
+        return ("💡 처음 안내할게. 방금 메시지는 현재 작업을 중단하지 않고 진행 중인 작업에 반영했어. "
+                "동작 방식을 바꾸려면 `/busy interrupt` 또는 `/busy queue`, 상태를 확인하려면 `/busy status`를 입력해줘. "
+                "이 안내는 다시 표시하지 않아.")
     if mode == "redirect":
-        return (
-            "💡 First-time tip — I redirected the current run using your message. "
-            "Completed work stays in context, and `/stop` still cancels the task. "
-            "Send `/busy queue` to wait for a separate turn, or `/busy status` "
-            "to check. This notice won't appear again."
-        )
-    return (
-        "💡 First-time tip — I just interrupted my current task to answer you. "
-        "Send `/busy queue` to queue follow-ups for after the current task instead, "
-        "`/busy steer` to inject them mid-run without interrupting, or "
-        "`/busy status` to check. This notice won't appear again."
-    )
-
+        return ("💡 처음 안내할게. 완료한 내용은 유지하면서 방금 메시지에 맞춰 작업 방향을 바꿨어. "
+                "모두 취소하려면 `/stop`, 다음 차례에 처리하려면 `/busy queue`, 상태를 확인하려면 `/busy status`를 입력해줘. "
+                "이 안내는 다시 표시하지 않아.")
+    return ("💡 처음 안내할게. 방금 메시지를 처리하기 위해 진행 중이던 작업을 중단했어. "
+            "다음 차례에 처리하려면 `/busy queue`, 현재 작업에 반영하려면 `/busy steer`, 상태를 확인하려면 `/busy status`를 입력해줘. "
+            "이 안내는 다시 표시하지 않아.")
 
 def busy_input_hint_cli(mode: str) -> str:
     """CLI version of the busy-input hint (plain text, no markdown)."""

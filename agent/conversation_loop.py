@@ -23,7 +23,9 @@ import random
 import re
 import ssl
 import sys
+import threading
 import time
+import uuid
 from typing import Any, Dict, List, Optional
 
 from agent.codex_responses_adapter import _summarize_user_message_for_log
@@ -247,6 +249,114 @@ _HANDOFF_SKIP_FINAL_RESPONSE = (
     "awaiting your next message."
 )
 
+def _start_requirements_turn(agent):
+    from agent.requirements_ledger import TurnRequirementsLedger
+    from tools.todo_tool import TodoStore
+
+    lock = getattr(agent, "_pending_steer_lock", None)
+    if not isinstance(lock, type(threading.RLock())):
+        lock = threading.RLock()
+        agent._pending_steer_lock = lock
+    with lock:
+        sequence = int(getattr(agent, "_requirements_turn_sequence", 0)) + 1
+        agent._requirements_turn_sequence = sequence
+        turn_id = f"{getattr(agent, 'session_id', None) or 'session'}:{sequence}:{uuid.uuid4().hex}"
+        ledger = TurnRequirementsLedger(turn_id, lock=lock)
+        agent._requirements_ledger = ledger
+        agent._requirements_finalized = False
+        agent._todo_store = TodoStore(lock=lock, reconciler=ledger.reconcile_todos)
+        return ledger
+
+
+def _initialize_task_intensity(agent, user_request):
+    from agent.task_intensity import classify_task_intensity
+
+    decision = classify_task_intensity(
+        user_request,
+        override=getattr(agent, "_task_intensity_override", None),
+        signals=getattr(agent, "_task_intensity_signals", None),
+    )
+    agent._task_intensity_decision = decision
+    agent._task_intensity_metadata = decision.as_metadata()
+    agent._task_intensity_prompt_guidance = decision.prompt_guidance
+    return decision
+
+
+def _build_task_intensity_system_context(
+    base_system, decision, *, steer_text=None, steer_override=None, steer_signals=None
+):
+    blocks = [base_system] if base_system else []
+    blocks.append(f"[TASK INTENSITY: {decision.level}]\n{decision.prompt_guidance}\n[/TASK INTENSITY]")
+    if steer_text:
+        from agent.task_intensity import classify_task_intensity
+        steer = classify_task_intensity(steer_text, override=steer_override, signals=steer_signals)
+        blocks.append(f"[STEER TASK INTENSITY: {steer.level}]\n{steer.prompt_guidance}\n[/STEER TASK INTENSITY]")
+    return "\n\n".join(blocks).strip()
+
+
+def _base_turn_completed(final_response, api_call_count, max_iterations, failed, interrupted):
+    return bool(final_response is not None and api_call_count < max_iterations and not failed and not interrupted)
+
+
+def _timing_subject_for_message(message: Any) -> str:
+    """Reduce a request to a closed telemetry cohort without retaining text."""
+    text = str(message or "").lower()
+    cohorts = (
+        ("development", ("code", "debug", "test", "deploy", "git", "pr", "코드", "개발", "버그", "배포", "테스트")),
+        ("scheduling", ("calendar", "schedule", "meeting", "일정", "캘린더", "미팅")),
+        ("health", ("health", "sleep", "exercise", "weight", "건강", "수면", "운동", "체중")),
+        ("research", ("research", "analyze", "paper", "조사", "분석", "논문")),
+        ("operations", ("server", "gateway", "config", "process", "서버", "게이트웨이", "설정", "운영")),
+    )
+    for subject, keywords in cohorts:
+        for keyword in keywords:
+            if keyword.isascii():
+                if re.search(rf"(?<![a-z0-9_]){re.escape(keyword)}(?![a-z0-9_])", text):
+                    return subject
+            elif keyword in text:
+                return subject
+    return "general"
+
+
+def _format_turn_eta(estimate: Any) -> str:
+    """Render only bounded Delay Ledger estimates that satisfy the ETA floor."""
+    if not isinstance(estimate, dict) or int(estimate.get("sample_count", 0) or 0) < 5:
+        return ""
+    try:
+        p50 = max(0, int(estimate["p50_ms"]))
+        p80 = max(p50, int(estimate["p80_ms"]))
+        risk = max(0, int(estimate["risk_adjustment_ms"]))
+    except (KeyError, TypeError, ValueError):
+        return ""
+    confidence = estimate.get("confidence")
+    if confidence not in {"low", "medium", "high"}:
+        confidence = "low"
+    critical_path = estimate.get("critical_path")
+    if critical_path not in {"development", "scheduling", "health", "research", "operations", "general"}:
+        critical_path = "general"
+    return (
+        f"ETA p50 {p50 / 1000:.1f}s · p80 {p80 / 1000:.1f}s · "
+        f"confidence {confidence} · critical path {critical_path} · risk +{risk / 1000:.1f}s"
+    )
+
+
+def _requirements_completion_gate(agent, existing_completed):
+    ledger = getattr(agent, "_requirements_ledger", None)
+    if ledger is None:
+        return {"completed": existing_completed}
+    requirements = ledger.requirements_snapshot()
+    pending = [item for item in requirements if item.get("must") and item.get("status") != "completed"]
+    decision = {
+        "completed": bool(existing_completed and not pending),
+        "requirements": requirements,
+        "requirements_revision": max((int(item.get("revision", 0)) for item in requirements), default=0),
+        "pending_requirements": pending,
+        "completion_blocked": bool(existing_completed and pending),
+    }
+    if decision["completion_blocked"]:
+        noun = "requirement remains" if len(pending) == 1 else "requirements remain"
+        decision.update(turn_exit_reason="pending_must_requirements", footer=f"⚠️ Incomplete: {len(pending)} must {noun} pending.")
+    return decision
 
 # Stable prefix of the local interrupt status string emitted when a turn is
 # cancelled while waiting on the provider. Surfaces (ACP, TUI) match on this
@@ -1820,7 +1930,22 @@ def _notify_context_engine_turn_complete(
         )
 
 
-def run_conversation(
+def _resolve_final_response_reserve(max_total: int) -> int:
+    """Return the clamped number of iterations reserved for finalization."""
+    try:
+        reserve = int(os.environ.get("HERMES_FINAL_RESPONSE_RESERVE", "3"))
+    except (TypeError, ValueError):
+        reserve = 3
+    return max(0, min(reserve, max(0, int(max_total) - 1)))
+
+
+def _should_enter_final_response_reserve(
+    *, api_call_count: int, remaining: int, reserve: int, grace_call: bool
+) -> bool:
+    return not grace_call and api_call_count > 0 and remaining <= reserve
+
+
+def _run_conversation_impl(
     agent,
     user_message: Any,
     system_message: str = None,
@@ -1861,6 +1986,9 @@ def run_conversation(
     Returns:
         Dict: Complete conversation result with final response and message history
     """
+    _start_requirements_turn(agent)
+    _initialize_task_intensity(agent, user_message)
+
     if moa_config is None:
         try:
             from hermes_cli.moa_config import decode_moa_turn
@@ -1930,6 +2058,9 @@ def run_conversation(
     _should_review_memory = _ctx.should_review_memory
     _plugin_user_context = _ctx.plugin_user_context
     _ext_prefetch_cache = _ctx.ext_prefetch_cache
+
+    manager = getattr(agent, "_memory_manager", None)
+    _timing_session_id = getattr(agent, "_turn_timing_session_id", "")
 
     # Commentary deduplication spans all provider continuations and tool calls
     # within one user turn, but must not suppress the same phrase next turn.
@@ -2007,15 +2138,50 @@ def run_conversation(
     # See agent/transports/codex_app_server_session.py for the adapter
     # and references/codex-app-server-runtime.md for the rationale.
     if agent.api_mode == "codex_app_server":
-        return agent._run_codex_app_server_turn(
-            user_message=user_message,
-            original_user_message=original_user_message,
-            messages=messages,
-            effective_task_id=effective_task_id,
-            should_review_memory=_should_review_memory,
-        )
+        if manager is not None:
+            manager.on_turn_progress(
+                getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                session_id=_timing_session_id,
+                phase="wait",
+                iteration=1,
+            )
+        try:
+            return agent._run_codex_app_server_turn(
+                user_message=user_message,
+                original_user_message=original_user_message,
+                messages=messages,
+                effective_task_id=effective_task_id,
+                should_review_memory=_should_review_memory,
+            )
+        finally:
+            # The subprocess call owns provider wait. Transition back even when
+            # it raises so the outer guard closes exactly once with its outcome.
+            if manager is not None:
+                manager.on_turn_progress(
+                    getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                    session_id=_timing_session_id,
+                    phase="active",
+                    iteration=1,
+                )
+
+    _final_response_reserve = _resolve_final_response_reserve(
+        agent.iteration_budget.max_total
+    )
 
     while (api_call_count < agent.max_iterations and agent.iteration_budget.remaining > 0) or agent._budget_grace_call:
+        if _should_enter_final_response_reserve(
+            api_call_count=api_call_count,
+            remaining=agent.iteration_budget.remaining,
+            reserve=_final_response_reserve,
+            grace_call=agent._budget_grace_call,
+        ):
+            _turn_exit_reason = "final_response_reserved"
+            logger.info(
+                "Stopping tool loop with %s/%s iterations reserved for final response",
+                agent.iteration_budget.remaining,
+                agent.iteration_budget.max_total,
+            )
+            break
         _redirect_text = agent._drain_pending_redirect()
         if _redirect_text:
             _apply_active_turn_redirect(agent, messages, _redirect_text)
@@ -2055,6 +2221,13 @@ def run_conversation(
         api_call_count += 1
         agent._api_call_count = api_call_count
         agent._touch_activity(f"starting API call #{api_call_count}")
+        if manager is not None:
+            manager.on_turn_progress(
+                getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                session_id=_timing_session_id,
+                phase="wait",
+                iteration=api_call_count,
+            )
 
         # Grace call: the budget is exhausted but we gave the model one
         # more chance.  Consume the grace flag so the loop exits after
@@ -2064,7 +2237,10 @@ def run_conversation(
         elif not agent.iteration_budget.consume():
             _turn_exit_reason = "budget_exhausted"
             if not agent.quiet_mode:
-                agent._safe_print(f"\n⚠️  Iteration budget exhausted ({agent.iteration_budget.used}/{agent.iteration_budget.max_total} iterations used)")
+                agent._safe_print(
+                    f"\n⚠️ 작업 단계 한도에 도달했어 "
+                    f"({agent.iteration_budget.used}/{agent.iteration_budget.max_total})."
+                )
             break
 
         # Fire step_callback for gateway hooks (agent:step event)
@@ -2114,6 +2290,7 @@ def run_conversation(
         # tool batch — injecting into a user message would break role
         # alternation, and there's no tool output to piggyback on.
         _pre_api_steer = agent._drain_pending_steer()
+        _delivered_steer_for_intensity = None
         if _pre_api_steer:
             _injected = False
             for _si in range(len(messages) - 1, -1, -1):
@@ -2133,6 +2310,7 @@ def run_conversation(
                         except Exception:
                             pass
                     _injected = True
+                    _delivered_steer_for_intensity = _pre_api_steer
                     logger.debug(
                         "Pre-API-call steer drain: injected into tool msg at index %d",
                         _si,
@@ -2389,6 +2567,13 @@ def run_conversation(
         effective_system = active_system_prompt or ""
         if agent.ephemeral_system_prompt:
             effective_system = (effective_system + "\n\n" + agent.ephemeral_system_prompt).strip()
+        effective_system = _build_task_intensity_system_context(
+            effective_system,
+            agent._task_intensity_decision,
+            steer_text=_delivered_steer_for_intensity,
+            steer_override=getattr(agent, "_task_intensity_override", None),
+            steer_signals=getattr(agent, "_task_intensity_signals", None),
+        )
         if effective_system:
             api_messages = [{"role": "system", "content": effective_system}] + api_messages
 
@@ -2674,6 +2859,21 @@ def run_conversation(
         _compression_cooldown = getattr(
             _compressor, "get_active_compression_failure_cooldown", lambda: None
         )()
+        _emergency_fallback = False
+        if _compression_cooldown:
+            _emergency_check = getattr(
+                _compressor, "should_emergency_fallback", None
+            )
+            if callable(_emergency_check):
+                try:
+                    _emergency_fallback = bool(
+                        _emergency_check(request_pressure_tokens)
+                    )
+                except Exception:
+                    logger.debug(
+                        "mid-turn emergency compression policy check failed",
+                        exc_info=True,
+                    )
         if (
             agent.compression_enabled
             and not _review_fork_first_request_pending(agent)
@@ -2681,8 +2881,13 @@ def run_conversation(
             and compression_attempts < max_compression_attempts
             and not _preflight_compression_blocked
             and not _defer_preflight(request_pressure_tokens)
-            and not _compression_cooldown
-            and _compressor.should_compress(request_pressure_tokens)
+            and (
+                _emergency_fallback
+                or (
+                    not _compression_cooldown
+                    and _compressor.should_compress(request_pressure_tokens)
+                )
+            )
         ):
             if _moa_prepared_request is not None:
                 pending_moa_prepared_request = _moa_prepared_request
@@ -2732,6 +2937,7 @@ def run_conversation(
                 system_message,
                 approx_tokens=request_pressure_tokens,
                 task_id=effective_task_id,
+                emergency_fallback=_emergency_fallback,
             )
             if messages is _pre_api_input and compression_skipped_due_to_lock(agent):
                 # #69870 lock-skip: another path holds this session's
@@ -3389,6 +3595,13 @@ def run_conversation(
                     # Invalid response — could be rate limiting, provider timeout,
                     # upstream server error, or malformed response.
                     retry_count += 1
+                    if manager is not None:
+                        manager.on_turn_progress(
+                            getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                            session_id=_timing_session_id,
+                            phase="rework",
+                            iteration=api_call_count,
+                        )
                     
                     # Eager fallback: empty/malformed responses are a common
                     # rate-limit symptom.  Switch to fallback immediately
@@ -3539,6 +3752,13 @@ def run_conversation(
                     continue  # Retry the API call
 
                 agent._turn_received_provider_response = True
+                if manager is not None:
+                    manager.on_turn_progress(
+                        getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                        session_id=_timing_session_id,
+                        phase="active",
+                        iteration=api_call_count,
+                    )
 
                 # Check finish_reason before proceeding
                 if agent.api_mode == "codex_responses":
@@ -3579,6 +3799,7 @@ def run_conversation(
                     _finish_result = _cc_fr.normalize_response(response)
                     finish_reason = _finish_result.finish_reason
                     assistant_message = _finish_result
+
                     if agent._should_treat_stop_as_truncated(
                         finish_reason,
                         assistant_message,
@@ -5187,6 +5408,13 @@ def run_conversation(
                     )
 
                 retry_count += 1
+                if manager is not None:
+                    manager.on_turn_progress(
+                        getattr(agent, "_turn_timing_turn_number", agent._user_turn_count),
+                        session_id=_timing_session_id,
+                        phase="rework",
+                        iteration=api_call_count,
+                    )
                 elapsed_time = time.time() - api_start_time
                 agent._touch_activity(
                     f"API error recovery (attempt {retry_count}/{max_retries})"
@@ -8583,10 +8811,9 @@ def run_conversation(
                 # break sites that set final_response without appending.
                 break
     
-    # Post-loop turn finalization extracted to agent/turn_finalizer.finalize_turn
-    # (god-file decomposition Phase 1 step 4). Behavior-neutral: the assembled
-    # result dict is returned exactly as before.
-    return finalize_turn(
+    # Post-loop turn finalization extracted to agent/turn_finalizer.finalize_turn.
+    # Keep the result so the outer MemKraft timing lifecycle can classify it.
+    result = finalize_turn(
         agent,
         final_response=final_response,
         api_call_count=api_call_count,
@@ -8603,7 +8830,107 @@ def run_conversation(
         _pending_verification_response=_pending_verification_response,
         _pending_verification_response_previewed=_pending_verification_response_previewed,
     )
+    return result
 
+
+def _timing_outcome(result: Any, escaped: Optional[BaseException], agent: Any) -> str:
+    if escaped is not None:
+        if (
+            isinstance(escaped, (KeyboardInterrupt, SystemExit, InterruptedError))
+            or type(escaped).__name__ == "CancelledError"
+            or getattr(agent, "_interrupt_requested", False)
+        ):
+            return "interrupted"
+        return "failed"
+    if isinstance(result, dict):
+        if result.get("interrupted") is True:
+            return "interrupted"
+        if result.get("completed") is True:
+            return "completed"
+        if result.get("failed") is True or result.get("error"):
+            return "failed"
+    return "partial"
+
+
+def run_conversation(
+    agent,
+    user_message: Any,
+    system_message: str = None,
+    conversation_history: List[Dict[str, Any]] = None,
+    task_id: str = None,
+    stream_callback: Optional[callable] = None,
+    persist_user_message: Optional[Any] = None,
+    persist_user_timestamp: Optional[float] = None,
+    persist_user_display_kind: Optional[str] = None,
+    persist_user_display_metadata: Optional[Dict[str, Any]] = None,
+    moa_config: Optional[dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Run one turn under a single-close timing lifecycle guard."""
+    manager = getattr(agent, "_memory_manager", None)
+    session_id = str(getattr(agent, "session_id", None) or "")
+    # A fresh agent starts at zero even when resuming persisted history. The
+    # generic prologue hydrates this counter, but timing intentionally starts
+    # before that prologue, so derive the same count from authoritative history
+    # without moving lifecycle hooks or external-memory prefetch.
+    history_user_turns = sum(
+        1
+        for message in (conversation_history or [])
+        if isinstance(message, dict) and message.get("role") == "user"
+    )
+    turn_number = max(
+        int(getattr(agent, "_user_turn_count", 0) or 0), history_user_turns
+    ) + 1
+    subject_message = persist_user_message
+    if subject_message is None:
+        subject_message = user_message
+    subject = _timing_subject_for_message(subject_message)
+    platform = getattr(agent, "platform", None) or "cli"
+    result = None
+    escaped = None
+    agent._turn_timing_session_id = session_id
+    agent._turn_timing_turn_number = turn_number
+    if manager is not None:
+        try:
+            manager.on_turn_timing_start(
+                turn_number, session_id=session_id, platform=platform, subject=subject
+            )
+            eta_text = _format_turn_eta(
+                manager.estimate_turn(platform=platform, subject=subject)
+            )
+            if eta_text:
+                agent._emit_status(eta_text)
+        except Exception:
+            pass
+    try:
+        result = _run_conversation_impl(
+            agent,
+            user_message,
+            system_message,
+            conversation_history,
+            task_id,
+            stream_callback,
+            persist_user_message,
+            persist_user_timestamp,
+            persist_user_display_kind,
+            persist_user_display_metadata,
+            moa_config,
+        )
+        return result
+    except BaseException as exc:
+        escaped = exc
+        raise
+    finally:
+        if manager is not None:
+            try:
+                manager.on_turn_finish(
+                    turn_number,
+                    session_id=session_id,
+                    outcome=_timing_outcome(result, escaped, agent),
+                )
+            except Exception:
+                pass
+        agent._turn_timing_session_id = ""
+        agent._turn_timing_turn_number = None
 
 
 __all__ = ["run_conversation"]

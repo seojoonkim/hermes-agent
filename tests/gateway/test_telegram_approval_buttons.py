@@ -1,5 +1,6 @@
 """Tests for Telegram inline keyboard approval buttons."""
 
+import asyncio
 import os
 import sys
 from pathlib import Path
@@ -17,6 +18,7 @@ if _repo not in sys.path:
 
 
 from plugins.platforms.telegram.adapter import TelegramAdapter
+from plugins.platforms.telegram import adapter as telegram_adapter_module
 from gateway.config import Platform, PlatformConfig
 
 
@@ -25,6 +27,9 @@ def _make_adapter(extra=None):
     config = PlatformConfig(enabled=True, token="test-token", extra=extra or {})
     adapter = TelegramAdapter(config)
     adapter._bot = AsyncMock()
+    adapter._bot.get_me = AsyncMock(
+        return_value=SimpleNamespace(id=123456789, username="hermes_test_bot")
+    )
     adapter._app = MagicMock()
     return adapter
 
@@ -74,6 +79,136 @@ class TestTelegramExecApproval:
         assert "rm -rf /important" in kwargs["text"]
         assert "dangerous deletion" in kwargs["text"]
         assert kwargs["reply_markup"] is not None  # InlineKeyboardMarkup
+
+    @pytest.mark.asyncio
+    async def test_registers_approval_before_card_can_be_clicked(self):
+        """An immediate Telegram tap must find its approval routing state."""
+        adapter = _make_adapter()
+        session_key = "agent:main:telegram:dm:12345"
+
+        async def send_while_user_can_tap(**kwargs):
+            assert list(adapter._approval_state.values()) == [session_key]
+            return SimpleNamespace(message_id=42)
+
+        adapter._send_message_with_thread_fallback = send_while_user_can_tap
+
+        result = await adapter.send_exec_approval(
+            chat_id="12345",
+            command="<write to AGENTS.md>",
+            session_key=session_key,
+            description="protected instruction write",
+            allow_permanent=False,
+            allow_session=False,
+        )
+
+        assert result.success is True
+
+    @pytest.mark.asyncio
+    async def test_immediate_click_resolves_while_card_send_is_in_flight(self):
+        """A tap arriving before send_exec_approval resumes must still route."""
+        adapter = _make_adapter()
+        session_key = "agent:main:telegram:dm:12345"
+        send_started = asyncio.Event()
+        finish_send = asyncio.Event()
+
+        async def delayed_send(**kwargs):
+            send_started.set()
+            await finish_send.wait()
+            return SimpleNamespace(message_id=42)
+
+        adapter._send_message_with_thread_fallback = delayed_send
+        send_task = asyncio.create_task(
+            adapter.send_exec_approval(
+                chat_id="12345",
+                command="<write to AGENTS.md>",
+                session_key=session_key,
+                description="protected instruction write",
+                allow_permanent=False,
+                allow_session=False,
+            )
+        )
+        await send_started.wait()
+
+        # Reproduce the real race: Telegram delivers a callback while the
+        # send coroutine has not yet resumed from send_message.
+        approval_id = next(iter(adapter._approval_state))
+        query = AsyncMock()
+        query.data = f"ea:once:{approval_id}"
+        query.message = MagicMock()
+        query.message.chat_id = 12345
+        query.message.chat.type = "private"
+        query.message.message_thread_id = None
+        query.from_user = MagicMock()
+        query.from_user.id = "12345"
+        query.from_user.first_name = "Simon"
+        query.answer = AsyncMock()
+        query.edit_message_text = AsyncMock()
+        update = MagicMock()
+        update.callback_query = query
+
+        with patch.dict(os.environ, {"TELEGRAM_ALLOWED_USERS": "*"}, clear=False):
+            with patch("tools.approval.resolve_gateway_approval", return_value=1) as resolve:
+                await adapter._handle_callback_query(update, MagicMock())
+
+        resolve.assert_called_once_with(session_key, "once")
+        assert adapter._approval_state == {}
+        assert "Approved once" in query.edit_message_text.call_args.kwargs["text"]
+
+        finish_send.set()
+        result = await send_task
+        assert result.success is True
+        assert adapter._approval_state == {}
+
+    @pytest.mark.asyncio
+    async def test_failed_approval_send_removes_preregistered_state(self):
+        """A failed card send must not leave an unclickable approval route."""
+        adapter = _make_adapter()
+
+        async def fail_send(**kwargs):
+            raise RuntimeError("telegram send failed")
+
+        adapter._send_message_with_thread_fallback = fail_send
+
+        result = await adapter.send_exec_approval(
+            chat_id="12345",
+            command="<write to AGENTS.md>",
+            session_key="agent:main:telegram:dm:12345",
+        )
+
+        assert result.success is False
+        assert adapter._approval_state == {}
+
+    @pytest.mark.asyncio
+    async def test_callback_survives_adapter_rebuild(self):
+        """A replacement adapter must resolve a card sent by its predecessor."""
+        sender = _make_adapter()
+        sender._send_message_with_thread_fallback = AsyncMock(
+            return_value=SimpleNamespace(message_id=42)
+        )
+        session_key = "agent:main:telegram:group:-100:7"
+        await sender.send_exec_approval(
+            chat_id="-100", command="<write to AGENTS.md>", session_key=session_key,
+        )
+        approval_id = next(iter(sender._approval_state))
+
+        replacement = _make_adapter()
+        query = AsyncMock()
+        query.data = f"ea:once:{approval_id}"
+        query.message = MagicMock()
+        query.message.chat_id = -100
+        query.message.chat.type = "group"
+        query.message.message_thread_id = None
+        query.from_user = MagicMock(id="7", first_name="Simon")
+        query.answer = AsyncMock()
+        query.edit_message_text = AsyncMock()
+        update = MagicMock(callback_query=query)
+
+        with patch.dict(os.environ, {"TELEGRAM_ALLOWED_USERS": "*"}, clear=False):
+            with patch("tools.approval.resolve_gateway_approval", return_value=1) as resolve:
+                await replacement._handle_callback_query(update, MagicMock())
+
+        resolve.assert_called_once_with(session_key, "once")
+        assert approval_id not in telegram_adapter_module._TELEGRAM_APPROVAL_ROUTES
 
 
     @pytest.mark.asyncio

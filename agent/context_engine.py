@@ -166,6 +166,7 @@ class ContextEngine(ABC):
         current_tokens: Optional[int] = None,
         focus_topic: Optional[str] = None,
         force: bool = False,
+        emergency_fallback: bool = False,
         memory_context: str = "",
     ) -> List[Dict[str, Any]]:
         """Compact the message list and return the new message list.
@@ -183,6 +184,10 @@ class ContextEngine(ABC):
                 don't support it may simply ignore this argument.
             force: Whether a user-requested compression should bypass an
                 engine-owned cooldown. Engines without cooldowns may ignore it.
+            emergency_fallback: Whether critical pressure requests a local,
+                deterministic fallback without calling a summary model. Engines
+                without such a path may ignore it; the host filters unsupported
+                optional arguments by signature.
             memory_context: Text returned by memory providers immediately before
                 compaction. Summarizing engines should include non-empty text in
                 their handoff prompt. Older engines may omit this parameter; the

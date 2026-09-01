@@ -18,6 +18,7 @@ from gateway.restart import (
     GATEWAY_FATAL_CONFIG_EXIT_CODE,
     GATEWAY_SERVICE_RESTART_EXIT_CODE,
 )
+from gateway.shutdown_watchdog import DEFAULT_SHUTDOWN_WATCHDOG_GRACE_S
 
 
 class TestUserSystemdPrivateSocketPreflight:
@@ -186,10 +187,26 @@ class TestRequireServiceInstalled:
 
 class TestGeneratedSystemdUnits:
     def _expected_timeout_stop_sec(self) -> str:
-        timeout = int(max(60, DEFAULT_GATEWAY_RESTART_DRAIN_TIMEOUT + 30))
+        timeout = int(
+            max(
+                60,
+                DEFAULT_GATEWAY_RESTART_DRAIN_TIMEOUT
+                + DEFAULT_SHUTDOWN_WATCHDOG_GRACE_S
+                + 15,
+            )
+        )
         return f"TimeoutStopSec={timeout}"
 
+    def test_stop_timeout_outlives_shutdown_watchdog(self, monkeypatch):
+        monkeypatch.setattr(
+            gateway_cli,
+            "_get_restart_drain_timeout",
+            lambda: DEFAULT_GATEWAY_RESTART_DRAIN_TIMEOUT,
+        )
 
+        unit = gateway_cli.generate_systemd_unit(system=False)
+
+        assert self._expected_timeout_stop_sec() in unit
 
     def test_user_unit_does_not_leak_profile_node_symlink_target(self, tmp_path, monkeypatch):
         # Regression for the multi-profile gateway restart-loop flap (#48700):

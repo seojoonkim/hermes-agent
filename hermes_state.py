@@ -11013,6 +11013,40 @@ class SessionDB(SessionSearchMixin, SessionSchemaMixin, SessionPortabilityMixin)
         """
         return self.latest_message_row_id(session_id, role="user")
 
+    def get_latest_assistant_message(self, session_id: str) -> Optional[Dict[str, Any]]:
+        """Return the latest visible assistant text without hydrating a transcript.
+
+        Exact-replay requests ("send the whole answer again") need one durable
+        row, not a broad FTS/session-search result. Internal notifications and
+        empty/tool-only assistant rows are intentionally skipped.
+        """
+        if not session_id:
+            return None
+        with self._lock:
+            row = self._conn.execute(
+                """SELECT id, content, timestamp, display_kind
+                   FROM messages
+                   WHERE session_id = ?
+                     AND role = 'assistant'
+                     AND active = 1
+                     AND content IS NOT NULL
+                     AND TRIM(content) != ''
+                     AND COALESCE(display_kind, '') NOT IN (
+                         'internal_notification', 'status', 'tool_progress'
+                     )
+                   ORDER BY id DESC
+                   LIMIT 1""",
+                (session_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return {
+            "id": row["id"],
+            "content": self._decode_content(row["content"]),
+            "timestamp": row["timestamp"],
+            "display_kind": row["display_kind"],
+        }
+
     def get_message_role(self, session_id: str, row_id: int) -> Optional[str]:
         """Role of the active message at *row_id* in *session_id*, or ``None``.
 

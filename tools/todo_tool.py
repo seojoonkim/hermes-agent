@@ -15,7 +15,8 @@ Design:
 """
 
 import json
-from typing import Dict, Any, List, Optional
+import threading
+from typing import Callable, Dict, Any, List, Optional
 
 
 # Valid status values for todo items
@@ -53,8 +54,14 @@ class TodoStore:
       - status: pending | in_progress | completed | cancelled
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        lock: Optional[threading.RLock] = None,
+        reconciler: Optional[Callable[[List[Dict[str, Any]]], List[Dict[str, Any]]]] = None,
+    ):
         self._items: List[Dict[str, str]] = []
+        self._lock = lock or threading.RLock()
+        self._reconciler = reconciler
 
     def write(self, todos: List[Dict[str, Any]], merge: bool = False) -> List[Dict[str, str]]:
         """
@@ -105,6 +112,8 @@ class TodoStore:
         # (list order is priority).
         if len(self._items) > MAX_TODO_ITEMS:
             self._items = self._items[:MAX_TODO_ITEMS]
+        if self._reconciler is not None:
+            self._items = [self._validate(item) for item in self._reconciler(self._items)]
         return self.read()
 
     def read(self) -> List[Dict[str, str]]:

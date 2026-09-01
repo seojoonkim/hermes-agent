@@ -1024,16 +1024,16 @@ agent:
   #                                         # wait even while tokens stream
 
   # Graceful drain timeout for gateway stop/restart (seconds).
-  # Default 0 = no drain: a restart interrupts in-flight agents immediately,
-  # cleans up, and exits. Set a positive value only if you want a grace
-  # window on /restart, and keep it well under systemd's TimeoutStopSec.
-  # restart_drain_timeout: 0
+  # Default 180: wait up to three minutes for in-flight work before forcing
+  # interruption. Set 0 only when immediate shutdown is more important than
+  # preserving active work. Keep custom values under systemd TimeoutStopSec.
+  # restart_drain_timeout: 180
 
   # Cron-only floor under the same drain (seconds). Default 30.
   # restart_drain_timeout above is written for chat turns, which are cheap to
-  # interrupt: the user is told the gateway is restarting and the session
-  # resumes on their next message. A cron run has no such safety net — it is
-  # recorded in jobs.json as a permanent failure, nobody is waiting on it, and
+  # interrupt: the user is notified and the session can resume after restart.
+  # A cron run has no waiting user, so it keeps its own minimum safety net. It
+  # is recorded in jobs.json as a permanent failure, nobody is waiting on it, and
   # a recurring job simply skips to its next schedule. So in-flight cron work
   # gets its own grace window instead of inheriting the 0 above.
   # Clamped at runtime to the shutdown-watchdog leash (restart_drain_timeout

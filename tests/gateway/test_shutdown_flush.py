@@ -11,6 +11,7 @@ import pytest
 
 from gateway.shutdown_flush import (
     _serialise_value,
+    flush_pending_strict_and_clear,
     flush_pending_to_file,
     recover_pending_to_db,
 )
@@ -63,6 +64,73 @@ def test_flush_writes_message_event_to_file(tmp_path, monkeypatch):
     payload = json.loads(files[0].read_text(encoding="utf-8"))
     assert payload["data"]["text"] == "user message"
     assert payload["data"]["session_id"] == "20260728_120000_abc"
+
+
+def test_flush_expands_runner_queued_event_lists(tmp_path, monkeypatch):
+    flush_dir = _make_flush_dir(tmp_path)
+    monkeypatch.setattr(
+        "gateway.shutdown_flush._get_flush_dir", lambda: flush_dir
+    )
+    first = MagicMock(text="first")
+    second = MagicMock(text="second")
+
+    count = flush_pending_to_file(
+        {"agent:main:telegram:dm:1": [first, second]},
+        reason="shutdown",
+        strict=True,
+    )
+
+    assert count == 2
+    payloads = [json.loads(path.read_text()) for path in flush_dir.glob("*.json")]
+    assert {payload["data"]["text"] for payload in payloads} == {"first", "second"}
+    assert {payload["session_key"] for payload in payloads} == {
+        "agent:main:telegram:dm:1"
+    }
+
+
+def test_strict_flush_raises_on_partial_write_and_preserves_caller_state(
+    tmp_path, monkeypatch
+):
+    flush_dir = _make_flush_dir(tmp_path)
+    monkeypatch.setattr(
+        "gateway.shutdown_flush._get_flush_dir", lambda: flush_dir
+    )
+    writes = {"count": 0}
+
+    def fail_second(_flush_dir, _payload):
+        writes["count"] += 1
+        if writes["count"] == 2:
+            raise OSError("disk full")
+        return flush_dir / "first.json"
+
+    monkeypatch.setattr("gateway.shutdown_flush._write_payload", fail_second)
+    pending = {"s1": "one", "s2": "two"}
+
+    with pytest.raises(RuntimeError, match="1 of 2"):
+        flush_pending_to_file(pending, reason="restart", strict=True)
+
+    assert pending == {"s1": "one", "s2": "two"}
+
+
+def test_strict_clear_helper_keeps_memory_when_spool_fails(monkeypatch):
+    pending = {"s1": "one"}
+    monkeypatch.setattr(
+        "gateway.shutdown_flush.flush_pending_to_file",
+        MagicMock(side_effect=OSError("disk unavailable")),
+    )
+
+    assert flush_pending_strict_and_clear(pending, reason="shutdown") is False
+    assert pending == {"s1": "one"}
+
+
+def test_strict_clear_helper_clears_only_after_full_spool(monkeypatch):
+    pending = {"s1": "one"}
+    flush = MagicMock(return_value=1)
+    monkeypatch.setattr("gateway.shutdown_flush.flush_pending_to_file", flush)
+
+    assert flush_pending_strict_and_clear(pending, reason="shutdown") is True
+    assert pending == {}
+    flush.assert_called_once_with(pending, reason="shutdown", strict=True)
 
 
 def test_recover_inserts_via_append_message_and_deletes_file(tmp_path, monkeypatch):

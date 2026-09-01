@@ -32,7 +32,7 @@ import os
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Mapping, MutableMapping, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -85,9 +85,10 @@ def _write_payload(flush_dir: Path, payload: Dict[str, Any]) -> Path:
 
 
 def flush_pending_to_file(
-    pending: Dict[str, Any],
+    pending: Mapping[str, Any],
     *,
     reason: str = "shutdown",
+    strict: bool = False,
 ) -> int:
     """Serialise non-empty ``_pending_messages`` slots to disk.
 
@@ -107,39 +108,67 @@ def flush_pending_to_file(
     if not pending:
         return 0
 
+    def _items_for_value(value: Any) -> list[Any]:
+        if isinstance(value, list):
+            return [item for item in value if item is not None]
+        return [] if value is None else [value]
+
+    expected = sum(len(_items_for_value(value)) for value in pending.values())
     flush_dir = _get_flush_dir()
     ts = int(time.time())
     flushed = 0
 
     for session_key, value in list(pending.items()):
-        if value is None:
-            continue
-        try:
-            serialised = _serialise_value(value)
-            if serialised is None:
-                continue
-            _write_payload(
-                flush_dir,
-                {
-                    "session_key": session_key,
-                    "reason": reason,
-                    "ts": ts,
-                    "data": serialised,
-                },
-            )
-            flushed += 1
-        except Exception as exc:
-            logger.debug(
-                "Failed to flush pending message for %s: %s",
-                session_key, exc,
-            )
+        for item in _items_for_value(value):
+            try:
+                serialised = _serialise_value(item)
+                if serialised is None:
+                    continue
+                _write_payload(
+                    flush_dir,
+                    {
+                        "session_key": session_key,
+                        "reason": reason,
+                        "ts": ts,
+                        "data": serialised,
+                    },
+                )
+                flushed += 1
+            except Exception as exc:
+                logger.debug(
+                    "Failed to flush pending message for %s: %s",
+                    session_key, exc,
+                )
 
     if flushed:
         logger.info(
             "Flushed %d pending message(s) to %s (reason=%s)",
             flushed, flush_dir, reason,
         )
+    if strict and flushed != expected:
+        raise RuntimeError(
+            f"Pending-message flush persisted {flushed} of {expected} item(s)"
+        )
     return flushed
+
+
+def flush_pending_strict_and_clear(
+    pending: MutableMapping[str, Any],
+    *,
+    reason: str,
+) -> bool:
+    """Clear pending input only after every non-empty item is durably spooled."""
+    try:
+        flush_pending_to_file(pending, reason=reason, strict=True)
+    except Exception as exc:
+        logger.error(
+            "Pending-message durability barrier failed (reason=%s): %s",
+            reason,
+            exc,
+        )
+        return False
+    pending.clear()
+    return True
 
 
 # Reason tag for transcript messages dropped by the in-memory pending cap

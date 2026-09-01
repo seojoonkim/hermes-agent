@@ -1636,6 +1636,17 @@ class GatewaySlashCommandsMixin:
                 "chat_id": event.source.chat_id,
                 "chat_type": event.source.chat_type,
             }
+            # Multiplex gateways can host several bots for the same platform.
+            # Persist the transport owner so the post-restart acknowledgement
+            # cannot leak through the default profile's bot.
+            profile_resolver = getattr(self, "_adapter_profile_for_source", None)
+            source_profile = (
+                profile_resolver(event.source)
+                if callable(profile_resolver)
+                else getattr(event.source, "profile", None)
+            )
+            if source_profile:
+                notify_data["profile"] = source_profile
             if event.source.delivered_via_upstream_relay is True:
                 notify_data["delivered_via_upstream_relay"] = True
                 if event.source.user_id:

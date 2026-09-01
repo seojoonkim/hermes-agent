@@ -1012,6 +1012,29 @@ def build_turn_context(
                         _compress_block_reason = _info(_preflight_tokens)[1]
                     except Exception:
                         _compress_block_reason = None
+
+        # A cooldown prevents the historical summary retry freeze, but once
+        # the request grows to 150% of the normal threshold it must not strand
+        # the session. The built-in compressor can then use its deterministic,
+        # redacted handoff without calling the unavailable summary model.
+        _emergency_fallback = False
+        if _compress_block_reason and not _codex_native_auto:
+            _emergency_check = getattr(
+                _compressor, "should_emergency_fallback", None
+            )
+            if callable(_emergency_check):
+                try:
+                    _emergency_fallback = bool(
+                        _emergency_check(_preflight_tokens)
+                    )
+                except Exception:
+                    logger.debug(
+                        "emergency compression policy check failed",
+                        exc_info=True,
+                    )
+            if _emergency_fallback:
+                _should_compress_now = True
+
         if _should_compress_now:
             _preflight_compressed = True
             # Compression is actually running (block cleared / was never
@@ -1056,6 +1079,7 @@ def build_turn_context(
                 messages, active_system_prompt = agent._compress_context(
                     messages, system_message, approx_tokens=_preflight_tokens,
                     task_id=effective_task_id,
+                    emergency_fallback=_emergency_fallback,
                 )
                 if (
                     messages is _preflight_input
@@ -1372,7 +1396,8 @@ def build_turn_context(
         agent._tool_interrupt_reason = None
         agent._interrupt_thread_signal_pending = False
 
-    # Notify memory providers of the new turn (BEFORE prefetch_all).
+    # Preserve the generic memory lifecycle ordering from HEAD. Timing opens
+    # separately before context build, with an already-frozen session identity.
     if agent._memory_manager:
         try:
             _turn_msg = original_user_message if isinstance(original_user_message, str) else ""

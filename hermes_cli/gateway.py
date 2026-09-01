@@ -43,6 +43,7 @@ from gateway.restart import (
     parse_restart_drain_timeout,
     resolve_restart_exit_wait_budget,
 )
+from gateway.shutdown_watchdog import DEFAULT_SHUTDOWN_WATCHDOG_GRACE_S
 from hermes_cli.config import (
     get_env_value,
     get_hermes_home,
@@ -3684,12 +3685,14 @@ def generate_systemd_unit(system: bool = False, run_as_user: str | None = None) 
         "/sbin",
         "/bin",
     ]
-    # Preserve 30s for post-drain cleanup before systemd escalates, with a
-    # 60s minimum for installs that use the default immediate drain. Positive
-    # drain values extend the deadline directly instead of inheriting a second
-    # 60s floor, so a configured 45s drain yields 75s rather than 90s.
+    # Let Hermes' own shutdown watchdog fire before systemd escalates. The
+    # watchdog waits drain + grace; systemd keeps another 15s for diagnostics
+    # and final teardown, with a 60s minimum for immediate-drain installs.
     _drain_timeout = int(_get_restart_drain_timeout() or 0)
-    restart_timeout = max(60, _drain_timeout + 30)
+    restart_timeout = max(
+        60,
+        int(_drain_timeout + DEFAULT_SHUTDOWN_WATCHDOG_GRACE_S + 15),
+    )
 
     if system:
         username, group_name, home_dir = _system_service_identity(run_as_user)

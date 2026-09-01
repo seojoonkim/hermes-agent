@@ -127,6 +127,15 @@ def make_restart_runner(
     runner._active_api_run_count = GatewayRunner._active_api_run_count.__get__(
         runner, GatewayRunner
     )
+    runner._pending_durability_mappings = (
+        GatewayRunner._pending_durability_mappings.__get__(runner, GatewayRunner)
+    )
+    runner._durably_spool_pending_before_stop = (
+        GatewayRunner._durably_spool_pending_before_stop.__get__(runner, GatewayRunner)
+    )
+    runner._pending_inbound_count = GatewayRunner._pending_inbound_count.__get__(
+        runner, GatewayRunner
+    )
     runner._active_work_count = GatewayRunner._active_work_count.__get__(
         runner, GatewayRunner
     )

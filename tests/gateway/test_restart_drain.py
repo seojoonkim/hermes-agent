@@ -144,8 +144,73 @@ async def test_request_restart_defers_stop_until_active_turn_finishes():
 
 
 @pytest.mark.asyncio
-async def test_request_restart_after_turn_timeout_zero_enters_stop_immediately():
-    """restart_after_turn_timeout=0 preserves legacy immediate drain."""
+async def test_stop_aborts_before_teardown_when_pending_spool_fails():
+    """Durability failure keeps the live gateway and adapters intact."""
+    runner, adapter = make_restart_runner()
+    runner._durably_spool_pending_before_stop = MagicMock(return_value=False)
+
+    await runner.stop(
+        restart=True,
+        detached_restart=False,
+        service_restart=True,
+    )
+
+    assert runner._running is True
+    assert runner._draining is False
+    assert runner._restart_requested is False
+    assert runner._shutdown_event.is_set() is False
+    assert runner.adapters[adapter.platform] is adapter
+    runner._update_runtime_status.assert_called_with("running")
+
+
+@pytest.mark.asyncio
+async def test_request_restart_defers_for_runner_session_field_view_queue():
+    """Production SessionFieldView queues participate in active-work accounting."""
+    runner, _adapter = make_restart_runner()
+    runner.stop = AsyncMock()
+    runner._restart_after_turn_timeout = 0.0
+    runner._session_state("agent:main:telegram:dm:2").conversation.queued_events.append(
+        MessageEvent(
+            text="overflow queued",
+            message_type=MessageType.TEXT,
+            source=make_restart_source(),
+            message_id="queued-overflow-1",
+        )
+    )
+
+    assert runner._pending_inbound_count() == 1
+    assert runner.request_restart(detached=False, via_service=True) is True
+    await runner._restart_task
+
+    runner.stop.assert_not_awaited()
+    assert runner._draining is False
+
+
+@pytest.mark.asyncio
+async def test_request_restart_defers_when_pending_inbound_remains():
+    """Accepted queued input is active work even when no agent is running."""
+    runner, adapter = make_restart_runner()
+    runner.stop = AsyncMock()
+    runner._restart_after_turn_timeout = 0.0
+    adapter._pending_messages["agent:main:telegram:dm:1"] = MessageEvent(
+        text="queued",
+        message_type=MessageType.TEXT,
+        source=make_restart_source(),
+        message_id="pending-1",
+    )
+
+    assert runner.request_restart(detached=False, via_service=True) is True
+    await runner._restart_task
+
+    runner.stop.assert_not_awaited()
+    assert adapter._pending_messages
+    assert runner._draining is False
+    assert runner._restart_requested is False
+
+
+@pytest.mark.asyncio
+async def test_request_restart_after_turn_timeout_zero_defers_without_interrupting():
+    """A routine restart with active work must fail closed, even with a zero wait."""
     runner, _adapter = make_restart_runner()
     runner.stop = AsyncMock()
     runner._restart_after_turn_timeout = 0.0
@@ -154,14 +219,15 @@ async def test_request_restart_after_turn_timeout_zero_enters_stop_immediately()
     assert runner.request_restart(detached=False, via_service=True) is True
     await runner._restart_task
 
-    runner.stop.assert_awaited_once_with(
-        restart=True, detached_restart=False, service_restart=True
-    )
+    runner.stop.assert_not_awaited()
+    assert runner._draining is False
+    assert runner._restart_requested is False
+    assert runner._restart_task_started is False
 
 
 @pytest.mark.asyncio
-async def test_request_restart_after_turn_cap_elapsed_still_calls_stop():
-    """Safety valve: wedged turns cannot pin the gateway forever."""
+async def test_request_restart_after_turn_cap_elapsed_aborts_routine_restart():
+    """A routine update must defer rather than amputate work at its wait cap."""
     runner, _adapter = make_restart_runner()
     runner.stop = AsyncMock()
     runner._restart_after_turn_timeout = 0.2
@@ -170,11 +236,11 @@ async def test_request_restart_after_turn_cap_elapsed_still_calls_stop():
     assert runner.request_restart(detached=False, via_service=True) is True
     await runner._restart_task
 
-    runner.stop.assert_awaited_once_with(
-        restart=True, detached_restart=False, service_restart=True
-    )
-    # Agent was still present — stop() owns the interrupt path from here.
+    runner.stop.assert_not_awaited()
     assert runner._running_agents
+    assert runner._draining is False
+    assert runner._restart_requested is False
+    assert runner._restart_task_started is False
 
 
 @pytest.mark.asyncio
@@ -395,34 +461,28 @@ def _live_agent(idle_seconds: float = 1.0) -> MagicMock:
 
 
 @pytest.mark.asyncio
-async def test_request_restart_skips_wait_when_only_wedged_turns(monkeypatch):
-    """A turn idle past agent.gateway_timeout must not defer the restart.
-
-    Regression: a WhatsApp turn wedged for 30+ min pinned `hermes update`
-    in "draining" for the full restart_after_turn_timeout cap — the
-    after-turn wait counted the wedged agent as active work even though
-    the inactivity watchdog had already declared it dead (Aug 2026).
-    """
+async def test_request_restart_defers_when_only_wedged_turns(monkeypatch):
+    """Routine restart never interrupts even work already classified as wedged."""
     monkeypatch.delenv("HERMES_AGENT_TIMEOUT", raising=False)
     runner, _adapter = make_restart_runner()
     runner.stop = AsyncMock()
-    # A cap long enough that the test would hang without the wedge bypass.
     runner._restart_after_turn_timeout = 300.0
     runner._running_agents["agent:main:whatsapp:dm:1"] = _wedged_agent()
 
     assert runner.request_restart(detached=False, via_service=True) is True
     await asyncio.wait_for(runner._restart_task, timeout=5.0)
 
-    runner.stop.assert_awaited_once_with(
-        restart=True, detached_restart=False, service_restart=True
-    )
+    runner.stop.assert_not_awaited()
+    assert runner._running_agents
+    assert runner._draining is False
+    assert runner._restart_requested is False
     # Wedged agent stays in the map — stop() owns the interrupt from here.
     assert runner._running_agents
 
 
 @pytest.mark.asyncio
-async def test_request_restart_still_waits_for_live_turn_alongside_wedged(monkeypatch):
-    """Mixed live + wedged: the live turn is honored, the wedged one ignored."""
+async def test_request_restart_defers_if_wedged_work_remains_after_live_turn(monkeypatch):
+    """Finishing live work is insufficient while any accepted work remains."""
     monkeypatch.delenv("HERMES_AGENT_TIMEOUT", raising=False)
     runner, _adapter = make_restart_runner()
     runner.stop = AsyncMock()
@@ -433,15 +493,15 @@ async def test_request_restart_still_waits_for_live_turn_alongside_wedged(monkey
     runner._running_agents[live_key] = _live_agent()
 
     assert runner.request_restart(detached=False, via_service=True) is True
-
-    # Live turn active → stop() must not run yet, wedged turn notwithstanding.
     await asyncio.sleep(0.25)
     runner.stop.assert_not_awaited()
 
-    # Live turn finishes → restart proceeds without waiting on the wedged one.
     del runner._running_agents[live_key]
     await asyncio.wait_for(runner._restart_task, timeout=5.0)
-    runner.stop.assert_awaited_once()
+    runner.stop.assert_not_awaited()
+    assert runner._running_agents
+    assert runner._draining is False
+    assert runner._restart_requested is False
 
 
 def test_wedged_agent_count_disabled_timeout_counts_nothing(monkeypatch):

@@ -1303,12 +1303,19 @@ def execute_code(
     # guard (#68289): without this, execute_code is a straight bypass — the
     # terminal() path refuses `launchctl bootout ai.hermes.gateway`, but the
     # identical command inside `os.system(...)` / `subprocess.run([...])`
-    # here sailed through and SIGTERM'd the gateway mid-task. Gated on
-    # PID-file ownership, not the inherited env marker (#92560).
+    # here sailed through and SIGTERM'd the gateway mid-task. Gate on the
+    # supervised gateway process itself; ordinary CLI/TUI descendants keep
+    # their established ability to manage the service from outside that PID.
     from tools.process_registry import _is_supervised_gateway_process
     if _is_supervised_gateway_process():
-        from cron.lifecycle_guard import contains_gateway_lifecycle_command
-        if contains_gateway_lifecycle_command(code):
+        from cron.lifecycle_guard import (
+            contains_gateway_lifecycle_command,
+            contains_unqualified_gateway_start_or_install,
+        )
+        if (
+            contains_gateway_lifecycle_command(code)
+            or contains_unqualified_gateway_start_or_install(code)
+        ):
             return tool_error(
                 "Blocked: cannot restart or stop the gateway from inside the "
                 "gateway process. The gateway would kill this script before "

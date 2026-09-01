@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import html as _html
+import itertools
 import re
 import threading
 import time
@@ -22,6 +23,15 @@ from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable, Dict, List, Optional, Set
 
 logger = logging.getLogger(__name__)
+
+# Approval cards may outlive a transient Telegram adapter rebuild. Keep the
+# routing token in a process-wide registry as well as on the originating
+# adapter so a callback handled by the replacement instance can still unblock
+# the waiting agent turn. IDs are process-global to avoid cross-adapter
+# collisions in multi-bot gateways.
+_TELEGRAM_APPROVAL_COUNTER = itertools.count(1)
+_TELEGRAM_APPROVAL_ROUTES: Dict[int, str] = {}
+_TELEGRAM_APPROVAL_ROUTES_LOCK = threading.Lock()
 
 from agent.deadline import run_bounded_async
 
@@ -208,6 +218,7 @@ from gateway.platforms.base import (
 )
 from plugins.platforms.telegram.telegram_ids import (
     normalize_telegram_chat_id,
+    telegram_chat_id_key,
 )
 from plugins.platforms.telegram.telegram_network import (
     SEED_FALLBACK_IPS,
@@ -671,6 +682,9 @@ class TelegramAdapter(BasePlatformAdapter):
         super().__init__(config, Platform.TELEGRAM)
         self._app: Optional[Application] = None
         self._bot: Optional[Bot] = None
+        # Stable connector credential identity: the numeric bot user id from
+        # Telegram getMe, never a token, profile, username, or chat id.
+        self._bot_account_id: Optional[str] = None
         self._webhook_mode: bool = False
         self._mention_patterns = self._compile_mention_patterns()
         self._reply_to_mode: str = getattr(config, 'reply_to_mode', 'first') or 'first'
@@ -738,6 +752,8 @@ class TelegramAdapter(BasePlatformAdapter):
         )
         self._pending_text_batches: Dict[str, MessageEvent] = {}
         self._pending_text_batch_tasks: Dict[str, asyncio.Task] = {}
+        self._recent_text_message_ids: Dict[str, None] = {}
+        self._RECENT_TEXT_MESSAGE_ID_LIMIT = 4096
         self._drop_delayed_deliveries = False
         # Inbound events held across disconnect. PTB advances the polling offset
         # before our enqueue/flush drop-guard runs, so Telegram will not
@@ -1182,17 +1198,30 @@ class TelegramAdapter(BasePlatformAdapter):
         if not normalized_user_id:
             return False
 
+        normalized_chat_type = str(chat_type or "dm").strip().lower() or "dm"
+        if normalized_chat_type == "private":
+            normalized_chat_type = "dm"
+        elif normalized_chat_type == "supergroup":
+            normalized_chat_type = "forum" if thread_id is not None else "group"
+
+        # Multiplex profile handlers are closures, so ``_message_handler`` has
+        # no ``__self__`` runner.  Prefer the profile-bound authorization
+        # callback installed by GatewayRunner; it preserves the correct
+        # profile allowlists and pairing store for inline approval buttons.
+        if getattr(self, "_authorization_check", None) is not None:
+            decision = self._is_sender_authorized(
+                normalized_user_id,
+                chat_type=normalized_chat_type,
+                chat_id=str(chat_id or normalized_user_id),
+            )
+            if decision is not None:
+                return bool(decision)
+
         runner = getattr(getattr(self, "_message_handler", None), "__self__", None)
         auth_fn = getattr(runner, "_is_user_authorized", None)
         if callable(auth_fn):
             try:
                 from gateway.session import SessionSource
-
-                normalized_chat_type = str(chat_type or "dm").strip().lower() or "dm"
-                if normalized_chat_type == "private":
-                    normalized_chat_type = "dm"
-                elif normalized_chat_type == "supergroup":
-                    normalized_chat_type = "forum" if thread_id is not None else "group"
 
                 source = SessionSource(
                     platform=Platform.TELEGRAM,
@@ -1201,6 +1230,7 @@ class TelegramAdapter(BasePlatformAdapter):
                     user_id=normalized_user_id,
                     user_name=str(user_name).strip() if user_name else None,
                     thread_id=str(thread_id) if thread_id is not None else None,
+                    account_id=self.account_id,
                 )
                 return bool(auth_fn(source))
             except Exception:
@@ -1278,6 +1308,7 @@ class TelegramAdapter(BasePlatformAdapter):
             user_id=user_id,
             user_name=user_name,
             thread_id=thread_id,
+            account_id=self.account_id,
         )
 
     def _source_from_reaction_for_auth(self, update):
@@ -4728,6 +4759,8 @@ class TelegramAdapter(BasePlatformAdapter):
                             await _shutdown_abandoned_app(old_app)
                         except Exception:
                             pass
+            if not await self._ensure_account_identity():
+                raise RuntimeError("Telegram getMe returned no bot user id")
             await self._app.start()
 
             # Decide between webhook and polling mode
@@ -5621,10 +5654,11 @@ class TelegramAdapter(BasePlatformAdapter):
         compression, etc.) used to append a fresh bubble on every call. With
         this method, the first call sends and the message id is remembered;
         subsequent calls with the same (chat_id, status_key) edit that same
-        message in place. If the edit fails (message deleted, too old, etc.)
-        we drop the cached id and send fresh.
+        message in place. Transient edit failures retain the cached id for the
+        next update to retry; permanent failures (message deleted, too old,
+        etc.) drop the cached id and send fresh.
         """
-        key = (str(chat_id), str(status_key))
+        key = (telegram_chat_id_key(chat_id), str(status_key))
         cached_id = self._status_message_ids.get(key)
         if cached_id is not None:
             result = await self.edit_message(
@@ -5634,7 +5668,13 @@ class TelegramAdapter(BasePlatformAdapter):
                 if result.message_id:
                     self._status_message_ids[key] = str(result.message_id)
                 return result
-            # Edit failed — clear the cached id and fall through to a fresh send.
+            # A transient transport failure does not invalidate the Telegram
+            # message. Keep its id so the next status update can recover by
+            # retrying the edit instead of creating a duplicate bubble. A
+            # permanent failure (deleted/expired message, permissions, etc.)
+            # requires a fresh message and must discard the stale id.
+            if getattr(result, "retryable", False):
+                return result
             self._status_message_ids.pop(key, None)
         result = await self.send(chat_id, content, metadata=metadata)
         if result.success and result.message_id:
@@ -6078,6 +6118,19 @@ class TelegramAdapter(BasePlatformAdapter):
                 chat_id=normalize_telegram_chat_id(chat_id),
                 message_id=int(message_id),
             )
+            # ``send_or_update_status`` caches the Telegram message id so later
+            # updates can edit the same bubble.  Once cleanup deletes that
+            # bubble, retaining the id makes the next turn edit a message that
+            # no longer exists ("Message to edit not found").  Invalidate only
+            # entries that point at this exact chat/message pair.
+            chat_key = telegram_chat_id_key(chat_id)
+            message_key = str(message_id)
+            for status_cache_key, cached_id in list(self._status_message_ids.items()):
+                if (
+                    telegram_chat_id_key(status_cache_key[0]) == chat_key
+                    and str(cached_id) == message_key
+                ):
+                    self._status_message_ids.pop(status_cache_key, None)
             return True
         except Exception as e:
             logger.debug(
@@ -6329,10 +6382,7 @@ class TelegramAdapter(BasePlatformAdapter):
             # We'll use the message_id as part of callback_data to look up session_key
             # Send a placeholder first, then update — or use a counter.
             # Simpler: use a monotonic counter to generate short IDs.
-            import itertools
-            if not hasattr(self, "_approval_counter"):
-                self._approval_counter = itertools.count(1)
-            approval_id = next(self._approval_counter)
+            approval_id = next(_TELEGRAM_APPROVAL_COUNTER)
 
             buttons = [
                 InlineKeyboardButton("✅ Allow Once", callback_data=f"ea:once:{approval_id}")
@@ -6370,10 +6420,23 @@ class TelegramAdapter(BasePlatformAdapter):
                 )
             )
 
-            msg = await self._send_message_with_thread_fallback(**kwargs)
-
-            # Store session_key keyed by approval_id for the callback handler
+            # Register routing state before the message becomes visible. Telegram
+            # users can tap an inline button as soon as send_message returns on
+            # the server, while this coroutine may not have resumed yet.
             self._approval_state[approval_id] = session_key
+            with _TELEGRAM_APPROVAL_ROUTES_LOCK:
+                _TELEGRAM_APPROVAL_ROUTES[approval_id] = session_key
+            try:
+                msg = await self._send_message_with_thread_fallback(**kwargs)
+            except Exception:
+                # A card that was never sent must not leave a stale route. Do
+                # not remove a route already consumed/replaced by a callback.
+                if self._approval_state.get(approval_id) == session_key:
+                    self._approval_state.pop(approval_id, None)
+                with _TELEGRAM_APPROVAL_ROUTES_LOCK:
+                    if _TELEGRAM_APPROVAL_ROUTES.get(approval_id) == session_key:
+                        _TELEGRAM_APPROVAL_ROUTES.pop(approval_id, None)
+                raise
 
             return SendResult(success=True, message_id=str(msg.message_id))
         except Exception as e:
@@ -7176,6 +7239,8 @@ class TelegramAdapter(BasePlatformAdapter):
         self, update: "Update", context: "ContextTypes.DEFAULT_TYPE"
     ) -> None:
         """Handle inline keyboard button clicks."""
+        if not await self._ensure_account_identity():
+            return
         query = update.callback_query
         if not query or not query.data:
             return
@@ -7237,6 +7302,9 @@ class TelegramAdapter(BasePlatformAdapter):
                     return
 
                 session_key = self._approval_state.pop(approval_id, None)
+                with _TELEGRAM_APPROVAL_ROUTES_LOCK:
+                    shared_session_key = _TELEGRAM_APPROVAL_ROUTES.pop(approval_id, None)
+                session_key = session_key or shared_session_key
                 if not session_key:
                     await query.answer(text="This approval has already been resolved.")
                     return
@@ -8645,6 +8713,19 @@ class TelegramAdapter(BasePlatformAdapter):
             return bool(configured)
         return os.getenv("TELEGRAM_REQUIRE_MENTION", "false").lower() in {"true", "1", "yes", "on"}
 
+    def _telegram_require_mention_chats(self) -> set[str]:
+        """Chats where direct triggering overrides free-response exceptions."""
+        raw = self.config.extra.get("require_mention_chats")
+        if raw is None:
+            raw = _scoped_gate_env("TELEGRAM_REQUIRE_MENTION_CHATS")
+        if isinstance(raw, list):
+            return {str(part).strip() for part in raw if str(part).strip()}
+        return {part.strip() for part in str(raw).split(",") if part.strip()}
+
+    def _telegram_message_requires_mention(self, message) -> bool:
+        chat_id = str(getattr(getattr(message, "chat", None), "id", ""))
+        return self._telegram_require_mention() or chat_id in self._telegram_require_mention_chats()
+
     def _telegram_observe_unmentioned_group_messages(self) -> bool:
         """Return whether skipped unmentioned group messages are stored as context.
 
@@ -8809,9 +8890,10 @@ class TelegramAdapter(BasePlatformAdapter):
             # object.__new__ that lack the attributes ``name`` reads).
             return []
 
+        _platform_value = getattr(getattr(self, "platform", None), "value", "telegram")
         return compile_mention_patterns(
             patterns,
-            log_prefix=self.name,
+            log_prefix=str(_platform_value).title(),
             platform_label="telegram",
             display_label="Telegram",
             logger_=logger,
@@ -8859,6 +8941,42 @@ class TelegramAdapter(BasePlatformAdapter):
     _FOREIGN_BOT_HANDLE_RE = re.compile(r"[a-z0-9_]{2,29}bot", re.IGNORECASE)
     # How long an observed identity is trusted before the heartbeat re-checks.
     _BOT_IDENTITY_TTL_SECONDS = 300.0
+
+    @property
+    def account_id(self) -> Optional[str]:
+        """Return the Telegram bot user id owning this adapter credential."""
+        value = str(getattr(self, "_bot_account_id", None) or "").strip()
+        return value or None
+
+    def _note_bot_account_id(self, bot_user_id: Any) -> None:
+        """Record the normalized ASCII-numeric id from Telegram ``getMe``."""
+        value = str(bot_user_id or "").strip()
+        if value and value.isascii() and value.isdigit():
+            self._bot_account_id = value
+
+    async def _ensure_account_identity(self) -> bool:
+        """Resolve bot identity before dispatch, failing closed if unavailable."""
+        bot = getattr(self, "_bot", None)
+        if bot is None:
+            # Preserve direct handler/event-builder compatibility only before
+            # connect. A running adapter without its credential owner is an
+            # invalid isolation state even if a stale account id remains cached.
+            if not getattr(self, "_running", False):
+                return True
+            logger.error(
+                "[%s] Refusing Telegram inbound event: connected bot identity is unavailable",
+                self.name,
+            )
+            return False
+        if self.account_id:
+            return True
+        self._note_bot_account_id(getattr(bot, "id", None))
+        if not self.account_id:
+            await self._refresh_bot_identity(force=True)
+        if not self.account_id:
+            logger.error("[%s] Refusing Telegram inbound event: bot account id is unknown", self.name)
+            return False
+        return True
 
     def _current_bot_username(self) -> str:
         """Return this bot's live @username (lowercased, no leading ``@``).
@@ -8951,6 +9069,7 @@ class TelegramAdapter(BasePlatformAdapter):
             )
             return
         self._bot_identity_checked_at = time.monotonic()
+        self._note_bot_account_id(getattr(me, "id", None))
         self._note_bot_username(getattr(me, "username", None))
 
     _BOT_IDENTITY_PROBE_TIMEOUT = 15.0
@@ -9225,11 +9344,13 @@ class TelegramAdapter(BasePlatformAdapter):
         # Only observe messages skipped by the require_mention gate.  If the
         # message would be processed normally, let the dispatcher handle it;
         # if require_mention is disabled, every group message is a request.
-        if chat_id_str in self._telegram_free_response_chats():
+        requires_mention_here = self._telegram_message_requires_mention(message)
+        explicitly_requires_mention = chat_id_str in self._telegram_require_mention_chats()
+        if not explicitly_requires_mention and chat_id_str in self._telegram_free_response_chats():
             return False
-        if self._telegram_is_free_response_topic(message):
+        if not explicitly_requires_mention and self._telegram_is_free_response_topic(message):
             return False
-        if not self._telegram_require_mention():
+        if not requires_mention_here:
             return False
         if self._is_reply_to_bot(message):
             return False
@@ -9609,11 +9730,12 @@ class TelegramAdapter(BasePlatformAdapter):
 
         if guest_mention:
             return True
-        if chat_id_str in self._telegram_free_response_chats():
+        explicitly_requires_mention = chat_id_str in self._telegram_require_mention_chats()
+        if not explicitly_requires_mention and chat_id_str in self._telegram_free_response_chats():
             return True
-        if self._telegram_is_free_response_topic(message):
+        if not explicitly_requires_mention and self._telegram_is_free_response_topic(message):
             return True
-        if not self._telegram_require_mention():
+        if not self._telegram_message_requires_mention(message):
             return True
         if self._is_reply_to_bot(message):
             return True
@@ -9665,6 +9787,8 @@ class TelegramAdapter(BasePlatformAdapter):
         rapid successive text messages from the same user/chat and aggregate
         them into a single MessageEvent before dispatching.
         """
+        if not await self._ensure_account_identity():
+            return
         msg = self._effective_update_message(update)
         if not msg or not msg.text:
             return
@@ -9693,6 +9817,8 @@ class TelegramAdapter(BasePlatformAdapter):
 
     async def _handle_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle incoming command messages."""
+        if not await self._ensure_account_identity():
+            return
         msg = self._effective_update_message(update)
         if not msg or not msg.text:
             return
@@ -9727,6 +9853,8 @@ class TelegramAdapter(BasePlatformAdapter):
 
     async def _handle_location_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle incoming location/venue pin messages."""
+        if not await self._ensure_account_identity():
+            return
         msg = self._effective_update_message(update)
         if not msg:
             return
@@ -9792,6 +9920,27 @@ class TelegramAdapter(BasePlatformAdapter):
             profile=self._session_key_profile(event.source),
         )
 
+    def _release_text_dedupe(self, event: MessageEvent) -> None:
+        keys = (getattr(event, "metadata", None) or {}).get(
+            "_telegram_text_dedup_keys", []
+        )
+        recent = getattr(self, "_recent_text_message_ids", None)
+        if isinstance(recent, dict):
+            for dedup_key in keys:
+                recent.pop(str(dedup_key), None)
+
+    async def _dispatch_text_event_with_dedupe(self, event: MessageEvent) -> bool:
+        try:
+            await self.handle_message(event)
+            return True
+        except Exception as exc:
+            self._release_text_dedupe(event)
+            logger.warning(
+                "[Telegram] Text dispatch failed; released replay guard for retry: %s",
+                exc,
+            )
+            return False
+
     def _enqueue_text_event(self, event: MessageEvent) -> None:
         """Buffer a text event and reset the flush timer.
 
@@ -9805,12 +9954,52 @@ class TelegramAdapter(BasePlatformAdapter):
             return
 
         key = self._text_batch_key(event)
+        message_id = str(getattr(event, "message_id", "") or "")
+        update_id = str(getattr(event, "platform_update_id", "") or "")
+        if message_id:
+            import hashlib
+
+            content_hash = hashlib.sha256(
+                (event.text or "").encode("utf-8", errors="replace")
+            ).hexdigest()[:16]
+            dedup_key = f"{key}:{message_id}:{update_id}:{content_hash}"
+            recent = getattr(self, "_recent_text_message_ids", None)
+            if recent is None:
+                recent = {}
+                self._recent_text_message_ids = recent
+            if dedup_key in recent:
+                logger.info("[Telegram] Ignoring replayed text update %s", dedup_key)
+                return
+            recent[dedup_key] = None
+            event.metadata.setdefault("_telegram_text_dedup_keys", []).append(
+                dedup_key
+            )
+            limit = max(1, int(getattr(self, "_RECENT_TEXT_MESSAGE_ID_LIMIT", 4096)))
+            while len(recent) > limit:
+                recent.pop(next(iter(recent)))
+        if (
+            self._text_batch_delay_seconds <= 0
+            and self._text_batch_split_delay_seconds <= 0
+        ):
+            dispatch_task = asyncio.create_task(
+                self._dispatch_text_event_with_dedupe(event)
+            )
+            background = getattr(self, "_background_tasks", None)
+            if isinstance(background, set):
+                background.add(dispatch_task)
+                dispatch_task.add_done_callback(background.discard)
+            return
         existing = self._pending_text_batches.get(key)
         chunk_len = len(event.text or "")
         if existing is None:
             event._last_chunk_len = chunk_len  # type: ignore[attr-defined]
             self._pending_text_batches[key] = event
         else:
+            # Preserve every accepted chunk's replay guard on the aggregate so
+            # a downstream dispatch failure releases all of them for Telegram retry.
+            existing.metadata.setdefault("_telegram_text_dedup_keys", []).extend(
+                event.metadata.get("_telegram_text_dedup_keys", [])
+            )
             # Append text from the follow-up chunk
             if event.text:
                 existing.text = f"{existing.text}\n{event.text}" if existing.text else event.text
@@ -9860,7 +10049,8 @@ class TelegramAdapter(BasePlatformAdapter):
                 delay = min(self._text_batch_delay_seconds, self._TEXT_BATCH_SHORT_DELAY_S)
             else:
                 delay = self._text_batch_delay_seconds
-            await asyncio.sleep(delay)
+            if delay > 0:
+                await asyncio.sleep(delay)
             event = self._pending_text_batches.pop(key, None)
             if not event:
                 return
@@ -9872,10 +10062,23 @@ class TelegramAdapter(BasePlatformAdapter):
                 "[Telegram] Flushing text batch %s (%d chars)",
                 key, len(event.text or ""),
             )
-            await self.handle_message(event)
+            # Batching owns the event only until dispatch begins. Keeping this
+            # long-running flush task in the pending map lets a later message
+            # cancel it, re-hold the already-dispatched event, and replay the
+            # completed user turn. Release the batching slot before handing the
+            # event to the gateway, and shield the accepted dispatch from later
+            # batch cancellation (# duplicate long-turn replay).
+            if self._pending_text_batch_tasks.get(key) is current_task:
+                self._pending_text_batch_tasks.pop(key, None)
+            dispatched_event = event
             event = None
+            await asyncio.shield(
+                self._dispatch_text_event_with_dedupe(dispatched_event)
+            )
         except asyncio.CancelledError:
-            # Cancelled after pop but before durable dispatch — hold, don't lose.
+            # Only a not-yet-dispatched event is recoverable through the hold
+            # queue. Once ownership transfers to handle_message, shielded
+            # processing continues and re-holding would execute it twice.
             if event is not None:
                 self._hold_inbound_event(event, where="text-flush-cancelled")
             raise
@@ -9948,6 +10151,8 @@ class TelegramAdapter(BasePlatformAdapter):
 
     async def _handle_media_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle incoming media messages, downloading images to local cache."""
+        if not await self._ensure_account_identity():
+            return
         if not update.message:
             return
         if not self._is_user_authorized_from_message(update.message):
@@ -10639,6 +10844,7 @@ class TelegramAdapter(BasePlatformAdapter):
             message_id=str(message.message_id),
             is_bot=bool(getattr(user, "is_bot", False)) if user else False,
         )
+        source.account_id = self.account_id
         
         # Extract reply context if this message is a reply.
         # Prefer Telegram's native partial quote (message.quote, TextQuote)
@@ -10937,6 +11143,13 @@ def _apply_yaml_config(yaml_cfg: dict, telegram_cfg: dict) -> dict | None:
         os.environ["TELEGRAM_GUEST_MODE"] = str(telegram_cfg["guest_mode"]).lower()
     if "observe_unmentioned_group_messages" in telegram_cfg and not os.getenv("TELEGRAM_OBSERVE_UNMENTIONED_GROUP_MESSAGES"):
         os.environ["TELEGRAM_OBSERVE_UNMENTIONED_GROUP_MESSAGES"] = str(telegram_cfg["observe_unmentioned_group_messages"]).lower()
+    rmc = telegram_cfg.get("require_mention_chats")
+    if rmc is not None:
+        extras.setdefault("require_mention_chats", rmc)
+        if isinstance(rmc, list):
+            rmc = ",".join(str(v) for v in rmc)
+        if not _skip_env_bridge and not os.getenv("TELEGRAM_REQUIRE_MENTION_CHATS"):
+            os.environ["TELEGRAM_REQUIRE_MENTION_CHATS"] = str(rmc)
     frc = telegram_cfg.get("free_response_chats")
     if frc is not None:
         extras.setdefault("free_response_chats", frc)

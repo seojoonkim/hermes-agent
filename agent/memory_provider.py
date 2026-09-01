@@ -246,6 +246,9 @@ class MemoryProvider(ABC):
         """
         raise NotImplementedError(f"Provider {self.name} does not handle tool {tool_name}")
 
+    def abort_open_turns(self) -> None:
+        """Best-effort close of lifecycle runs after an escaping exception."""
+
     def shutdown(self) -> None:
         """Clean shutdown — flush queues, close connections."""
 
@@ -255,10 +258,24 @@ class MemoryProvider(ABC):
         """Called at the start of each turn with the user message.
 
         Use for turn-counting, scope management, periodic maintenance.
+        Providers implementing telemetry must not persist ``message`` itself.
 
-        kwargs may include: remaining_tokens, model, platform, tool_count.
-        Providers use what they need; extras are ignored.
+        kwargs may include: remaining_tokens, model, platform, tool_count,
+        and session_id. Providers use what they need; extras are ignored.
         """
+
+    def on_turn_timing_start(self, turn_number: int, **kwargs) -> None:
+        """Open privacy-safe timing before turn setup can rotate identity."""
+
+    def on_turn_progress(self, turn_number: int, **kwargs) -> None:
+        """Observe privacy-safe turn phase metadata without owning scheduling."""
+
+    def on_turn_finish(self, turn_number: int, **kwargs) -> None:
+        """Observe privacy-safe completed-turn timing and outcome metadata."""
+
+    def estimate_turn(self, **kwargs) -> Optional[Dict[str, Any]]:
+        """Return a privacy-safe ETA estimate, or ``None`` when unavailable."""
+        return None
 
     def on_session_end(self, messages: List[Dict[str, Any]]) -> None:
         """Called when a session ends (explicit exit or timeout).

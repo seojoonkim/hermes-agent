@@ -133,7 +133,7 @@ class TestBusyHandlerDemotesInterruptForCompression:
         assert adapter._pending_messages.get(sk) is event
 
     @pytest.mark.asyncio
-    async def test_ack_explains_compression_demotion(self) -> None:
+    async def test_ack_transparently_explains_compression_demotion(self) -> None:
         runner = _make_runner()
         adapter = _make_adapter()
         event = _make_event(text="hi mid-compress")
@@ -149,9 +149,13 @@ class TestBusyHandlerDemotesInterruptForCompression:
 
         adapter._send_with_retry.assert_called_once()
         content = adapter._send_with_retry.call_args.kwargs.get("content", "")
-        assert "Compressing context" in content
-        assert "queued" in content.lower()
+        assert "이전 대화를 정리하고 있어" in content
+        assert "끝나는 대로 방금 보낸 메시지를 이어서 처리할게" in content
         assert "/stop" in content
-        assert "Interrupting" not in content
+        # A gateway receipt must not impersonate a semantic answer from the
+        # model or repeat the vague placeholder that caused the user-visible
+        # failure. It should state the real blocking stage instead.
+        assert "작업 내용을 정리 중" not in content
+        assert "이어서 반영할게" not in content
 
 

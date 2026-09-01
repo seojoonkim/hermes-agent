@@ -71,7 +71,7 @@ async def test_polling_conflict_retries_before_fatal(monkeypatch):
         stop=AsyncMock(),
         running=True,
     )
-    bot = SimpleNamespace(set_my_commands=AsyncMock(), delete_webhook=AsyncMock())
+    bot = SimpleNamespace(id=123456, set_my_commands=AsyncMock(), delete_webhook=AsyncMock())
     app = SimpleNamespace(
         bot=bot,
         updater=updater,
@@ -227,7 +227,7 @@ async def test_polling_conflict_becomes_fatal_after_retries(monkeypatch):
         stop=AsyncMock(),
         running=True,
     )
-    bot = SimpleNamespace(set_my_commands=AsyncMock(), delete_webhook=AsyncMock())
+    bot = SimpleNamespace(id=123456, set_my_commands=AsyncMock(), delete_webhook=AsyncMock())
     app = SimpleNamespace(
         bot=bot,
         updater=updater,
@@ -306,6 +306,7 @@ async def test_connect_clears_webhook_before_polling(monkeypatch):
         running=True,
     )
     bot = SimpleNamespace(
+        id=123456,
         delete_webhook=AsyncMock(),
         set_my_commands=AsyncMock(),
     )
@@ -371,6 +372,7 @@ async def test_connect_does_not_block_on_post_connect_housekeeping(monkeypatch):
         running=True,
     )
     bot = SimpleNamespace(
+        id=123456,
         delete_webhook=AsyncMock(),
         set_my_commands=AsyncMock(),
     )
@@ -452,7 +454,7 @@ async def test_polling_conflict_reschedule_uses_running_loop(monkeypatch):
         stop=AsyncMock(),
         running=True,
     )
-    bot = SimpleNamespace(set_my_commands=AsyncMock(), delete_webhook=AsyncMock())
+    bot = SimpleNamespace(id=123456, set_my_commands=AsyncMock(), delete_webhook=AsyncMock())
     app = SimpleNamespace(
         bot=bot,
         updater=updater,
@@ -514,7 +516,7 @@ def _build_polling_app(monkeypatch, adapter):
         stop=AsyncMock(),
         running=True,
     )
-    bot = SimpleNamespace(set_my_commands=AsyncMock(), delete_webhook=AsyncMock())
+    bot = SimpleNamespace(id=123456, set_my_commands=AsyncMock(), delete_webhook=AsyncMock())
     app = SimpleNamespace(
         bot=bot,
         updater=updater,
@@ -611,7 +613,7 @@ async def test_conflict_callback_disarms_before_scheduling(monkeypatch):
         running=True,
     )
     setattr(updater, "_Updater__polling_task_stop_event", stop_event)
-    bot = SimpleNamespace(set_my_commands=AsyncMock(), delete_webhook=AsyncMock())
+    bot = SimpleNamespace(id=123456, set_my_commands=AsyncMock(), delete_webhook=AsyncMock())
     app = SimpleNamespace(
         bot=bot,
         updater=updater,

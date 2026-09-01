@@ -93,6 +93,19 @@ def _init_code_repo(path):
     (path / "main.py").write_text("print('hi')\n")
 
 
+class TestActionStartContractInjection:
+    def test_shared_contract_is_in_every_tool_enabled_prompt(self):
+        for model in ("", "anthropic/claude-opus-4.8", "openai/gpt-5.5"):
+            stable = _stable_prompt(
+                _make_agent(valid_tool_names=["read_file"], model=model)
+            )
+            assert "# Starting actionable work" in stable, model
+
+    def test_contract_is_absent_without_tools(self):
+        stable = _stable_prompt(_make_agent(valid_tool_names=[]))
+        assert "# Starting actionable work" not in stable
+
+
 class TestCodingContextBlock:
     def test_injected_when_active(self, monkeypatch, tmp_path):
         _init_code_repo(tmp_path)
@@ -287,6 +300,7 @@ def test_coding_prompt_preserves_legacy_workspace_order(monkeypatch):
     monkeypatch.setattr(system_prompt, "DEFAULT_AGENT_IDENTITY", "IDENTITY")
     monkeypatch.setattr(system_prompt, "HERMES_AGENT_HELP_GUIDANCE", "HELP")
     monkeypatch.setattr(system_prompt, "HERMES_AGENT_HELP_GUIDANCE_NO_SKILLS", "HELP")
+    monkeypatch.setattr(system_prompt, "ACTION_START_NOTE", "ACTION")
     monkeypatch.setattr(system_prompt, "STEER_CHANNEL_NOTE", "STEER")
     monkeypatch.setattr(system_prompt, "get_hermes_home", lambda: Path("/hermes"))
 
@@ -300,6 +314,7 @@ def test_coding_prompt_preserves_legacy_workspace_order(monkeypatch):
     expected = "\n\n".join((
         "IDENTITY",
         "HELP",
+        "ACTION",
         "STEER",
         "CODING_STABLE",
         "WORKSPACE",
@@ -328,7 +343,7 @@ def test_coding_prompt_preserves_legacy_workspace_order(monkeypatch):
         prompt = build_system_prompt(agent, system_message="SYSTEM_MESSAGE")
 
     assert prompt == expected
-    assert agent._cached_system_prompt_static == "\n\n".join(expected.split("\n\n")[:4])
+    assert agent._cached_system_prompt_static == "\n\n".join(expected.split("\n\n")[:5])
 
 
 class TestTelegramRichMessagesHint:

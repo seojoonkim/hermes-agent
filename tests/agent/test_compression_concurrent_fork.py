@@ -138,6 +138,34 @@ def _wait_for_touch(touch_calls: list[str], value: str, timeout: float = 1.0) ->
     pytest.fail(f"Timed out waiting for touch activity {value!r}; calls={touch_calls!r}")
 
 
+def test_emergency_fallback_survives_post_lease_cooldown_gate(tmp_path: Path) -> None:
+    db = SessionDB(db_path=tmp_path / "state.db")
+    session_id = "EMERGENCY_POST_LEASE_TEST"
+    db.create_session(session_id, source="test")
+    agent = _build_agent_with_db(db, session_id, stub_compressor=False)
+    agent.compression_in_place = False
+    agent._compression_feasibility_checked = True
+    compressor = agent.context_compressor
+    compressor.should_emergency_fallback = MagicMock(return_value=True)
+    compacted = [
+        {"role": "user", "content": "[CONTEXT COMPACTION] fallback"},
+        {"role": "user", "content": "tail"},
+    ]
+    compressor.compress = MagicMock(return_value=compacted)
+    messages = [{"role": "user", "content": f"m{i}"} for i in range(20)]
+
+    returned, _ = agent._compress_context(
+        messages,
+        "sys",
+        approx_tokens=180_000,
+        emergency_fallback=True,
+    )
+
+    assert returned == compacted
+    assert compressor.compress.call_args.kwargs["emergency_fallback"] is True
+    assert db.get_compression_lock_holder(session_id) is None
+
+
 def test_compression_activity_heartbeat_touches_agent_during_long_compress(tmp_path: Path) -> None:
     """Long compression must refresh agent activity so gateway watchdogs do not fire."""
     db = SessionDB(db_path=tmp_path / "state.db")

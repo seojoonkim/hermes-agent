@@ -379,6 +379,7 @@ async def test_shutdown_notifications_use_cached_live_thread_source_when_origin_
     session_key = build_session_key(source)
 
     runner._running_agents[session_key] = object()
+    runner._restart_drain_timeout = 180.0
     runner.session_store._entries[session_key] = MagicMock(origin=None)
     runner._cache_session_source(session_key, source)
     adapter.send = AsyncMock(return_value=SendResult(success=True, message_id="shutdown"))
@@ -387,7 +388,11 @@ async def test_shutdown_notifications_use_cached_live_thread_source_when_origin_
 
     adapter.send.assert_awaited_once_with(
         "parent-42",
-        "⚠️ Gateway shutting down — Your current task will be interrupted.",
+        (
+            "⚠️ Gateway shutting down — I'll wait up to 180 seconds for your "
+            "current task to finish. If the gateway stops before it finishes, "
+            "I'll resume it automatically when the gateway returns."
+        ),
         metadata={"thread_id": "topic-7"},
     )
 

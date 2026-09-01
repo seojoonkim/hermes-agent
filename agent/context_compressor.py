@@ -3557,6 +3557,59 @@ class ContextCompressor(ContextEngine):
             return False, self._compression_block_reason() or "blocked"
         return True, None
 
+    def should_emergency_fallback(self, prompt_tokens: int) -> bool:
+        """Use deterministic compaction when cooldown and growth collide.
+
+        A summary failure cooldown prevents the historical per-turn retry
+        freeze, but it must not strand a transcript that keeps growing toward
+        the provider limit. At 150% of the normal compression threshold the
+        built-in compressor can safely skip the unavailable summary LLM and
+        use its bounded, redacted static handoff instead. Structural and
+        ineffective backoffs are deliberately excluded: they mean there is no
+        useful compressible window, not merely an unavailable summarizer.
+        """
+        tokens = max(0, int(prompt_tokens or 0))
+        effective_window = max(
+            1,
+            int(self.context_length) - int(self.max_tokens or 0),
+        )
+        hard_guard_tokens = max(
+            self.threshold_tokens + 1,
+            int(effective_window * 0.90),
+        )
+        emergency_tokens = min(
+            max(self.threshold_tokens + 1, int(self.threshold_tokens * 1.5)),
+            hard_guard_tokens,
+        )
+        # Deterministic fallback is safe without the summary provider. Do not
+        # preserve structural/ineffective retry guards beyond 2x the normal
+        # threshold: on million-token models, waiting for the 90% hard guard can
+        # strand a session for hundreds of thousands of additional tokens.
+        deterministic_guard_tokens = min(
+            hard_guard_tokens,
+            max(self.threshold_tokens + 1, int(self.threshold_tokens * 2.0)),
+        )
+        if tokens < emergency_tokens:
+            return False
+        # Once the request is at the hard provider-pressure guard, preserving
+        # every anti-thrash/backoff flag is more dangerous than lossy but
+        # deterministic compaction: the next model call may be rejected outright.
+        # The static fallback is bounded and redacted and never calls the failed
+        # summary provider, so any active automatic-compression block may be
+        # bypassed at this last-resort boundary.
+        should, reason = self.should_compress_info(tokens)
+        if tokens >= deterministic_guard_tokens:
+            return not should and bool(reason)
+        now = time.monotonic()
+        if getattr(self, "_structural_no_op_backoff_until", 0.0) > now:
+            return False
+        if (
+            getattr(self, "_ineffective_compression_count", 0) >= 2
+            or getattr(self, "_fallback_compression_streak", 0) >= 2
+        ):
+            return False
+        return not should and bool(reason and reason.startswith("cooldown:"))
+
     def _compression_block_reason(self) -> "str | None":
         """Return a human-readable reason for the current automatic-compaction
         block, derived from the same in-memory state that
@@ -5254,8 +5307,12 @@ This compaction should PRIORITISE preserving all information related to the focu
                     min(self._consecutive_timeout_failures,
                         len(_TIMEOUT_COOLDOWN_LADDER)) - 1
                 ]
-            elif _is_json_decode or _is_streaming_closed or _is_empty_content:
+            elif _is_json_decode or _is_streaming_closed:
                 _transient_cooldown = 30
+            elif _is_empty_content:
+                # An empty summary is provider-degraded but not worth retrying
+                # every 30s while the live task is still making progress.
+                _transient_cooldown = 300
             else:
                 _transient_cooldown = 60
             err_text = str(e).strip() or e.__class__.__name__
@@ -7281,6 +7338,7 @@ This compaction should PRIORITISE preserving all information related to the focu
         current_tokens: Optional[int] = None,
         focus_topic: Optional[str] = None,
         force: bool = False,
+        emergency_fallback: bool = False,
         memory_context: str = "",
     ) -> List[Dict[str, Any]]:
         """Compress conversation messages by summarizing middle turns.
@@ -7315,7 +7373,11 @@ This compaction should PRIORITISE preserving all information related to the focu
                 running so a manual ``/compress`` can retry immediately after
                 an auto-compression abort, and bypass the pre-LLM feasibility
                 skip so an explicit user request always exercises the full
-                summary path.  Auto-compress callers pass False.
+                summary path. Auto-compress callers pass False.
+            emergency_fallback: If True, bypass the summary LLM and use the
+                deterministic, redacted fallback handoff. This is reserved for
+                automatic pressure escalation while a summary cooldown is
+                active; unlike ``force`` it does not clear or retry cooldown.
             memory_context: Optional provider-supplied context to preserve in
                 the summary prompt. Whitespace-only values are ignored.
         """
@@ -7656,7 +7718,10 @@ This compaction should PRIORITISE preserving all information related to the focu
                         self.threshold_tokens, self._prellm_skip_count,
                     )
 
-        if feasibility_skip:
+        if emergency_fallback:
+            summary = None
+            telemetry["failure_class"] = "emergency_static_fallback"
+        elif feasibility_skip:
             summary = None  # No LLM call; Phase 4 inserts the deterministic fallback
         else:
             # Deriving the auto focus topic scans recent user turns — only pay
@@ -7696,11 +7761,16 @@ This compaction should PRIORITISE preserving all information related to the focu
         # rotating into a child session with a placeholder summary degrades the
         # conversation for zero benefit. Preserve it unchanged until access or
         # provider health is restored (#29559, #25585, #94448).
-        if not summary and not feasibility_skip and (
-            self.abort_on_summary_failure
-            or self._last_summary_auth_failure
-            or self._last_summary_network_failure
-            or self._last_summary_empty_content_failure
+        if (
+            not summary
+            and not feasibility_skip
+            and not emergency_fallback
+            and (
+                self.abort_on_summary_failure
+                or self._last_summary_auth_failure
+                or self._last_summary_network_failure
+                or self._last_summary_empty_content_failure
+            )
         ):
             n_skipped = compress_end - compress_start
             self._last_summary_dropped_count = 0  # nothing actually dropped
@@ -7788,7 +7858,12 @@ This compaction should PRIORITISE preserving all information related to the focu
         # content-free "N messages were removed" marker.
         if not summary:
             if not self.quiet_mode:
-                if feasibility_skip:
+                if emergency_fallback:
+                    logger.warning(
+                        "Summary cooldown under critical context pressure — "
+                        "inserting deterministic emergency fallback"
+                    )
+                elif feasibility_skip:
                     logger.info("Feasibility skip — inserting deterministic fallback context summary")
                 else:
                     logger.warning("Summary generation failed — inserting deterministic fallback context summary")
@@ -7796,7 +7871,9 @@ This compaction should PRIORITISE preserving all information related to the focu
             self._last_summary_dropped_count = n_dropped
             self._last_summary_fallback_used = True
             telemetry["fallback_used"] = True
-            if feasibility_skip:
+            if emergency_fallback:
+                telemetry["failure_class"] = "emergency_static_fallback"
+            elif feasibility_skip:
                 # Deliberate optimization, not a summary failure — keep the
                 # telemetry class distinct so dashboards don't count skips
                 # as aux-model breakage.
@@ -7805,9 +7882,12 @@ This compaction should PRIORITISE preserving all information related to the focu
                 telemetry["failure_class"] = telemetry.get("failure_class") or "summary_generation_failed"
             summary = self._build_static_fallback_summary(
                 turns_to_summarize,
-                # A stale error from an earlier real failure must not be
-                # embedded into a deliberate feasibility skip's fallback.
-                reason=None if feasibility_skip else self._last_summary_error,
+                reason=(
+                    "automatic emergency fallback while summary cooldown was active"
+                    if emergency_fallback
+                    else None if feasibility_skip
+                    else self._last_summary_error
+                ),
             )
 
         tail_messages: List[Dict[str, Any]] = []

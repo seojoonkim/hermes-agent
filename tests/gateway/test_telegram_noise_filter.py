@@ -25,6 +25,7 @@ CHAT_PLATFORMS = [
 ]
 
 NOISY_STATUS_MESSAGES = [
+    "ETA p50 96.1s · p80 599.3s · confidence high · critical path operations · risk +503.2s",
     "🗜️ Preflight compression check before sending...",
     (
         "📦 Pre-API compression: ~123,456 tokens near the context/output limit. "
@@ -118,6 +119,16 @@ def test_telegram_status_suppresses_auxiliary_and_retry_noise():
 
     for message in noisy_messages:
         assert _prepare_gateway_status_message(Platform.TELEGRAM, "warn", message) is None
+
+
+def test_chat_status_suppresses_internal_eta_risk_chatter():
+    message = (
+        "ETA p50 96.1s · p80 599.3s · confidence high · "
+        "critical path operations · risk +503.2s"
+    )
+
+    for platform in CHAT_PLATFORMS:
+        assert _prepare_gateway_status_message(platform, "warn", message) is None
 
 
 def test_programmatic_surfaces_keep_raw_status():

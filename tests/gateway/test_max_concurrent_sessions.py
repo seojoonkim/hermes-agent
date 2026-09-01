@@ -99,6 +99,39 @@ def _silence_global_gateway_hooks(monkeypatch):
     monkeypatch.setattr("tools.approval.has_blocking_approval", lambda *args, **kwargs: False)
 
 
+@pytest.mark.parametrize(
+    ("text", "expected_handler", "expected_command"),
+    [
+        ("승인", "approve", "/approve"),
+        ("허용", "approve", "/approve"),
+        ("거절", "deny", "/deny"),
+        ("취소", "deny", "/deny"),
+    ],
+)
+def test_busy_gateway_routes_korean_approval_words(
+    monkeypatch, text, expected_handler, expected_command
+):
+    runner = _make_runner()
+    event = _make_event(text=text, chat_id="busy")
+    session_key = build_session_key(event.source)
+    approve = AsyncMock(return_value="")
+    deny = AsyncMock(return_value="")
+    runner._handle_approve_command = approve
+    runner._handle_deny_command = deny
+    monkeypatch.setattr("tools.approval.has_blocking_approval", lambda key: key == session_key)
+
+    handled = asyncio.run(runner._handle_active_session_busy_message(event, session_key))
+
+    assert handled is True
+    assert event.text == expected_command
+    if expected_handler == "approve":
+        approve.assert_awaited_once_with(event)
+        deny.assert_not_awaited()
+    else:
+        deny.assert_awaited_once_with(event)
+        approve.assert_not_awaited()
+
+
 def test_new_session_gets_clean_error_at_active_session_limit(monkeypatch):
     _silence_global_gateway_hooks(monkeypatch)
     runner = _make_runner(max_concurrent_sessions=1)

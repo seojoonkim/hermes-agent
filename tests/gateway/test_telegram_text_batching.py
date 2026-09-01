@@ -32,6 +32,8 @@ def _make_adapter():
     adapter._drop_delayed_deliveries = False
     adapter._pending_text_batches = {}
     adapter._pending_text_batch_tasks = {}
+    adapter._recent_text_message_ids = {}
+    adapter._RECENT_TEXT_MESSAGE_ID_LIMIT = 4096
     adapter._pending_photo_batches = {}
     adapter._pending_photo_batch_tasks = {}
     adapter._media_group_events = {}
@@ -54,11 +56,19 @@ def _make_adapter():
     return adapter
 
 
-def _make_event(text: str, chat_id: str = "12345") -> MessageEvent:
+def _make_event(
+    text: str,
+    chat_id: str = "12345",
+    *,
+    message_id: str | None = None,
+    update_id: int | None = None,
+) -> MessageEvent:
     return MessageEvent(
         text=text,
         message_type=MessageType.TEXT,
         source=SessionSource(platform=Platform.TELEGRAM, chat_id=chat_id, chat_type="dm"),
+        message_id=message_id,
+        platform_update_id=update_id,
     )
 
 
@@ -118,6 +128,95 @@ class TestTextBatching:
         assert "chunk 1" in text
         assert "chunk 2" in text
         assert "chunk 3" in text
+
+    @pytest.mark.asyncio
+    async def test_redelivered_telegram_message_id_is_dispatched_once(self):
+        """A reconnect replay of the same Telegram message must be ignored."""
+        adapter = _make_adapter()
+        adapter._text_batch_delay_seconds = 0
+        adapter._text_batch_split_delay_seconds = 0
+
+        original = _make_event("run once", message_id="113131", update_id=9001)
+        replay = _make_event("run once", message_id="113131", update_id=9001)
+        adapter._enqueue_text_event(original)
+        await asyncio.sleep(0)
+        adapter._enqueue_text_event(replay)
+        await asyncio.sleep(0)
+
+        adapter.handle_message.assert_awaited_once()
+        assert adapter.handle_message.await_args.args[0] is original
+
+    @pytest.mark.asyncio
+    async def test_distinct_telegram_message_ids_are_not_deduped(self):
+        """Separate user messages in one chat must both reach busy handling."""
+        adapter = _make_adapter()
+        adapter._text_batch_delay_seconds = 0
+        adapter._text_batch_split_delay_seconds = 0
+
+        adapter._enqueue_text_event(
+            _make_event("first", message_id="113131", update_id=9001)
+        )
+        await asyncio.sleep(0)
+        adapter._enqueue_text_event(
+            _make_event("second", message_id="113132", update_id=9002)
+        )
+        await asyncio.sleep(0)
+
+        assert adapter.handle_message.await_count == 2
+
+    @pytest.mark.asyncio
+    async def test_failed_dispatch_releases_dedupe_for_telegram_redelivery(self):
+        """A failed first attempt must not make Telegram's retry disappear."""
+        adapter = _make_adapter()
+        adapter._text_batch_delay_seconds = 0
+        adapter._text_batch_split_delay_seconds = 0
+        adapter.handle_message = AsyncMock(
+            side_effect=[RuntimeError("temporary failure"), None]
+        )
+        event = _make_event("retry me", message_id="113133", update_id=9003)
+
+        adapter._enqueue_text_event(event)
+        await asyncio.sleep(0)
+        adapter._enqueue_text_event(
+            _make_event("retry me", message_id="113133", update_id=9003)
+        )
+        await asyncio.sleep(0)
+
+        assert adapter.handle_message.await_count == 2
+
+    @pytest.mark.asyncio
+    async def test_new_message_does_not_cancel_or_requeue_inflight_dispatch(self):
+        """A later message must not replay a turn already handed to the gateway."""
+        adapter = _make_adapter()
+        adapter._text_batch_delay_seconds = 0
+        adapter._text_batch_split_delay_seconds = 0
+        first_entered = asyncio.Event()
+        release_first = asyncio.Event()
+        second_seen = asyncio.Event()
+        seen = []
+
+        async def _handle(event):
+            seen.append(event.text)
+            if event.text == "first" and seen.count("first") == 1:
+                first_entered.set()
+                await release_first.wait()
+            if event.text == "second":
+                second_seen.set()
+
+        adapter.handle_message = _handle
+        adapter._enqueue_text_event(_make_event("first"))
+        await asyncio.wait_for(first_entered.wait(), timeout=1.0)
+
+        # The first event has already entered gateway handling. A later message
+        # for the same session must get its own batch without cancelling and
+        # re-holding the first event.
+        adapter._enqueue_text_event(_make_event("second"))
+        await asyncio.wait_for(second_seen.wait(), timeout=1.0)
+        release_first.set()
+        await asyncio.sleep(0)
+
+        assert seen == ["first", "second"]
+        assert adapter._held_inbound_events == []
 
 
     @pytest.mark.asyncio
@@ -234,42 +333,41 @@ class TestHoldInboundAcrossReconnect:
         assert [e.text for e in adapter._held_inbound_events] == ["popped then held"]
 
     @pytest.mark.asyncio
-    async def test_flush_cancel_after_pop_holds_event(self):
-        """Cancel after pop (before handle_message returns) must hold, not lose.
+    async def test_cancel_after_dispatch_keeps_single_shielded_delivery(self):
+        """Once gateway handling starts, cancellation must not requeue the event.
 
-        Uses entered/release Events — no sleep timing (teknium #72037 rule).
-        Connected path then schedules redispatch (#83878).
+        Uses entered/release Events with no wall-clock race. The outer batch
+        task may be cancelled, but shielded gateway handling owns the event and
+        completes exactly once.
         """
         adapter = _make_adapter()
         self._zero_batch_delays(adapter)
         entered = asyncio.Event()
         release = asyncio.Event()
+        completed = asyncio.Event()
         seen: list[str] = []
 
         async def _blocking_handle(event):
             seen.append(event.text or "")
             entered.set()
             await release.wait()
+            completed.set()
 
         adapter.handle_message = _blocking_handle
         adapter._pending_text_batches["k"] = _make_event("in-flight cancel")
         task = asyncio.create_task(adapter._flush_text_batch("k"))
         adapter._pending_text_batch_tasks["k"] = task
 
-        await entered.wait()  # past pop, inside handle_message
+        await entered.wait()  # past pop, inside shielded handle_message
         task.cancel()
         with pytest.raises(asyncio.CancelledError):
             await task
         release.set()
+        await asyncio.wait_for(completed.wait(), timeout=1.0)
 
-        drain = adapter._held_inbound_redispatch_task
-        assert drain is not None
-        await asyncio.wait_for(drain, timeout=1.0)
-
-        # Recoverable: held and/or delivered via redispatch (seen may include
-        # the original in-flight attempt plus the redispatch).
-        held_texts = [e.text for e in adapter._held_inbound_events]
-        assert "in-flight cancel" in seen or "in-flight cancel" in held_texts
+        assert seen == ["in-flight cancel"]
+        assert adapter._held_inbound_events == []
+        assert adapter._held_inbound_redispatch_task is None
 
     @pytest.mark.asyncio
     async def test_cancel_pending_salvages_batches_into_held_queue(self):

@@ -9,6 +9,7 @@ import sys
 import pytest
 
 from agent.prompt_builder import (
+    ACTION_START_NOTE,
     _scan_context_content,
     _truncate_content,
     _parse_skill_file,
@@ -59,6 +60,16 @@ def _drain_truncation_warnings():
 
 
 class TestGuidanceConstants:
+    def test_action_start_note_defines_specific_same_response_contract(self):
+        assert "non-trivial actionable request" in ACTION_START_NOTE
+        assert "concrete target" in ACTION_START_NOTE
+        assert "intended outcome" in ACTION_START_NOTE
+        assert "first action" in ACTION_START_NOTE
+        assert "same response" in ACTION_START_NOTE
+        assert "generic receipt" in ACTION_START_NOTE
+        assert "simple informational question" in ACTION_START_NOTE
+        assert "answer it directly" in ACTION_START_NOTE
+
     def test_memory_guidance_discourages_task_logs(self):
         assert "durable facts" in MEMORY_GUIDANCE
         assert "Do NOT save task progress" in MEMORY_GUIDANCE
@@ -645,6 +656,12 @@ class TestStripYamlFrontmatter:
 
 
 class TestPromptBuilderConstants:
+
+    def test_deferred_followthrough_is_bounded_and_autonomous(self):
+        assert "# Deferred follow-through" in ACTION_START_NOTE
+        assert "at most five minutes" in ACTION_START_NOTE
+        assert "without waiting for a user nudge" in ACTION_START_NOTE
+        assert "read back the external state" in ACTION_START_NOTE
 
 
     def test_cli_and_tui_hints_flag_local_only_cron(self):

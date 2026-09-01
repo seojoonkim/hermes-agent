@@ -50,7 +50,7 @@ def _make_event(text: str) -> MessageEvent:
     return MessageEvent(text=text, source=_make_source(), message_id="m1")
 
 
-def _make_runner(*, compression_in_flight: bool):
+def _make_runner(*, compression_in_flight: bool, busy_input_mode: str = "interrupt"):
     """Minimal GatewayRunner with an active running agent for this session.
 
     Mirrors tests/gateway/test_running_agent_session_toggles.py's harness
@@ -107,7 +107,7 @@ def _make_runner(*, compression_in_flight: bool):
     runner._capture_gateway_honcho_if_configured = lambda *args, **kwargs: None
     runner._emit_gateway_run_progress = AsyncMock()
     runner._draining = False
-    runner._busy_input_mode = "interrupt"
+    runner._busy_input_mode = busy_input_mode
 
     # No subagents active — isolates the compression-demotion behavior from
     # the (already-correct) subagent-demotion branch.
@@ -145,5 +145,21 @@ async def test_priority_path_does_not_interrupt_when_compression_in_flight():
     agent_mock.interrupt.assert_not_called()
     queued = runner.adapters[Platform.TELEGRAM]._pending_messages.get(sk)
     assert queued is not None and queued.text == "still there?"
+
+
+@pytest.mark.asyncio
+async def test_priority_path_does_not_steer_when_compression_in_flight():
+    """Steer mode must queue until compression completes, not claim immediate injection."""
+    runner, agent_mock, sk = _make_runner(
+        compression_in_flight=True,
+        busy_input_mode="steer",
+    )
+    agent_mock.steer = MagicMock(return_value=True)
+
+    await runner._handle_message(_make_event("apply this now"))
+
+    agent_mock.steer.assert_not_called()
+    queued = runner.adapters[Platform.TELEGRAM]._pending_messages.get(sk)
+    assert queued is not None and queued.text == "apply this now"
 
 

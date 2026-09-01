@@ -181,11 +181,9 @@ COMPRESSION_RETRY_CONTEXT_REDUCED_STATUS_TEMPLATE = (
 # (_TELEGRAM_NOISY_STATUS_RE); it is pinned un-swallowed in
 # tests/gateway/test_telegram_noise_filter.py::VISIBLE_COMPRESSION_MESSAGES.
 CONTEXT_OVERFLOW_BLOCKED_WARNING_TEMPLATE = (
-    "⚠ Context is over the compression threshold "
-    "(~{tokens:,} tokens >= {threshold:,}) "
-    "but compression is currently blocked ({reason}). "
-    "The model may stop responding. Run /new to start a fresh "
-    "session or /compress to retry immediately."
+    "⚠ This conversation is above its normal compaction threshold "
+    "(~{tokens:,} tokens >= {threshold:,}). I am preserving the history and will "
+    "retry or switch to deterministic compaction automatically; no user action is required."
 )
 
 # Sample-formatted instances of every routine compression status line, for
@@ -719,8 +717,8 @@ class CompressionCommitFence:
 
 # Defaults for the in-agent (non-hygiene) progress-aware compress_context wrap.
 # Mirror hermes_cli.config.DEFAULT_CONFIG["compression"] keys of the same name.
-DEFAULT_CONTEXT_TIMEOUT_SECONDS = 120.0
-DEFAULT_CONTEXT_TOTAL_CEILING_SECONDS = 600.0
+DEFAULT_CONTEXT_TIMEOUT_SECONDS = 30.0
+DEFAULT_CONTEXT_TOTAL_CEILING_SECONDS = 30.0
 
 # Shared daemon pool for sync compress_context timeout wraps — analogous to
 # asyncio's default executor used by gateway session hygiene's
@@ -739,12 +737,10 @@ _compress_timeout_executor_lock = threading.Lock()
 _COMMIT_OVERRUN_WAIT_SLICE_SECONDS = 30.0
 
 # Bounded admission for the shared compress-timeout pool (#76354 review F6).
-# The stdlib executor queue is unbounded: with all four workers wedged in hung
-# summaries, a fifth compression would queue silently, wait out its whole
-# timeout without ever starting, and remain eligible to run as a stale job
-# whenever a worker recovered. Admission is therefore capped at the worker
-# count — when every worker slot is occupied (running OR admitted-not-started)
-# submission FAILS FAST and the caller continues without compression.
+# Compression uses the same upstream model capacity as interactive answers on
+# multiplex gateways. Keep a single maintenance slot by default so four sibling
+# summaries cannot starve user-facing responses; a wedged slot makes later
+# attempts fail open through the circuit below instead of queuing.
 #
 # Recovery contract when all workers are wedged: new compressions fail fast
 # (no queue growth, conversation continues uncompressed, a warning is logged
@@ -753,7 +749,7 @@ _COMMIT_OVERRUN_WAIT_SLICE_SECONDS = 30.0
 # slot via the future done-callback, restoring normal service. If a worker
 # NEVER returns, its slot is lost for the process lifetime — bounded,
 # observable degradation instead of an unbounded stale-job queue.
-_COMPRESS_EXECUTOR_MAX_WORKERS = 4
+_COMPRESS_EXECUTOR_MAX_WORKERS = 1
 _compress_admission_lock = threading.Lock()
 _compress_admitted_count = 0
 
@@ -920,6 +916,26 @@ def run_compress_context_with_progress_timeout(
             "provider health.",
             _COMPRESS_EXECUTOR_MAX_WORKERS,
         )
+        # A saturated pool is the process-level form of repeated compression
+        # timeouts: every worker slot is still occupied by a detached attempt.
+        # Trip the same cooldown ladder as an ordinary host timeout so an
+        # over-threshold session does not hammer this fail-fast path every turn.
+        # Circuit bookkeeping is best-effort; refusing the job must always
+        # remain fail-open even for third-party compressors without this hook.
+        if telemetry_agent is not None:
+            record_failure = getattr(
+                getattr(telemetry_agent, "context_compressor", None),
+                "record_timeout_failure",
+                None,
+            )
+            if callable(record_failure):
+                try:
+                    record_failure("Context compression pool saturated")
+                except Exception:
+                    logger.debug(
+                        "compression pool-saturation circuit update failed",
+                        exc_info=True,
+                    )
         # Round-2 #6: saturation refusals must be visible in the same
         # telemetry stream as every other failed attempt, or a wedged pool
         # looks like compression simply stopped being attempted.
@@ -974,8 +990,14 @@ def run_compress_context_with_progress_timeout(
             # Waiting a full ``idle`` after progress that landed early in the
             # previous slice would allow silence to approach 2x the budget.
             since_progress = fence.seconds_since_progress()
+            # Poll in short bounded slices as well as charging from the last
+            # progress timestamp. ``Future.result(timeout=idle)`` can overshoot
+            # substantially under a busy multiplex process; a 50ms cap keeps
+            # the observable fail-open close to the configured idle budget.
             wait_slice = min(
-                max(idle - since_progress, 0.005), remaining_ceiling
+                max(idle - since_progress, 0.005),
+                remaining_ceiling,
+                0.05,
             )
             try:
                 result = future.result(timeout=wait_slice)
@@ -1419,6 +1441,7 @@ def _supported_compression_kwargs(
     current_tokens: Optional[int],
     focus_topic: Optional[str],
     force: bool,
+    emergency_fallback: bool,
     memory_context: str,
 ) -> dict:
     """Return only compression kwargs accepted by an engine callable.
@@ -1432,6 +1455,7 @@ def _supported_compression_kwargs(
         "current_tokens": current_tokens,
         "focus_topic": focus_topic,
         "force": force,
+        "emergency_fallback": emergency_fallback,
     }
     if memory_context:
         candidates["memory_context"] = memory_context
@@ -2309,6 +2333,7 @@ def compress_context(
     task_id: str = "default",
     focus_topic: Optional[str] = None,
     force: bool = False,
+    emergency_fallback: bool = False,
     defer_context_engine_notification: bool = False,
     commit_fence: Optional[CompressionCommitFence] = None,
 ) -> Tuple[list, str]:
@@ -2324,10 +2349,12 @@ def compress_context(
         focus_topic: Optional focus string for guided compression — the
             summariser will prioritise preserving information related to
             this topic.  Inspired by Claude Code's ``/compact <focus>``.
-        force: If True, bypass any active summary-failure cooldown.  Set
+        force: If True, bypass any active summary-failure cooldown. Set
             by the manual ``/compress`` slash command so users can retry
-            immediately after an auto-compress abort.  Auto-compress
+            immediately after an auto-compress abort. Auto-compress
             callers use the default ``False``.
+        emergency_fallback: Bypass the summary LLM and commit the compressor's
+            deterministic fallback handoff under critical context pressure.
         defer_context_engine_notification: Delay the existing context-engine
             hook until a manual host commits its outer history transaction.
         commit_fence: Optional cooperative fence for executor callers that
@@ -2369,7 +2396,11 @@ def compress_context(
 
     _attempt_started_at = time.monotonic()
     _attempt_id = uuid.uuid4().hex
-    _trigger_source = "manual" if force else "auto"
+    _trigger_source = (
+        "emergency_fallback" if emergency_fallback
+        else "manual" if force
+        else "auto"
+    )
     try:
         agent._compression_attempt_id = _attempt_id
         setattr(agent.context_compressor, "_compression_telemetry_seed", {
@@ -2426,10 +2457,9 @@ def compress_context(
             if _codex_fence_entered:
                 commit_fence.finish_commit()
 
-    # Every automatic entrypoint must honor compressor-owned cooldown and
-    # breaker state. Gateway hygiene constructs a fresh AIAgent, so the
-    # persisted fallback streak is loaded by bind_session_state() before this.
-    if not force:
+    # Emergency deterministic fallback intentionally bypasses a summary-model
+    # cooldown without clearing or retrying it.
+    if not force and not emergency_fallback:
         _refresh_persisted_compression_guards(agent.context_compressor)
         blocked = getattr(
             type(agent.context_compressor),
@@ -2894,7 +2924,25 @@ def compress_context(
             "_automatic_compression_blocked",
             None,
         )
-        if callable(blocked) and blocked(compressor):
+        if emergency_fallback:
+            emergency_check = getattr(
+                compressor, "should_emergency_fallback", None
+            )
+            emergency_allowed = False
+            if callable(emergency_check):
+                try:
+                    emergency_allowed = bool(
+                        emergency_check(int(approx_tokens or 0))
+                    )
+                except Exception:
+                    logger.debug(
+                        "emergency compression revalidation failed under lease",
+                        exc_info=True,
+                    )
+            gate_blocked = not emergency_allowed
+        else:
+            gate_blocked = callable(blocked) and blocked(compressor)
+        if gate_blocked:
             _release_lock()
             existing_prompt = getattr(agent, "_cached_system_prompt", None)
             if not existing_prompt:
@@ -3084,6 +3132,7 @@ def compress_context(
             current_tokens=approx_tokens,
             focus_topic=focus_topic,
             force=force,
+            emergency_fallback=emergency_fallback,
             memory_context=memory_context,
         )
         if memory_context.strip() and "memory_context" not in compress_kwargs:

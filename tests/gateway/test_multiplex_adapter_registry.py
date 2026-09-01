@@ -72,6 +72,52 @@ class TestCredentialFingerprint:
         assert a != b
 
 
+@pytest.mark.asyncio
+async def test_secondary_profiles_start_in_parallel(monkeypatch):
+    """One slow Telegram poller must not keep every later profile offline."""
+    runner = GatewayRunner.__new__(GatewayRunner)
+    runner.config = GatewayConfig(multiplex_profiles=True)
+    runner.adapters = {}
+    runner._failed_platforms = {}
+    runner._profile_adapters = {}
+    runner.pairing_stores = {}
+    runner.pairing_store = object()
+
+    monkeypatch.setattr(
+        gateway_run,
+        "_multiplex_profile_homes",
+        lambda _config: [
+            ("default", Path("/tmp/default")),
+            ("sano", Path("/tmp/sano")),
+            ("zeon", Path("/tmp/zeon")),
+        ],
+    )
+    monkeypatch.setattr(
+        "hermes_cli.profiles.get_active_profile_name", lambda: "default"
+    )
+    monkeypatch.setattr("gateway.status.write_runtime_status", lambda **_kwargs: None)
+
+    started = []
+    release = asyncio.Event()
+
+    async def _start(profile_name, _profile_home, _claimed):
+        started.append(profile_name)
+        await release.wait()
+        return 1
+
+    runner._start_one_profile_adapters = _start
+    task = asyncio.create_task(runner._start_secondary_profile_adapters())
+    try:
+        for _ in range(20):
+            if len(started) >= 2:
+                break
+            await asyncio.sleep(0)
+        assert started == ["sano", "zeon"]
+    finally:
+        release.set()
+        await task
+
+
 class TestProfileMessageHandler:
     @pytest.mark.asyncio
     async def test_stamps_profile_on_unstamped_source(self):

@@ -107,6 +107,7 @@ def adapter(monkeypatch):
     # Individual tests still monkeypatch.setenv() for their own scenarios.
     for _var in (
         "DISCORD_REQUIRE_MENTION",
+        "DISCORD_REQUIRE_MENTION_CHANNELS",
         "DISCORD_THREAD_REQUIRE_MENTION",
         "DISCORD_FREE_RESPONSE_CHANNELS",
         "DISCORD_AUTO_THREAD",
@@ -202,6 +203,36 @@ async def test_discord_free_response_in_server_channels(adapter, monkeypatch):
     assert event.text == "hello from channel"
     assert event.source.chat_id == "123"
     assert event.source.chat_type == "group"
+
+
+@pytest.mark.asyncio
+async def test_discord_required_mention_channel_overrides_global_and_free_response(adapter, monkeypatch):
+    monkeypatch.setenv("DISCORD_AUTO_THREAD", "false")
+    adapter.config.extra.update(
+        {
+            "require_mention": False,
+            "free_response_channels": ["123"],
+            "require_mention_channels": ["123"],
+        }
+    )
+
+    await adapter._handle_message(
+        make_message(channel=FakeTextChannel(channel_id=123), content="hello without mention")
+    )
+
+    adapter.handle_message.assert_not_awaited()
+
+
+def test_discord_required_mention_channels_yaml_bridge(monkeypatch):
+    monkeypatch.delenv("DISCORD_REQUIRE_MENTION_CHANNELS", raising=False)
+
+    seeded = discord_platform._apply_yaml_config(
+        {}, {"require_mention_channels": ["123", "456"]}
+    )
+
+    assert seeded is not None
+    assert seeded["require_mention_channels"] == "123,456"
+    assert discord_platform.os.environ["DISCORD_REQUIRE_MENTION_CHANNELS"] == "123,456"
 
 
 @pytest.mark.asyncio

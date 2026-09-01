@@ -32,6 +32,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 from agent.prompt_builder import (
+    ACTION_START_NOTE,
     DEFAULT_AGENT_IDENTITY,
     EXECUTION_GUIDANCE_MODELS,
     GOOGLE_MODEL_OPERATIONAL_GUIDANCE,
@@ -455,6 +456,9 @@ def build_system_prompt_parts(agent: Any, system_message: Optional[str] = None) 
         tool_guidance.append(KANBAN_GUIDANCE)
     if tool_guidance:
         stable_parts.append(" ".join(tool_guidance))
+
+    if agent.valid_tool_names:
+        stable_parts.append(ACTION_START_NOTE)
 
     # Steering only lands inside tool results, so it's only reachable when the
     # agent has tools. Static text → byte-stable prompt (no cache hit).

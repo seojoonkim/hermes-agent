@@ -653,14 +653,14 @@
               '';
 
               preStop = ''
-                ${containerBin} stop -t 10 ${containerName} || true
+                ${containerBin} stop -t 255 ${containerName} || true
               '';
 
               serviceConfig = {
                 Type = "simple";
                 Restart = cfg.restart;
                 RestartSec = cfg.restartSec;
-                TimeoutStopSec = 30;
+                TimeoutStopSec = 270;
               };
             };
           })

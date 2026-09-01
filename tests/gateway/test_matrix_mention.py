@@ -217,6 +217,24 @@ async def test_require_mention_m_mentions_other_user_ignored(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_required_mention_room_overrides_global_disable_and_free_response(
+    monkeypatch,
+):
+    monkeypatch.setenv("MATRIX_REQUIRE_MENTION", "false")
+    monkeypatch.setenv("MATRIX_FREE_RESPONSE_ROOMS", "!room1:example.org")
+    monkeypatch.setenv("MATRIX_REQUIRE_MENTION_ROOMS", "!room1:example.org")
+    adapter = _make_adapter()
+
+    await adapter._on_room_message(_make_event("ordinary chatter"))
+    adapter.handle_message.assert_not_awaited()
+
+    await adapter._on_room_message(
+        _make_event("@hermes:example.org answer", event_id="$evt2")
+    )
+    adapter.handle_message.assert_awaited_once()
+
+
+@pytest.mark.asyncio
 async def test_dm_strips_full_mxid(monkeypatch):
     """DMs strip the full MXID from body when require_mention is on (default)."""
     monkeypatch.delenv("MATRIX_REQUIRE_MENTION", raising=False)

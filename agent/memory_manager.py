@@ -951,6 +951,53 @@ class MemoryManager:
                     provider.name, e,
                 )
 
+    def on_turn_progress(self, turn_number: int, **kwargs) -> None:
+        """Notify providers of privacy-safe turn phase metadata."""
+        for provider in self._providers:
+            try:
+                provider.on_turn_progress(turn_number, **kwargs)
+            except Exception as e:
+                logger.debug(
+                    "Memory provider '%s' on_turn_progress failed: %s",
+                    provider.name, e,
+                )
+
+    def on_turn_timing_start(self, turn_number: int, **kwargs) -> None:
+        """Open provider timing without changing the generic turn-start hook."""
+        for provider in self._providers:
+            try:
+                provider.on_turn_timing_start(turn_number, **kwargs)
+            except Exception as e:
+                logger.debug(
+                    "Memory provider '%s' on_turn_timing_start failed: %s",
+                    provider.name, e,
+                )
+
+    def on_turn_finish(self, turn_number: int, **kwargs) -> None:
+        """Notify providers of privacy-safe completed-turn timing metadata."""
+        for provider in self._providers:
+            try:
+                provider.on_turn_finish(turn_number, **kwargs)
+            except Exception as e:
+                logger.debug(
+                    "Memory provider '%s' on_turn_finish failed: %s",
+                    provider.name, e,
+                )
+
+    def estimate_turn(self, **kwargs) -> Optional[Dict[str, Any]]:
+        """Return the first provider ETA estimate without combining authorities."""
+        for provider in self._providers:
+            try:
+                estimate = provider.estimate_turn(**kwargs)
+                if isinstance(estimate, dict) and estimate:
+                    return estimate
+            except Exception as e:
+                logger.debug(
+                    "Memory provider '%s' estimate_turn failed: %s",
+                    provider.name, e,
+                )
+        return None
+
     def on_session_end(self, messages: List[Dict[str, Any]]) -> None:
         """Notify all providers of session end."""
         for provider in self._providers:
@@ -1290,6 +1337,17 @@ class MemoryManager:
             except Exception as e:
                 logger.debug(
                     "Memory provider '%s' on_delegation failed: %s",
+                    provider.name, e,
+                )
+
+    def abort_open_turns(self) -> None:
+        """Best-effort close lifecycle runs after a turn escapes abnormally."""
+        for provider in reversed(self._providers):
+            try:
+                provider.abort_open_turns()
+            except Exception as e:
+                logger.warning(
+                    "Memory provider '%s' abort-open-turns failed: %s",
                     provider.name, e,
                 )
 

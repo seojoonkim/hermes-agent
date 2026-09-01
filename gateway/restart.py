@@ -33,13 +33,10 @@ DEFAULT_GATEWAY_RESTART_AFTER_TURN_TIMEOUT = float(
     DEFAULT_CONFIG["agent"]["restart_after_turn_timeout"]
 )
 
-# Cron-only floor under the ``stop()`` drain. ``restart_drain_timeout``
-# defaults to 0 because interrupting a *chat* turn is cheap and recoverable:
-# the user is told the gateway is restarting and the session is pre-marked
-# resume_pending. An interrupted *cron* run has neither property — nobody is
-# waiting on it, it lands in jobs.json as a permanent failure, and a recurring
-# job just waits for its next schedule — so a zero-second drain silently
-# destroys work. See #82161.
+# Cron-only floor under the ``stop()`` drain. Operators can still set
+# ``restart_drain_timeout`` to 0 for immediate chat interruption. An
+# interrupted *cron* run has no waiting user and lands in jobs.json as a
+# permanent failure, so it keeps an independent floor. See #82161.
 DEFAULT_GATEWAY_CRON_DRAIN_TIMEOUT = float(
     DEFAULT_CONFIG["agent"]["cron_drain_timeout"]
 )

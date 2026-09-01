@@ -678,6 +678,28 @@ class TestSteerMarkerContract:
         assert "delivered once at this position" in emitted
         assert "not a new delivery when replayed" in emitted
 
+    def test_system_prompt_requires_human_readable_status_ack(self):
+        """Every profile gets the same user-facing mid-turn response contract."""
+        from agent.prompt_builder import STEER_CHANNEL_NOTE
+
+        assert "acknowledge it before starting another tool batch" in STEER_CHANNEL_NOTE
+        assert "ordinary, human-readable wording" in STEER_CHANNEL_NOTE
+        assert "name the concrete current stage" in STEER_CHANNEL_NOTE
+        assert "A status question does not cancel the active task" in STEER_CHANNEL_NOTE
+        assert "Do not expose internal terms such as steer" in STEER_CHANNEL_NOTE
+
+    def test_system_prompt_requires_direct_bounded_status_answer(self):
+        from agent.prompt_builder import STEER_CHANNEL_NOTE
+
+        assert "answer it directly before another tool batch" in STEER_CHANNEL_NOTE
+        assert "verified completed stage" in STEER_CHANNEL_NOTE
+        assert "current stage" in STEER_CHANNEL_NOTE
+        assert "remaining bounded gates" in STEER_CHANNEL_NOTE
+        assert "next action" in STEER_CHANNEL_NOTE
+        assert "ETA only when" in STEER_CHANNEL_NOTE
+        assert "repeats or external waits are bounded" in STEER_CHANNEL_NOTE
+        assert "generic receipt-only" in STEER_CHANNEL_NOTE
+
     def test_marker_no_longer_uses_the_distrusted_label(self):
         """Regression: the bare 'User guidance:' line read as tool content and
         got refused as injection — it must not come back."""

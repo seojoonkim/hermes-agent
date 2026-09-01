@@ -77,6 +77,25 @@ class TurnContext:
     # --- the ex-``nonlocal`` turn message (rebindable) --------------------
     message: Optional[str] = None
 
+    # --- resume provenance, captured from the ORIGINAL incoming message ---
+    # ``message`` is rewritten in-flight (recovery-note injection, tool-tail
+    # wrappers, ...), so anything derived from it after the run would carry
+    # gateway-authored text into a durable checkpoint.  These two fields are
+    # snapshotted once, at construction, from what actually arrived.
+    original_message: Optional[str] = None
+    resume_depth: int = 0
+
+    def __post_init__(self) -> None:
+        if self.original_message is None:
+            self.original_message = self.message
+        # The synthetic-resume marker may only be read off the original
+        # incoming text; depth is bounded by the resume policy.
+        from agent.runtime_resume import MAX_RESUME_DEPTH, RESUME_TURN_PREFIX
+
+        if str(self.original_message or "").strip().startswith(RESUME_TURN_PREFIX):
+            self.resume_depth = max(self.resume_depth, MAX_RESUME_DEPTH)
+        self.resume_depth = min(int(self.resume_depth or 0), MAX_RESUME_DEPTH)
+
     # --- turn parameters / config snapshots (read-only in run_sync) -------
     history: Any = None
     context_prompt: Optional[str] = None

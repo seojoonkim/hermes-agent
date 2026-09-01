@@ -59,6 +59,19 @@ class ProgressCaptureAdapter(BasePlatformAdapter):
         return {"id": chat_id}
 
 
+class FailedDeliveryProgressCaptureAdapter(ProgressCaptureAdapter):
+    async def send(self, chat_id, content, reply_to=None, metadata=None) -> SendResult:
+        self.sent.append(
+            {
+                "chat_id": chat_id,
+                "content": content,
+                "reply_to": reply_to,
+                "metadata": metadata,
+            }
+        )
+        return SendResult(success=False, error="delivery failed", retryable=False)
+
+
 class DiscordProgressCaptureAdapter(ProgressCaptureAdapter):
     """Capture sends while exercising Discord's real preview formatter."""
 
@@ -1006,6 +1019,7 @@ async def _run_with_agent(
     adapter_cls=ProgressCaptureAdapter,
     user_id=None,
     scope_id=None,
+    draining=False,
 ):
     if config_data:
         import yaml
@@ -1022,6 +1036,7 @@ async def _run_with_agent(
 
     adapter = adapter_cls(platform=platform)
     runner = _make_runner(adapter)
+    runner._draining = draining
     gateway_run = importlib.import_module("gateway.run")
     if config_data and "streaming" in config_data:
         runner.config.streaming = StreamingConfig.from_dict(config_data["streaming"])
@@ -1055,6 +1070,26 @@ async def _run_with_agent(
         session_key=session_key,
     )
     return adapter, result
+
+
+@pytest.mark.asyncio
+async def test_queued_followup_received_before_drain_is_processed_not_discarded(
+    monkeypatch, tmp_path
+):
+    """A drain stops new admission; it must finish already-accepted FIFO work."""
+    QueuedCommentaryAgent.calls = 0
+    adapter, result = await _run_with_agent(
+        monkeypatch,
+        tmp_path,
+        QueuedCommentaryAgent,
+        session_id="sess-drain-preserves-pending",
+        pending_text="accepted before drain",
+        draining=True,
+    )
+
+    assert QueuedCommentaryAgent.calls == 2
+    assert result["final_response"] == "final response 2"
+    assert not adapter._pending_messages
 
 
 @pytest.mark.asyncio
@@ -1494,6 +1529,61 @@ async def test_base_processing_stops_typing_before_hung_post_delivery_callback(
     assert events[: events.index("callback-start")] == (
         ["typing-stopped"] * events.index("callback-start")
     )
+    assert any(call["metadata"] == {"stopped": True} for call in adapter.typing)
+
+
+@pytest.mark.asyncio
+async def test_base_processing_fires_post_delivery_callback_once_after_success():
+    adapter = ProgressCaptureAdapter()
+    callbacks = []
+
+    async def _handler(event):
+        return "done"
+
+    adapter.set_message_handler(_handler)
+    source = SessionSource(platform=Platform.TELEGRAM, chat_id="123", chat_type="dm")
+    event = MessageEvent(
+        text="hello",
+        message_type=MessageType.TEXT,
+        source=source,
+        message_id="msg-success",
+    )
+    session_key = "agent:main:telegram:dm:123"
+    adapter._active_sessions[session_key] = asyncio.Event()
+    adapter.register_post_delivery_callback(session_key, lambda: callbacks.append("fired"))
+
+    await adapter._process_message_background(event, session_key)
+
+    assert [call["content"] for call in adapter.sent] == ["done"]
+    assert callbacks == ["fired"]
+    assert session_key not in adapter._post_delivery_callbacks
+
+
+@pytest.mark.asyncio
+async def test_base_processing_discards_post_delivery_callback_after_failed_delivery():
+    adapter = FailedDeliveryProgressCaptureAdapter()
+    callbacks = []
+
+    async def _handler(event):
+        return "done"
+
+    adapter.set_message_handler(_handler)
+    source = SessionSource(platform=Platform.TELEGRAM, chat_id="123", chat_type="dm")
+    event = MessageEvent(
+        text="hello",
+        message_type=MessageType.TEXT,
+        source=source,
+        message_id="msg-failure",
+    )
+    session_key = "agent:main:telegram:dm:123"
+    adapter._active_sessions[session_key] = asyncio.Event()
+    adapter.register_post_delivery_callback(session_key, lambda: callbacks.append("fired"))
+
+    await adapter._process_message_background(event, session_key)
+
+    assert adapter.sent[0]["content"] == "done"
+    assert callbacks == []
+    assert session_key not in adapter._post_delivery_callbacks
     assert any(call["metadata"] == {"stopped": True} for call in adapter.typing)
 
 

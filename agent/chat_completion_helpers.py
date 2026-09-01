@@ -2887,6 +2887,74 @@ def try_activate_fallback(agent, reason: "FailoverReason | None" = None) -> bool
 
 
 
+def _bounded_iteration_summary_messages(
+    messages: list,
+    summary_request: str,
+    *,
+    max_messages: int = 24,
+    max_content_chars: int = 4000,
+) -> list:
+    """Return a bounded recent transcript for the emergency summary call."""
+    tail = list(messages[-max_messages:])
+    latest_user = None
+    for msg in reversed(messages):
+        if not isinstance(msg, dict) or msg.get("role") != "user":
+            continue
+        content = msg.get("content")
+        if isinstance(content, str) and content.strip() == summary_request:
+            continue
+        latest_user = msg
+        break
+    if latest_user is not None and latest_user not in tail:
+        tail.insert(0, latest_user)
+    bounded = []
+    for msg in tail:
+        if not isinstance(msg, dict):
+            continue
+        clone = msg.copy()
+        content = clone.get("content")
+        if isinstance(content, str) and len(content) > max_content_chars:
+            half = max_content_chars // 2
+            clone["content"] = (
+                content[:half] + "\n…[중간 내용 생략]…\n" + content[-half:]
+            )
+        bounded.append(clone)
+    return bounded
+
+
+def _local_iteration_summary(messages: list, max_iterations: int) -> str:
+    """Build a deterministic user-safe fallback without exposing raw errors."""
+    snippets = []
+    seen = set()
+    for msg in reversed(messages):
+        if not isinstance(msg, dict) or msg.get("role") != "assistant":
+            continue
+        content = msg.get("content")
+        if not isinstance(content, str):
+            continue
+        content = content.strip()
+        if not content or content in seen:
+            continue
+        if content.startswith("I reached the maximum iterations"):
+            continue
+        seen.add(content)
+        snippets.append(content[:700])
+        if len(snippets) >= 3:
+            break
+    snippets.reverse()
+    if snippets:
+        return (
+            "작업 단계 한도에 도달해 여기서 안전하게 멈췄어. "
+            "마지막으로 확인된 진행 내용은 아래와 같아.\n\n"
+            + "\n\n".join(snippets)
+            + "\n\n현재 대화와 작업 결과는 그대로 보존했어. 이어서 진행하면 돼."
+        )
+    return (
+        f"작업 단계 한도({max_iterations})에 도달해 여기서 안전하게 멈췄어. "
+        "현재 대화와 작업 결과는 그대로 보존했어. 이어서 진행하면 돼."
+    )
+
+
 def handle_max_iterations(agent, messages: list, api_call_count: int) -> str:
     """Request a summary when max iterations are reached. Returns the final response text."""
     warning = f"⚠️  Reached maximum iterations ({agent.max_iterations}). Requesting summary..."
@@ -2941,7 +3009,10 @@ def handle_max_iterations(agent, messages: list, api_call_count: int) -> str:
         # (finish_reason, reasoning) that strict APIs like Mistral reject with 422
         _needs_sanitize = agent._should_sanitize_tool_calls()
         api_messages = []
-        for msg in messages:
+        summary_messages = _bounded_iteration_summary_messages(
+            messages, summary_request
+        )
+        for msg in summary_messages:
             api_msg = msg.copy()
             agent._copy_reasoning_content_for_api(msg, api_msg)
             for internal_field in ("reasoning", "finish_reason"):
@@ -3162,7 +3233,7 @@ def handle_max_iterations(agent, messages: list, api_call_count: int) -> str:
                     {"role": "assistant", "content": final_response},
                 )
             else:
-                final_response = "I reached the iteration limit and couldn't generate a summary."
+                final_response = _local_iteration_summary(messages, agent.max_iterations)
         else:
             # Retry summary generation
             if agent.api_mode == "codex_responses":
@@ -3227,13 +3298,13 @@ def handle_max_iterations(agent, messages: list, api_call_count: int) -> str:
                         {"role": "assistant", "content": final_response},
                     )
                 else:
-                    final_response = "I reached the iteration limit and couldn't generate a summary."
+                    final_response = _local_iteration_summary(messages, agent.max_iterations)
             else:
-                final_response = "I reached the iteration limit and couldn't generate a summary."
+                final_response = _local_iteration_summary(messages, agent.max_iterations)
 
     except Exception as e:
         logger.warning("Failed to get summary response: %s", e)
-        final_response = f"I reached the maximum iterations ({agent.max_iterations}) but couldn't summarize. Error: {str(e)}"
+        final_response = _local_iteration_summary(messages, agent.max_iterations)
     finally:
         from agent import relay_llm
 

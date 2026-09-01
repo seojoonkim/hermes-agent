@@ -182,7 +182,8 @@ class TestBusySessionAck:
         if not content and call_kwargs.args:
             # positional args
             content = str(call_kwargs)
-        assert "Interrupting" in content or "respond" in content
+        assert "현재 작업을 중단하고 있어" in content
+        assert "잠시 후 방금 보낸 메시지부터 처리할게" in content
         assert "/stop" not in content  # no need — we ARE interrupting
 
         # Verify agent interrupt was called
@@ -218,12 +219,105 @@ class TestBusySessionAck:
         # VERIFY: No queueing — successful steer must NOT replay as next turn
         mock_merge.assert_not_called()
 
-        # VERIFY: Ack mentions steer wording
+        # VERIFY: Ack explains the effect in ordinary user-facing language.
         adapter._send_with_retry.assert_called_once()
         call_kwargs = adapter._send_with_retry.call_args
         content = call_kwargs.kwargs.get("content") or call_kwargs[1].get("content", "")
-        assert "Steered" in content or "steer" in content.lower()
+        assert "현재 작업에 요청을 반영했어" in content
+        assert "다음 확인 단계부터 적용할게" in content
         assert "Interrupting" not in content
+
+    @pytest.mark.asyncio
+    async def test_steer_mode_queues_during_context_compression(self, monkeypatch):
+        """Compression cannot consume a steer immediately, so preserve it for the next turn."""
+        import gateway.run as _gr
+
+        monkeypatch.delenv("HERMES_GATEWAY_BUSY_STEER_ACK_ENABLED", raising=False)
+        monkeypatch.setattr(_gr, "_load_gateway_config", lambda: {})
+        runner, _sentinel = _make_runner()
+        runner._busy_input_mode = "steer"
+        runner._session_has_compression_in_flight = AsyncMock(return_value=True)
+        adapter = _make_adapter()
+
+        event = _make_event(text="지금 바로 고쳐")
+        sk = build_session_key(event.source)
+        runner.adapters[event.source.platform] = adapter
+
+        agent = MagicMock()
+        agent.steer = MagicMock(return_value=True)
+        runner._running_agents[sk] = agent
+
+        await runner._handle_active_session_busy_message(event, sk)
+
+        agent.steer.assert_not_called()
+        assert adapter._pending_messages.get(sk) is event
+        content = adapter._send_with_retry.call_args.kwargs["content"]
+        assert "이전 대화를 정리하고 있어" in content
+        assert "끝나는 대로 방금 보낸 메시지를 이어서 처리할게" in content
+        assert "작업 내용을 정리 중" not in content
+
+    @pytest.mark.asyncio
+    async def test_compression_status_question_gets_immediate_human_answer(self, monkeypatch):
+        """A status question must not wait behind the compression it asks about."""
+        import gateway.run as _gr
+
+        monkeypatch.setattr(_gr, "_load_gateway_config", lambda: {})
+        runner, _sentinel = _make_runner()
+        runner._busy_input_mode = "steer"
+        runner._session_has_compression_in_flight = AsyncMock(return_value=True)
+        adapter = _make_adapter()
+
+        event = _make_event(text="왜 이렇게 오래 걸려?")
+        sk = build_session_key(event.source)
+        runner.adapters[event.source.platform] = adapter
+
+        agent = MagicMock()
+        agent.get_activity_summary.return_value = {
+            "seconds_since_activity": 130.0,
+            "last_activity_desc": "context compression in progress",
+        }
+        agent.steer = MagicMock(return_value=True)
+        runner._running_agents[sk] = agent
+        runner._running_agents_ts[sk] = time.time() - 130
+
+        handled = await runner._handle_active_session_busy_message(event, sk)
+
+        assert handled is True
+        agent.steer.assert_not_called()
+        agent.interrupt.assert_not_called()
+        assert sk not in adapter._pending_messages
+        content = adapter._send_with_retry.call_args.kwargs["content"]
+        assert "이 대화의 이전 기록을 정리 중" in content
+        assert "질문에는 지금 바로 답할 수 있어" in content
+        assert "이전 대화를 정리하고 있어" not in content
+        assert "queued" not in content.lower()
+        assert "/stop" not in content
+
+    @pytest.mark.asyncio
+    async def test_question_mark_during_compression_gets_same_fast_lane(self, monkeypatch):
+        """A terse '?' after silence is still a status check, not queued work."""
+        import gateway.run as _gr
+
+        monkeypatch.setattr(_gr, "_load_gateway_config", lambda: {})
+        runner, _sentinel = _make_runner()
+        runner._busy_input_mode = "steer"
+        runner._session_has_compression_in_flight = AsyncMock(return_value=True)
+        adapter = _make_adapter()
+
+        event = _make_event(text="?")
+        sk = build_session_key(event.source)
+        runner.adapters[event.source.platform] = adapter
+        agent = MagicMock()
+        agent.get_activity_summary.return_value = {"seconds_since_activity": 125.0}
+        agent.steer = MagicMock(return_value=True)
+        runner._running_agents[sk] = agent
+
+        await runner._handle_active_session_busy_message(event, sk)
+
+        assert sk not in adapter._pending_messages
+        assert "이 대화의 이전 기록을 정리 중" in (
+            adapter._send_with_retry.call_args.kwargs["content"]
+        )
 
     @pytest.mark.asyncio
     async def test_steer_mode_transcribes_voice_before_injection(self, monkeypatch):
@@ -260,8 +354,8 @@ class TestBusySessionAck:
         agent.interrupt.assert_not_called()
         assert sk not in adapter._pending_messages
         content = adapter._send_with_retry.call_args.kwargs["content"]
-        assert "Steered" in content
-        assert "Queued" not in content
+        assert "현재 작업에 요청을 반영했어" in content
+        assert "다음 확인 단계부터 적용할게" in content
 
 
     @pytest.mark.asyncio
@@ -288,11 +382,11 @@ class TestBusySessionAck:
         # that would mash separate messages together, #43066).
         assert adapter._pending_messages.get(sk) is event
 
-        # Ack uses queue-mode wording (not steer, not interrupt)
+        # Ack explains deferred handling without exposing runtime terminology.
         call_kwargs = adapter._send_with_retry.call_args
         content = call_kwargs.kwargs.get("content") or call_kwargs[1].get("content", "")
-        assert "Queued for the next turn" in content
-        assert "Steered" not in content
+        assert "지금 작업을 마무리하고 있어" in content
+        assert "끝나는 대로 방금 보낸 메시지를 이어서 처리할게" in content
 
     @pytest.mark.asyncio
     async def test_steer_mode_falls_back_to_queue_when_agent_pending(self):
@@ -315,7 +409,8 @@ class TestBusySessionAck:
 
         call_kwargs = adapter._send_with_retry.call_args
         content = call_kwargs.kwargs.get("content") or call_kwargs[1].get("content", "")
-        assert "Queued for the next turn" in content
+        assert "지금 작업을 마무리하고 있어" in content
+        assert "끝나는 대로 방금 보낸 메시지를 이어서 처리할게" in content
 
     @pytest.mark.asyncio
     async def test_interrupt_mode_text_followups_fifo_not_merged(self):
@@ -398,9 +493,9 @@ class TestBusySessionAck:
 
         call_kwargs = adapter._send_with_retry.call_args
         content = call_kwargs.kwargs.get("content", "")
-        assert "21/60" in content  # iteration
-        assert "terminal" in content  # current tool
-        assert "10 min" in content  # elapsed
+        assert "진행 21/60" in content
+        assert "terminal" not in content
+        assert "10분 경과" in content
 
 
 class TestBusySessionOnboardingHint:
@@ -439,9 +534,10 @@ class TestBusySessionOnboardingHint:
         content = call_kwargs.kwargs.get("content", "")
 
         # Normal ack body
-        assert "Interrupting" in content
-        # First-touch hint appended
-        assert "First-time tip" in content
+        assert "현재 작업을 중단하고 있어" in content
+        assert "잠시 후 방금 보낸 메시지부터 처리할게" in content
+        # First-touch hint appended in ordinary Korean.
+        assert "💡 처음 안내할게." in content
         assert "/busy queue" in content
 
         # The flag is now persisted to tmp_path/config.yaml

@@ -81,6 +81,14 @@ class TestMattermostConfigLoading:
         assert home.chat_id == "ch_abc123"
         assert home.name == "General"
 
+    def test_required_mention_channels_yaml_bridge(self, monkeypatch):
+        from plugins.platforms.mattermost.adapter import _apply_yaml_config
+
+        monkeypatch.delenv("MATTERMOST_REQUIRE_MENTION_CHANNELS", raising=False)
+        _apply_yaml_config({}, {"require_mention_channels": ["chan_1", "chan_2"]})
+
+        assert os.environ["MATTERMOST_REQUIRE_MENTION_CHANNELS"] == "chan_1,chan_2"
+
 
 # ---------------------------------------------------------------------------
 # Adapter format / truncate
@@ -392,6 +400,20 @@ class TestMattermostMentionBehavior:
             os.environ.pop("MATTERMOST_REQUIRE_MENTION", None)
             await self.adapter._handle_ws_event(self._make_event("hello", channel_id="chan_456"))
             assert self.adapter.handle_message.called
+
+    @pytest.mark.asyncio
+    async def test_required_mention_channel_overrides_global_and_free_response(self):
+        self.adapter.config.extra["require_mention_channels"] = ["chan_456"]
+        with patch.dict(
+            os.environ,
+            {
+                "MATTERMOST_REQUIRE_MENTION": "false",
+                "MATTERMOST_FREE_RESPONSE_CHANNELS": "chan_456",
+            },
+        ):
+            await self.adapter._handle_ws_event(self._make_event("hello"))
+
+        assert not self.adapter.handle_message.called
 
 
 # ---------------------------------------------------------------------------

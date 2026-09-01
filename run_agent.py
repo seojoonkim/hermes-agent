@@ -3542,6 +3542,14 @@ class AIAgent:
             self._pending_steer = (existing + "\n" + cleaned) if existing else cleaned
             return True
         with _lock:
+            ledger = getattr(self, "_requirements_ledger", None)
+            if ledger is not None and not getattr(self, "_requirements_finalized", True):
+                requirement = ledger.register_steer(cleaned)
+                try:
+                    self._todo_store.write([ledger._as_todo(requirement)], merge=True)
+                except Exception:
+                    ledger.rollback_registration(requirement["id"])
+                    raise
             if self._pending_steer:
                 self._pending_steer = self._pending_steer + "\n" + cleaned
             else:
@@ -8011,6 +8019,7 @@ class AIAgent:
         task_id: str = "default",
         focus_topic: str = None,
         force: bool = False,
+        emergency_fallback: bool = False,
         defer_context_engine_notification: bool = False,
         commit_fence=None,
     ) -> tuple:
@@ -8076,6 +8085,7 @@ class AIAgent:
                     approx_tokens=approx_tokens, task_id=task_id,
                     focus_topic=focus_topic,
                     force=force,
+                    emergency_fallback=emergency_fallback,
                     defer_context_engine_notification=(
                         defer_context_engine_notification
                     ),
@@ -8900,6 +8910,9 @@ class AIAgent:
                 finish_task_run(**task_context, result=result)
             return result
         except BaseException as exc:
+            manager = getattr(self, "_memory_manager", None)
+            if manager is not None:
+                manager.abort_open_turns()
             if isinstance(exc, (KeyboardInterrupt, InterruptedError)) or (
                 type(exc).__name__ == "CancelledError"
             ):

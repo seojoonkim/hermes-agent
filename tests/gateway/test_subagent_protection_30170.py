@@ -192,7 +192,7 @@ class TestBusyHandlerDemotesInterruptForSubagents:
 
         parent.interrupt.assert_called_once_with("please stop")
         content = adapter._send_with_retry.call_args.kwargs.get("content", "")
-        assert "Interrupting" in content
+        assert "현재 작업을 중단하고 있어" in content
         assert "Subagent" not in content
 
     @pytest.mark.asyncio
@@ -215,8 +215,8 @@ class TestBusyHandlerDemotesInterruptForSubagents:
         content = adapter._send_with_retry.call_args.kwargs.get("content", "")
         # The vanilla queue copy — NOT the #30170 "Subagent working" copy,
         # because the user explicitly asked for queue mode.
-        assert "Queued for the next turn" in content
-        assert "respond once the current task finishes" in content
+        assert "지금 작업을 마무리하고 있어" in content
+        assert "끝나는 대로 방금 보낸 메시지를 이어서 처리할게" in content
         assert "Subagent working" not in content
 
     @pytest.mark.asyncio

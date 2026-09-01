@@ -61,10 +61,6 @@ class GatewayLifecycleBlocked(ValueError):
 _GATEWAY_LIFECYCLE_PATTERN = re.compile(
     r"(?i)"
     # Branch A: destructive `hermes gateway` operations.
-    # The destructive operations are restart, stop, and uninstall.
-    # `start` is intentionally excluded: starting a gateway from inside a
-    # gateway is benign (a no-op or "already running" error), and a
-    # legitimate cron job might start a sibling profile's gateway.
     # The lookbehind (#77173): `hermes` must not be a path component or a
     # word tail. Excluding `/`, word chars, `.` and `-` keeps file paths
     # with embedded spaces (`/docs/hermes gateway restart-notes.md`) from
@@ -114,6 +110,21 @@ _GATEWAY_LIFECYCLE_PATTERN = re.compile(
 # itself does, rather than loosening `[^\n]*` and risking false positives
 # across genuinely separate lines.
 _SHELL_LINE_CONTINUATION = re.compile(r"\\\r?\n[ \t]*")
+
+# Kept separate from the general cron scanner: a cron prompt may legitimately
+# start a sibling profile, while an unqualified start/install issued inside a
+# supervised shared-gateway tree can reload and SIGTERM that same parent.
+_UNQUALIFIED_GATEWAY_START_INSTALL_PATTERN = re.compile(
+    r"(?i)(?<![/\w.\-])hermes\s+gateway\s+(?:start|install)\b"
+)
+
+
+def contains_unqualified_gateway_start_or_install(text: str) -> bool:
+    """Detect a direct shared-service start/install command."""
+    if not text:
+        return False
+    normalized = _SHELL_LINE_CONTINUATION.sub(" ", text)
+    return bool(_UNQUALIFIED_GATEWAY_START_INSTALL_PATTERN.search(normalized))
 
 # Python argv-list punctuation (#68289): `subprocess.run(["launchctl",
 # "bootout", ...])` separates the words the OS will exec with brackets and

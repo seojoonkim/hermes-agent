@@ -3083,6 +3083,7 @@ def terminal_tool(
                 _MAX_REFERENCED_SCRIPT_BYTES,
                 contains_gateway_lifecycle_command_or_referenced_script,
                 contains_launchctl_submit_command,
+                contains_unqualified_gateway_start_or_install,
             )
             if contains_launchctl_submit_command(command):
                 return json.dumps({
@@ -3093,6 +3094,17 @@ def terminal_tool(
                         "KeepAlive job and is unsafe from inside the gateway process. "
                         "Use Hermes cron for one-shot delayed work, or install an "
                         "explicit LaunchAgent from a separate shell."
+                    ),
+                    "status": "error",
+                }, ensure_ascii=False)
+            if contains_unqualified_gateway_start_or_install(command):
+                return json.dumps({
+                    "output": "",
+                    "exit_code": 1,
+                    "error": (
+                        "Blocked: cannot start or install the shared gateway from "
+                        "inside its supervised process tree. Use the shared restart "
+                        "guard from a separate shell."
                     ),
                     "status": "error",
                 }, ensure_ascii=False)

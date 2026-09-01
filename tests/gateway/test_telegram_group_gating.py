@@ -10,6 +10,7 @@ from gateway.session import SessionSource
 
 def _make_adapter(
     require_mention=None,
+    require_mention_chats=None,
     free_response_chats=None,
     free_response_topics=None,
     mention_patterns=None,
@@ -29,6 +30,8 @@ def _make_adapter(
     extra = {}
     if require_mention is not None:
         extra["require_mention"] = require_mention
+    if require_mention_chats is not None:
+        extra["require_mention_chats"] = require_mention_chats
     if free_response_chats is not None:
         extra["free_response_chats"] = free_response_chats
     if free_response_topics is not None:
@@ -334,6 +337,31 @@ def test_group_messages_can_require_direct_trigger_via_config():
     assert adapter_no_mention._should_process_message(_group_message("/status"), is_command=True) is True
 
 
+def test_required_mention_chat_overrides_free_response_exception():
+    adapter = _make_adapter(
+        require_mention=True,
+        require_mention_chats=["-200"],
+        free_response_chats=["-100", "-200"],
+        mention_patterns=[r"(?i)(?<![가-힣A-Za-z0-9_])사노(?:야|님)?(?![가-힣A-Za-z0-9_])"],
+    )
+
+    assert adapter._should_process_message(_group_message("ordinary chatter", chat_id=-200)) is False
+    assert adapter._should_process_message(
+        _group_message(
+            "사노야 확인해줘",
+            chat_id=-200,
+        )
+    ) is True
+    assert adapter._should_process_message(
+        _group_message(
+            "hi @hermes_bot",
+            chat_id=-200,
+            entities=[_mention_entity("hi @hermes_bot")],
+        )
+    ) is True
+    assert adapter._should_process_message(_group_message("ordinary chatter", chat_id=-100)) is True
+
+
 def test_explicit_multi_bot_mentions_route_only_to_named_bots():
     text = "@research_bot @ops_bot hi"
     entities = _mention_entities(text, ["@research_bot", "@ops_bot"])
@@ -528,6 +556,8 @@ def test_config_bridges_telegram_group_settings(monkeypatch, tmp_path):
     (hermes_home / "config.yaml").write_text(
         "telegram:\n"
         "  require_mention: true\n"
+        "  require_mention_chats:\n"
+        "    - \"-200\"\n"
         "  guest_mode: true\n"
         "  exclusive_bot_mentions: true\n"
         "  observe_unmentioned_group_messages: true\n"
@@ -552,6 +582,7 @@ def test_config_bridges_telegram_group_settings(monkeypatch, tmp_path):
     # from third-party import-time load_dotenv calls; see the note at the asserts.
     for _var in (
         "TELEGRAM_REQUIRE_MENTION",
+        "TELEGRAM_REQUIRE_MENTION_CHATS",
         "TELEGRAM_MENTION_PATTERNS",
         "TELEGRAM_EXCLUSIVE_BOT_MENTIONS",
         "TELEGRAM_GUEST_MODE",
@@ -576,6 +607,7 @@ def test_config_bridges_telegram_group_settings(monkeypatch, tmp_path):
     tg_cfg = config.platforms.get(Platform.TELEGRAM)
     assert tg_cfg is not None
     assert tg_cfg.extra.get("require_mention") is True
+    assert tg_cfg.extra.get("require_mention_chats") == ["-200"]
     assert tg_cfg.extra.get("guest_mode") is True
     assert tg_cfg.extra.get("exclusive_bot_mentions") is True
     assert tg_cfg.extra.get("observe_unmentioned_group_messages") is True

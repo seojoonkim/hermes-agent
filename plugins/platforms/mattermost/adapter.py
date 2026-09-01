@@ -886,9 +886,32 @@ class MattermostAdapter(BasePlatformAdapter):
                 "MATTERMOST_REQUIRE_MENTION", "true"
             ).lower() not in {"false", "0", "no"}
 
-            free_channels_raw = os.getenv("MATTERMOST_FREE_RESPONSE_CHANNELS", "")
-            free_channels = {ch.strip() for ch in free_channels_raw.split(",") if ch.strip()}
-            is_free_channel = channel_id in free_channels
+            free_channels_raw = self.config.extra.get("free_response_channels")
+            if free_channels_raw is None:
+                free_channels_raw = os.getenv("MATTERMOST_FREE_RESPONSE_CHANNELS", "")
+            if isinstance(free_channels_raw, list):
+                free_channels = {
+                    str(ch).strip() for ch in free_channels_raw if str(ch).strip()
+                }
+            else:
+                free_channels = {
+                    ch.strip()
+                    for ch in str(free_channels_raw).split(",")
+                    if ch.strip()
+                }
+            required_raw = self.config.extra.get("require_mention_channels")
+            if required_raw is None:
+                required_raw = os.getenv("MATTERMOST_REQUIRE_MENTION_CHANNELS", "")
+            if isinstance(required_raw, list):
+                required_channels = {
+                    str(ch).strip() for ch in required_raw if str(ch).strip()
+                }
+            else:
+                required_channels = {
+                    ch.strip() for ch in str(required_raw).split(",") if ch.strip()
+                }
+            is_required_channel = channel_id in required_channels
+            is_free_channel = channel_id in free_channels and not is_required_channel
 
             mention_patterns = [
                 f"@{self._bot_username}",
@@ -899,7 +922,7 @@ class MattermostAdapter(BasePlatformAdapter):
                 for pattern in mention_patterns
             )
 
-            if require_mention and not is_free_channel and not has_mention:
+            if (require_mention or is_required_channel) and not is_free_channel and not has_mention:
                 logger.debug(
                     "Mattermost: skipping non-DM message without @mention (channel=%s)",
                     channel_id,
@@ -1257,6 +1280,11 @@ def _apply_yaml_config(yaml_cfg: dict, mattermost_cfg: dict) -> dict | None:
         if isinstance(frc, list):
             frc = ",".join(str(v) for v in frc)
         os.environ["MATTERMOST_FREE_RESPONSE_CHANNELS"] = str(frc)
+    rmc = mattermost_cfg.get("require_mention_channels")
+    if rmc is not None and not os.getenv("MATTERMOST_REQUIRE_MENTION_CHANNELS"):
+        if isinstance(rmc, list):
+            rmc = ",".join(str(v) for v in rmc)
+        os.environ["MATTERMOST_REQUIRE_MENTION_CHANNELS"] = str(rmc)
     # allowed_channels: if set, bot ONLY responds in these channels (whitelist)
     ac = mattermost_cfg.get("allowed_channels")
     if ac is not None and not os.getenv("MATTERMOST_ALLOWED_CHANNELS"):

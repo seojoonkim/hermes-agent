@@ -13,6 +13,8 @@ from __future__ import annotations
 import time
 from unittest.mock import patch
 
+import pytest
+
 from agent.context_compressor import ContextCompressor
 from agent.turn_context import build_turn_context
 from tests.agent.test_turn_context import _FakeAgent
@@ -52,6 +54,99 @@ class TestShouldCompressInfo:
         assert reason is not None
         assert reason.startswith("cooldown:")
 
+    def test_cooldown_escalates_before_90_percent_input_window(self):
+        comp = _make_compressor()
+        comp._summary_failure_cooldown_until = time.monotonic() + 60
+
+        assert comp.should_emergency_fallback(86_399) is False
+        assert comp.should_emergency_fallback(86_400) is True
+
+    def test_large_window_incident_escalates_at_150_percent_threshold(self):
+        with patch(
+            "agent.context_compressor.get_model_context_length",
+            return_value=1_000_000,
+        ):
+            comp = ContextCompressor(
+                model="test-model",
+                threshold_tokens_cap=120_000,
+                quiet_mode=True,
+            )
+            _ = comp.context_length
+        comp._summary_failure_cooldown_until = time.monotonic() + 60
+
+        assert comp.should_emergency_fallback(179_999) is False
+        assert comp.should_emergency_fallback(180_000) is True
+
+    @pytest.mark.parametrize(
+        "guard_field, guard_value",
+        [
+            ("_structural_no_op_backoff_until", lambda: time.monotonic() + 60),
+            ("_ineffective_compression_count", lambda: 2),
+            ("_fallback_compression_streak", lambda: 2),
+        ],
+    )
+    def test_large_window_bypasses_every_guard_at_twice_threshold(
+        self, guard_field, guard_value
+    ):
+        with patch(
+            "agent.context_compressor.get_model_context_length",
+            return_value=1_000_000,
+        ):
+            comp = ContextCompressor(
+                model="test-model",
+                threshold_tokens_cap=120_000,
+                quiet_mode=True,
+            )
+            _ = comp.context_length
+        comp._summary_failure_cooldown_until = time.monotonic() + 900
+        setattr(comp, guard_field, guard_value())
+
+        assert comp.should_emergency_fallback(239_999) is False
+        assert comp.should_emergency_fallback(240_000) is True
+
+    @pytest.mark.parametrize(
+        "guard_field, guard_value",
+        [
+            ("_structural_no_op_backoff_until", lambda: time.monotonic() + 60),
+            ("_ineffective_compression_count", lambda: 2),
+            ("_fallback_compression_streak", lambda: 2),
+        ],
+    )
+    def test_emergency_fallback_preserves_non_cooldown_guards_below_hard_pressure(
+        self, guard_field, guard_value
+    ):
+        with patch(
+            "agent.context_compressor.get_model_context_length",
+            return_value=1_000_000,
+        ):
+            comp = ContextCompressor(
+                model="test-model",
+                threshold_tokens_cap=120_000,
+                quiet_mode=True,
+            )
+            _ = comp.context_length
+        comp._summary_failure_cooldown_until = time.monotonic() + 60
+        setattr(comp, guard_field, guard_value())
+
+        assert comp.should_emergency_fallback(200_000) is False
+
+    @pytest.mark.parametrize(
+        "guard_field, guard_value",
+        [
+            ("_structural_no_op_backoff_until", lambda: time.monotonic() + 60),
+            ("_ineffective_compression_count", lambda: 2),
+            ("_fallback_compression_streak", lambda: 2),
+        ],
+    )
+    def test_hard_provider_pressure_bypasses_all_retry_guards(
+        self, guard_field, guard_value
+    ):
+        comp = _make_compressor()
+        comp._summary_failure_cooldown_until = time.monotonic() + 60
+        setattr(comp, guard_field, guard_value())
+
+        assert comp.should_emergency_fallback(90_000) is True
+
 
 
     def test_should_compress_bool_shim_unchanged(self):
@@ -63,6 +158,42 @@ class TestShouldCompressInfo:
         result = comp.should_compress(73_000)
         assert result is False
         assert not isinstance(result, tuple)
+
+    def test_emergency_fallback_compacts_without_calling_summary_model(self):
+        comp = _make_compressor()
+        comp._summary_failure_cooldown_until = time.monotonic() + 60
+        messages = [{"role": "system", "content": "system"}]
+        for index in range(30):
+            messages.extend(
+                [
+                    {
+                        "role": "user",
+                        "content": f"request {index} " + ("detail " * 500),
+                    },
+                    {
+                        "role": "assistant",
+                        "content": f"result {index} " + ("work " * 500),
+                    },
+                ]
+            )
+
+        with patch.object(
+            comp,
+            "_generate_summary",
+            side_effect=AssertionError("summary model must not be called"),
+        ):
+            compacted = comp.compress(
+                messages,
+                current_tokens=108_000,
+                emergency_fallback=True,
+            )
+
+        assert len(compacted) < len(messages)
+        assert comp._last_summary_fallback_used is True
+        assert any(
+            "deterministic fallback" in str(message.get("content", ""))
+            for message in compacted
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -78,11 +209,13 @@ class _WarnAgent(_FakeAgent):
         self.compression_enabled = True
         self._warnings = []
         self._compress_calls = 0
+        self._compress_kwargs = []
         # Replace the MagicMock with a recorder so we can assert contents.
         self._emit_warning = lambda message: self._warnings.append(message)
 
     def _compress_context(self, messages, *a, **k):
         self._compress_calls += 1
+        self._compress_kwargs.append(k)
         return messages, "SYSTEM"
 
 
@@ -92,11 +225,14 @@ def _build_warn_agent(compressor: ContextCompressor) -> _WarnAgent:
     return agent
 
 
-def _run_build(agent):
+def _run_build(agent, *, estimated_tokens=73_000):
     """Run build_turn_context with the prologue-side effects stubbed."""
     with patch("agent.auxiliary_client.set_runtime_main", lambda *a, **k: None), \
          patch("agent.turn_context._should_run_preflight_estimate", return_value=True), \
-         patch("agent.turn_context.estimate_request_tokens_rough", return_value=999_999):
+         patch(
+             "agent.turn_context.estimate_request_tokens_rough",
+             return_value=estimated_tokens,
+         ):
         return build_turn_context(
             agent=agent,
             user_message="hello",
@@ -125,6 +261,17 @@ class TestTurnContextOverflowWarning:
         assert len(agent._warnings) == 1
         assert "over the compression threshold" in agent._warnings[0]
         assert "blocked (cooldown:" in agent._warnings[0]
+
+    def test_emergency_pressure_uses_static_fallback_instead_of_warning(self):
+        comp = _make_compressor()
+        comp._summary_failure_cooldown_until = time.monotonic() + 30
+        agent = _build_warn_agent(comp)
+
+        _run_build(agent, estimated_tokens=86_400)
+
+        assert agent._compress_calls == 1
+        assert agent._compress_kwargs[0]["emergency_fallback"] is True
+        assert agent._warnings == []
 
 
 
@@ -258,6 +405,9 @@ class TestWarningSurvivesNoiseFilter:
         from gateway.run import _prepare_gateway_status_message
 
         message = self._emitted_warning("cooldown:30")
+        assert "/new" not in message
+        assert "/compress" not in message
+        assert "no user action is required" in message
         assert (
             _prepare_gateway_status_message(Platform.TELEGRAM, "warn", message)
             == message

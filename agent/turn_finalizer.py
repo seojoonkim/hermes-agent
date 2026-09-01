@@ -143,15 +143,19 @@ def finalize_turn(
     """
     from agent.conversation_loop import logger
 
+    final_response_reserved = str(_turn_exit_reason) == "final_response_reserved"
     budget_exhausted = (
         api_call_count >= agent.max_iterations
         or agent.iteration_budget.remaining <= 0
+        or final_response_reserved
     )
     budget_fallback_eligible = (
         budget_exhausted
         and not interrupted
         and not failed
-        and str(_turn_exit_reason) in {"unknown", "budget_exhausted"}
+        and str(_turn_exit_reason) in {
+            "unknown", "budget_exhausted", "final_response_reserved"
+        }
     )
     continuation_budget_exhausted = (
         final_response is None
@@ -181,10 +185,14 @@ def finalize_turn(
         # API call with tools stripped.  _handle_max_iterations injects a
         # user message and makes a single toolless request.
         _turn_exit_reason = f"max_iterations_reached({api_call_count}/{agent.max_iterations})"
-        agent._emit_status(
-            f"⚠️ Iteration budget exhausted ({api_call_count}/{agent.max_iterations}) "
-            "— asking model to summarise"
-        )
+        if final_response_reserved:
+            agent._emit_status("🧾 지금까지 진행한 내용을 정리하고 있어.")
+        else:
+            agent._emit_status(
+                f"⚠️ 작업 단계 한도에 도달했어 "
+                f"({api_call_count}/{agent.max_iterations}). "
+                "지금까지 진행한 내용을 정리하고 있어."
+            )
         if not agent.quiet_mode:
             agent._safe_print(
                 f"\n⚠️  Iteration budget exhausted ({api_call_count}/{agent.max_iterations}) "
@@ -228,11 +236,19 @@ def finalize_turn(
     completed = (
         final_response is not None
         and not failed
+        and not iteration_limit_fallback
         and (
             api_call_count < agent.max_iterations
             or normal_text_response
         )
     )
+
+    from agent.conversation_loop import _requirements_completion_gate
+    requirements_decision = _requirements_completion_gate(agent, completed and not interrupted)
+    completed = requirements_decision["completed"]
+    agent._requirements_finalized = True
+    if "turn_exit_reason" in requirements_decision:
+        _turn_exit_reason = requirements_decision["turn_exit_reason"]
 
     # Preflight can seed the display count before the provider receives the
     # request. Roll that estimate back only when an interrupt wins the race

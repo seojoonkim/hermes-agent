@@ -944,6 +944,9 @@ class TestAuthFailureAborts:
         assert c._last_summary_empty_content_failure is True
         assert c._last_summary_auth_failure is False
         assert c._last_summary_network_failure is False
+        cooldown = c.get_active_compression_failure_cooldown()
+        assert cooldown is not None
+        assert cooldown["remaining_seconds"] >= 299
 
     def test_empty_content_summary_aborts_compression_and_preserves_messages(self):
         """Empty-content response from degraded provider aborts compression and

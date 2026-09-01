@@ -1,12 +1,10 @@
 """Regression tests for #82161.
 
-``restart_drain_timeout`` defaults to ``0``, and the drain applied that single
-budget to every class of in-flight work. That default is deliberate for chat
-turns — the user is told the gateway is restarting and the session is
-pre-marked resume_pending, so interrupting one is cheap and recoverable — but
-a cron run has neither property: it is written to jobs.json as a permanent
-failure that nobody is waiting on, and a recurring job just skips to its next
-schedule.
+``restart_drain_timeout`` historically defaulted to ``0``, and the drain
+applied that single budget to every class of in-flight work. Operators may
+still choose zero for immediate shutdown, but a cron run has no waiting user:
+it is written to jobs.json as a permanent failure, and a recurring job just
+skips to its next schedule.
 
 With the shared budget the drain short-circuited on ``timeout <= 0`` before
 the wait loop, producing the reported log line: ``drain took 0.00s,
@@ -23,9 +21,11 @@ import pytest
 from gateway.restart import (
     CRON_DRAIN_CLEANUP_RESERVE_S,
     DEFAULT_GATEWAY_CRON_DRAIN_TIMEOUT,
+    DEFAULT_GATEWAY_RESTART_DRAIN_TIMEOUT,
     parse_cron_drain_timeout,
     resolve_cron_drain_budget,
 )
+from hermes_cli.config import DEFAULT_CONFIG
 from tests.gateway.restart_test_helpers import make_restart_runner
 
 
@@ -41,7 +41,14 @@ def _reset_cron_running_set():
 
 
 class TestDrainWaitsForCronOnDefaultConfig:
-    """The reported repro: default config, cron-only workload."""
+    """Default safety plus the original zero-timeout cron regression."""
+
+    def test_default_drain_preserves_in_flight_chat_work(self):
+        """A stock install must not force-cancel active chat turns at t=0."""
+        assert DEFAULT_GATEWAY_RESTART_DRAIN_TIMEOUT > 0
+        assert DEFAULT_GATEWAY_RESTART_DRAIN_TIMEOUT == float(
+            DEFAULT_CONFIG["agent"]["restart_drain_timeout"]
+        )
 
     @pytest.mark.asyncio
     async def test_zero_drain_timeout_still_waits_for_cron(self):
@@ -55,7 +62,7 @@ class TestDrainWaitsForCronOnDefaultConfig:
             sched._running_job_ids.discard("be62d36a9914")
 
         task = asyncio.create_task(finish_job())
-        # restart_drain_timeout=0 (the shipped default) with a 2s cron floor.
+        # An operator-configured zero drain with a 2s cron floor.
         _snapshot, timed_out = await runner._drain_active_agents(0.0, 2.0)
         await task
 

@@ -274,11 +274,11 @@ class TestF4CooldownClearOrdering:
 
 class TestF6ExecutorSaturation:
     def test_saturated_pool_fails_fast_and_never_runs_stale_job(self):
-        """4 blocked summaries + 5th submission fails fast; recovery does not
-        run the refused job."""
+        """A full pool rejects the next submission; recovery never runs it."""
         _drain_admission_slots()
         release = threading.Event()
-        started = threading.Barrier(5, timeout=10)  # 4 workers + main
+        worker_count = cc._COMPRESS_EXECUTOR_MAX_WORKERS
+        started = threading.Barrier(worker_count + 1, timeout=10)
 
         def blocked_worker(fence: CompressionCommitFence):
             started.wait()
@@ -298,18 +298,18 @@ class TestF6ExecutorSaturation:
             )
 
         try:
-            for i in range(4):
+            for i in range(worker_count):
                 t = threading.Thread(target=host, args=(i,), name=f"sat-{i}")
                 t.start()
                 hosts.append(t)
-            started.wait()  # all 4 workers occupy the pool
+            started.wait()  # every worker occupies the pool
             for t in hosts:
                 t.join(timeout=5)  # hosts time out; workers stay wedged
                 assert not t.is_alive()
 
-            # All 4 slots still admitted (workers blocked).
+            # Every slot remains admitted while its worker is blocked.
             with cc._compress_admission_lock:
-                assert cc._compress_admitted_count == 4
+                assert cc._compress_admitted_count == worker_count
 
             fifth_ran = threading.Event()
 
@@ -328,6 +328,11 @@ class TestF6ExecutorSaturation:
                     _last_compression_telemetry = None
                     _last_summary_fallback_used = False
                     _last_aux_model_failure_model = None
+                    circuit_failures = []
+
+                    @classmethod
+                    def record_timeout_failure(cls, error):
+                        cls.circuit_failures.append(error)
 
             import json as _json
             import logging as _logging
@@ -362,7 +367,7 @@ class TestF6ExecutorSaturation:
                 cc.logger.removeHandler(capture)
                 cc.logger.setLevel(_prev_level)
             elapsed = time.monotonic() - t0
-            # ── Assert while the 4 workers are STILL wedged ───────────────
+            # ── Assert while every worker is STILL wedged ─────────────────
             assert not release.is_set()
             assert elapsed < 1.0, (
                 f"saturated submission must fail fast, took {elapsed:.2f}s"
@@ -380,6 +385,10 @@ class TestF6ExecutorSaturation:
             )
             assert saturated[0]["commit_status"] == "aborted"
             assert saturated[0]["session_id"] == "SATURATED_SESSION"
+            assert len(_TelemetryAgent.context_compressor.circuit_failures) == 1
+            assert "pool saturated" in (
+                _TelemetryAgent.context_compressor.circuit_failures[0].lower()
+            )
         finally:
             release.set()
 
@@ -469,6 +478,16 @@ class TestS3IdleChargedFromLastProgress:
             assert release.wait(timeout=10)
             return ([], "late")
 
+        # Warm the shared executor before measuring silence. Lazy pool/thread
+        # construction is host startup overhead, not time since the worker's last
+        # progress event.
+        cc._get_compress_timeout_executor()
+        timeout_observed = {}
+
+        def on_timeout(_idle, waited, since_progress):
+            timeout_observed["waited"] = waited
+            timeout_observed["since_progress"] = since_progress
+
         t0 = time.monotonic()
         try:
             msgs, prompt = run_compress_context_with_progress_timeout(
@@ -477,6 +496,7 @@ class TestS3IdleChargedFromLastProgress:
                 system_prompt_fallback="fb",
                 idle_timeout_seconds=idle,
                 total_ceiling_seconds=5.0,
+                on_timeout=on_timeout,
             )
         finally:
             elapsed = time.monotonic() - t0
@@ -485,9 +505,13 @@ class TestS3IdleChargedFromLastProgress:
         # Old behavior waited a full interval from the CHECK (~2x idle ≈
         # 0.85s+). New behavior times out ~idle after the last progress
         # (~0.45s). Allow generous slack while still excluding ~2x.
-        assert elapsed < idle * 1.8, (
-            f"silence exceeded ~2x idle budget shape: {elapsed:.2f}s"
+        assert timeout_observed["since_progress"] < idle * 1.5, (
+            "silence exceeded the charged last-progress budget: "
+            f"{timeout_observed['since_progress']:.2f}s"
         )
+        # Host scheduling/pool overhead may move wall time, but should still
+        # remain comfortably below the historical ~2x-idle-plus-overhead shape.
+        assert elapsed < idle * 2.5
         _drain_admission_slots()
 
 

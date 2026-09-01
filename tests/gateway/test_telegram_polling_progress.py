@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -84,6 +85,9 @@ def _lifecycle_app():
     app.updater.start_webhook = AsyncMock()
     app.updater.stop = AsyncMock()
     app.bot = MagicMock()
+    app.bot.get_me = AsyncMock(
+        return_value=SimpleNamespace(id=123456789, username="hermes_test_bot")
+    )
     app.bot.delete_webhook = AsyncMock()
     app.initialize = AsyncMock()
     app.start = AsyncMock()

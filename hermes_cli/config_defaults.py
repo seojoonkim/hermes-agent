@@ -90,19 +90,20 @@ DEFAULT_CONFIG = {
         # Force-interrupt budget once gateway stop()/drain has begun
         # (seconds). Applies to SIGTERM/external stop and to the final
         # phase of in-band restart after any after-turn wait. 0 = interrupt
-        # immediately (the default).
+        # immediately. The default preserves a bounded window for active work
+        # during external SIGTERM as well as in-band restarts.
         #
         # Keep this short and under systemd TimeoutStopSec — a long value
         # here invites SIGKILL-mid-cleanup. For in-band restart
         # (/restart, SIGUSR1), prefer restart_after_turn_timeout below so
         # active turns finish *before* stop() begins (#77184).
-        "restart_drain_timeout": 0,
+        "restart_drain_timeout": 180,
         # Cron-only floor under the stop()/drain wait (seconds). A chat turn
         # interrupted by a restart is announced to the user and resumed on
         # their next message; an interrupted cron run is written to jobs.json
         # as a permanent failure that nobody is waiting on, so it must not
-        # inherit restart_drain_timeout's 0 (#82161). Clamped at runtime to
-        # the shutdown-watchdog leash minus teardown headroom, so raising it
+        # inherit a possibly operator-configured zero (#82161). Clamped at
+        # runtime to the shutdown-watchdog leash minus teardown headroom, so raising it
         # past ~50s has no effect unless TimeoutStopSec is raised too.
         # 0 = opt out (cron drains on restart_drain_timeout, legacy).
         "cron_drain_timeout": 30,
@@ -888,18 +889,18 @@ DEFAULT_CONFIG = {
                                       # this is an inactivity budget: a slow model still
                                       # producing tokens keeps extending the wait; only a
                                       # silent/hung call is cut off.
-        "hygiene_total_ceiling_seconds": 600,  # absolute cap on the hygiene compression wait even
+        "hygiene_total_ceiling_seconds": 30,  # absolute user-facing wait cap
                                       # while tokens are still moving — bounds a degenerate
                                       # trickle stream. Clamped to >= hygiene_timeout_seconds.
         "hygiene_failure_cooldown_seconds": 300,  # skip repeated failed hygiene attempts for this session
-        "context_timeout_seconds": 120,  # inactivity budget for in-agent compress_context
+        "context_timeout_seconds": 30,  # inactivity budget for in-agent compress_context
                                       # (conversation loop, /compress, preflight, etc.).
                                       # Same progress-aware semantics as hygiene_timeout_seconds:
                                       # streamed summary tokens extend the wait; only a silent
                                       # worker is cut off. 0 = disable the owned wrapper
                                       # (callers that already pass commit_fence, e.g. gateway
                                       # hygiene, never use this path).
-        "context_total_ceiling_seconds": 600,  # absolute cap on the *pre-commit*
+        "context_total_ceiling_seconds": 30,  # absolute cap on the *pre-commit*
                                       # in-agent compress_context wait (summary /
                                       # stream phase) even while tokens are still
                                       # moving. Clamped to >= context_timeout_seconds
@@ -2323,6 +2324,7 @@ DEFAULT_CONFIG = {
     "discord": {
         "require_mention": True,       # Require @mention to respond in server channels
         "free_response_channels": "",  # Comma-separated channel IDs where bot responds without mention
+        "require_mention_channels": "",  # Per-channel force-mention override
         "allowed_channels": "",        # If set, bot ONLY responds in these channel IDs (whitelist)
         "auto_thread": True,           # Auto-create threads on @mention in channels (like Slack)
         "thread_require_mention": False,  # If True, require @mention in threads too (multi-bot threads)
@@ -2430,14 +2432,16 @@ DEFAULT_CONFIG = {
     "mattermost": {
         "require_mention": True,       # Require @mention to respond in channels
         "free_response_channels": "",  # Comma-separated channel IDs where bot responds without mention
+        "require_mention_channels": "",  # Per-channel force-mention override
         "allowed_channels": "",        # If set, bot ONLY responds in these channel IDs (whitelist)
         "channel_prompts": {},         # Per-channel ephemeral system prompts
     },
 
     # Matrix platform settings (gateway mode)
     "matrix": {
-        "require_mention": True,       # Require @mention to respond in rooms
+        "require_mention": True,       # Require @mention in rooms
         "free_response_rooms": "",     # Comma-separated room IDs where bot responds without mention
+        "require_mention_rooms": "",    # Per-room force-mention override
         "allowed_rooms": "",           # If set, bot ONLY responds in these room IDs (whitelist)
     },
 

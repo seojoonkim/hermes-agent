@@ -81,6 +81,27 @@ class HygieneCaptureAdapter(BasePlatformAdapter):
 
 
 # ---------------------------------------------------------------------------
+# Hygiene concurrency isolation
+# ---------------------------------------------------------------------------
+
+
+def test_gateway_allows_only_one_hygiene_compressor_at_a_time():
+    from gateway.run import GatewayRunner
+
+    runner = object.__new__(GatewayRunner)
+    first = runner._try_acquire_hygiene_slot()
+    second = runner._try_acquire_hygiene_slot()
+
+    assert first is not None
+    assert second is None
+
+    first.release()
+    third = runner._try_acquire_hygiene_slot()
+    assert third is not None
+    third.release()
+
+
+# ---------------------------------------------------------------------------
 # Detection threshold tests (model-aware, unified with compression config)
 # ---------------------------------------------------------------------------
 
@@ -90,6 +111,13 @@ class TestSessionHygieneThresholds:
     Thresholds are derived from model context length × compression threshold,
     matching what the agent's ContextCompressor uses.
     """
+
+    def test_default_hygiene_wait_budget_is_responsive(self):
+        from gateway.run import resolve_hygiene_wait_budgets
+
+        idle_timeout, total_ceiling = resolve_hygiene_wait_budgets({})
+        assert idle_timeout == 30.0
+        assert total_ceiling == 30.0
 
 
     def test_under_threshold_no_trigger(self):
@@ -564,6 +592,14 @@ async def test_session_hygiene_timeout_continues_to_agent_and_sets_cooldown(monk
     )
     runner.session_store.load_transcript.return_value = _make_history(6, content_size=400)
     runner.session_store.has_any_sessions.return_value = True
+    runner.session_store.reset_session.return_value = SessionEntry(
+        session_key="agent:main:telegram:dm:12345",
+        session_id="sess-timeout-fresh",
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+        platform=Platform.TELEGRAM,
+        chat_type="dm",
+    )
     runner.session_store.rewrite_transcript = MagicMock()
     runner.session_store.append_to_transcript = MagicMock()
     runner._running_agents = {}
@@ -612,6 +648,10 @@ async def test_session_hygiene_timeout_continues_to_agent_and_sets_cooldown(monk
     assert elapsed < 2.0
     assert worker_started.is_set()
     assert runner._run_agent.await_count == 1
+    assert runner.session_store.reset_session.call_count == 1
+    run_kwargs = runner._run_agent.await_args_list[0].kwargs
+    assert run_kwargs["session_id"] == "sess-timeout-fresh"
+    assert run_kwargs["history"] == []
     # Cooldown must be persisted to the state DB (survives restart, #74136),
     # not stashed in an in-memory dict.
     assert fake_db.record_compression_failure_cooldown.called

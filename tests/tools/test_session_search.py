@@ -171,12 +171,67 @@ class TestBrowseShape:
         sids = [r["session_id"] for r in result["results"]]
         assert "s_newest" not in sids
 
+    def test_browse_prioritizes_current_chat_and_labels_other_chats(self, db):
+        now = int(time.time())
+        db.create_session("same_chat", source="telegram", session_key="tg:chat:a")
+        db.create_session("other_chat", source="telegram", session_key="tg:chat:b")
+        db.create_session("current", source="telegram", session_key="tg:chat:a")
+        for sid, started_at in (("same_chat", now - 20), ("other_chat", now - 10), ("current", now)):
+            db._conn.execute(
+                "UPDATE sessions SET started_at = ?, last_activity_at = ? WHERE id = ?",
+                (started_at, started_at, sid),
+            )
+            db.append_message(sid, role="user", content=f"message from {sid}")
+        db._conn.commit()
+
+        result = json.loads(session_search(db=db, current_session_id="current"))
+
+        assert [row["session_id"] for row in result["results"][:2]] == [
+            "same_chat",
+            "other_chat",
+        ]
+        assert [row["conversation_scope"] for row in result["results"][:2]] == [
+            "current",
+            "other",
+        ]
+
 
 # =========================================================================
 # Discovery shape (with query)
 # =========================================================================
 
 class TestDiscoveryShape:
+    def test_discovery_prioritizes_current_chat_and_labels_other_chats(self, db):
+        now = int(time.time())
+        db.create_session("same_chat", source="telegram", session_key="tg:chat:a")
+        db.create_session("other_chat", source="telegram", session_key="tg:chat:b")
+        db.create_session("current", source="telegram", session_key="tg:chat:a")
+        for i, sid in enumerate(("same_chat", "other_chat", "current")):
+            db._conn.execute(
+                "UPDATE sessions SET started_at = ?, last_activity_at = ? WHERE id = ?",
+                (now + i, now + i, sid),
+            )
+            db.append_message(sid, role="user", content="shared recall phrase")
+        db._conn.commit()
+
+        result = json.loads(session_search(
+            query='"shared recall phrase"',
+            limit=2,
+            detail="full",
+            db=db,
+            current_session_id="current",
+        ))
+
+        assert [row["session_id"] for row in result["results"]] == [
+            "same_chat",
+            "other_chat",
+        ]
+        assert [row["conversation_scope"] for row in result["results"]] == [
+            "current",
+            "other",
+        ]
+        assert "Do not treat other-chat results as current-chat context" in result["scope_hint"]
+
     def test_discovery_field_plan_preserves_full_default_result(self, db, monkeypatch):
         _seed_modpack_sessions(db)
         original = db.search_messages

@@ -482,6 +482,27 @@ def _read_session(db, session_id: str, head: int = 20, tail: int = 10, link_prof
     return json.dumps(response, ensure_ascii=False)
 
 
+def _conversation_scope(current_meta: Dict[str, Any], candidate_meta: Dict[str, Any]) -> str:
+    """Classify a session without exposing chat identifiers in tool output."""
+    if not current_meta:
+        return "unknown"
+    current_chat = current_meta.get("chat_id")
+    candidate_chat = candidate_meta.get("chat_id")
+    if current_chat and candidate_chat:
+        same_chat = (
+            current_meta.get("source") == candidate_meta.get("source")
+            and str(current_chat) == str(candidate_chat)
+            and str(current_meta.get("thread_id") or "")
+            == str(candidate_meta.get("thread_id") or "")
+        )
+        return "current" if same_chat else "other"
+    current_key = current_meta.get("session_key")
+    candidate_key = candidate_meta.get("session_key")
+    if current_key and candidate_key:
+        return "current" if current_key == candidate_key else "other"
+    return "unknown"
+
+
 def _list_recent_sessions(db, limit: int, current_session_id: str = None, link_profile: str = None) -> str:
     """Return metadata for the most recent sessions (no LLM calls, no FTS5)."""
     try:
@@ -503,7 +524,8 @@ def _list_recent_sessions(db, limit: int, current_session_id: str = None, link_p
             if current_session_id else (None, False)
         )
 
-        results = []
+        current_meta = db.get_session(current_session_id) if current_session_id else {}
+        candidates = []
         for s in sessions:
             sid = s.get("id", "")
             if sid == current_session_id:
@@ -514,7 +536,9 @@ def _list_recent_sessions(db, limit: int, current_session_id: str = None, link_p
             # that root browsable.
             if has_compression_hop and current_root and sid == current_root:
                 continue
-            results.append({
+            candidate_meta = db.get_session(sid) or s
+            scope = _conversation_scope(current_meta or {}, candidate_meta)
+            candidates.append({
                 "session_id": sid,
                 "link": _session_link(sid, link_profile),
                 "title": s.get("title") or None,
@@ -523,16 +547,25 @@ def _list_recent_sessions(db, limit: int, current_session_id: str = None, link_p
                 "last_active": s.get("last_active", ""),
                 "message_count": s.get("message_count", 0),
                 "preview": s.get("preview", ""),
+                "conversation_scope": scope,
             })
-            if len(results) >= limit:
-                break
+
+        # Stable sort keeps recency within each group while putting the current
+        # chat/thread ahead of unrelated rooms during continuity recovery.
+        candidates.sort(key=lambda row: row["conversation_scope"] != "current")
+        results = candidates[:limit]
 
         return json.dumps({
             "success": True,
             "mode": "browse",
             "results": results,
             "count": len(results),
-            "message": f"Showing {len(results)} most recent sessions. Pass a query= to search, or session_id+around_message_id to scroll.",
+            "message": (
+                f"Showing {len(results)} recent sessions; current chat/thread first. "
+                "Do not use conversation_scope='other' to recover an unfinished "
+                "current-chat task. Pass a query= to search, or session_id+"
+                "around_message_id to scroll."
+            ),
         }, ensure_ascii=False)
     except Exception as e:
         logging.error("Error listing recent sessions: %s", e, exc_info=True)
@@ -771,6 +804,10 @@ def _discover(
     """Discovery shape: FTS5 plus adaptive or full result hydration."""
     role_list = role_filter if role_filter else ["user", "assistant"]
     current_lineage_root = _resolve_lineage(db, current_session_id) if current_session_id else None
+    try:
+        current_meta = db.get_session(current_session_id) or {} if current_session_id else {}
+    except Exception:
+        current_meta = {}
     title_result = _title_match_result(db, query, current_lineage_root)
 
     try:
@@ -794,6 +831,19 @@ def _discover(
     # top `limit` results (#19434). Stable — preserves BM25/recency order
     # within each class.
     raw_results = _order_for_recall(raw_results)
+    if current_meta:
+        def scope_rank(row):
+            try:
+                candidate_meta = db.get_session(row.get("session_id")) or {}
+            except Exception:
+                candidate_meta = {}
+            return {"current": 0, "unknown": 1, "other": 2}[
+                _conversation_scope(current_meta, candidate_meta)
+            ]
+
+        # Stable sort: keep relevance/recency order inside each conversation,
+        # but never let another chat outrank the current one by accident.
+        raw_results = sorted(raw_results, key=scope_rank)
 
     if not raw_results and not title_result:
         _empty_payload = {
@@ -928,7 +978,18 @@ def _discover(
         results.append(entry)
 
     for entry in results:
+        try:
+            candidate_meta = db.get_session(entry["session_id"]) or {}
+        except Exception:
+            candidate_meta = {}
+        entry["conversation_scope"] = _conversation_scope(current_meta, candidate_meta)
         entry["link"] = _session_link(entry["session_id"], link_profile)
+
+    results.sort(
+        key=lambda entry: {"current": 0, "unknown": 1, "other": 2}[
+            entry["conversation_scope"]
+        ]
+    )
 
     _final_payload = {
         "success": True,
@@ -938,6 +999,10 @@ def _discover(
         "results": results,
         "count": len(results),
         "sessions_searched": len(seen_sessions),
+        "scope_hint": (
+            "Current-chat results are listed first. Do not treat other-chat "
+            "results as current-chat context unless the user explicitly links them."
+        ),
         "link_hint": (
             "When referring the user to a session, write its `link` value "
             "verbatim inline mid-sentence (it renders as a titled link) — never "
