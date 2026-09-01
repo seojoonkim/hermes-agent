@@ -1301,13 +1301,11 @@ def build_resume_recovery_note(
     startup auto-resume turn synthesized by
     ``_schedule_resume_pending_sessions`` with no human message attached.
 
-    ``interactive`` selects the empty-message guidance: on interactive
-    platforms a human is present, so "report the restore and ask what next"
-    is right.  On non-interactive event platforms (webhook, API server —
-    adapters with ``interactive_resume = False``) nobody can answer; the
-    resumed turn must instead complete the interrupted work, or the task is
-    silently abandoned behind a "restored" acknowledgement that goes
-    nowhere (#57056).
+    A startup-generated empty message always resumes the interrupted work.
+    Requiring another user nudge on an interactive platform leaves the task
+    unfinished and makes a successful restart look like a silent stop.  The
+    ``interactive`` argument remains for call-site compatibility; new real
+    user text still preempts the old task through the branch below.
     """
     reason_phrase = (
         "a gateway restart"
@@ -1325,21 +1323,11 @@ def build_resume_recovery_note(
             "Do NOT re-execute old tool calls — skip any "
             "unfinished work from the conversation history."
         )
-    elif interactive:
-        resume_guidance = (
-            "Report to the user that the session was restored "
-            "successfully and ask what they would like to do next."
-        )
-        tail_guidance = (
-            "Do NOT re-execute old tool calls — skip any "
-            "unfinished work from the conversation history."
-        )
     else:
         resume_guidance = (
-            "No user is present on this non-interactive platform, "
-            "so do NOT emit a 'session restored' acknowledgement "
-            "or ask questions. Review the conversation history and "
-            "CONTINUE the interrupted task to completion."
+            "Do NOT stop at a 'session restored' acknowledgement or ask "
+            "what to do next. Review the conversation history and CONTINUE "
+            "the interrupted task to completion."
         )
         tail_guidance = (
             "Do NOT re-run tool calls whose results already "
@@ -4039,6 +4027,13 @@ def _normalize_empty_agent_response(
     message hits a stale generation token and returns an empty result,
     leaving the platform with nothing to send. (#31884)
     """
+    # ``ensure_assistant_after_tool_tail`` uses this exact sentence only to
+    # close an interrupted tool sequence for provider role alternation.  It is
+    # transcript scaffolding, not user-facing prose.  Let restart recovery own
+    # the visible continuation instead of leaking the internal placeholder.
+    if agent_result.get("interrupted") and response.strip() == "Operation interrupted.":
+        response = ""
+
     if response:
         return response
 

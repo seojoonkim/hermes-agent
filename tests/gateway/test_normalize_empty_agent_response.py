@@ -126,3 +126,37 @@ class TestGenericFailureRegression:
 
         assert "context window" in response
         assert "/compact" in response
+
+
+class TestInternalInterruptPlaceholder:
+    def test_internal_placeholder_is_never_delivered_as_user_facing_text(self):
+        agent_result = {
+            "final_response": "Operation interrupted.",
+            "interrupted": True,
+            "failed": False,
+            "api_calls": 3,
+        }
+
+        response = _normalize_empty_agent_response(
+            agent_result,
+            agent_result["final_response"],
+            history_len=10,
+        )
+
+        assert response == ""
+
+    def test_meaningful_interrupt_text_is_preserved(self):
+        agent_result = {
+            "final_response": "재기동 전에 저장을 마쳤어.",
+            "interrupted": True,
+            "failed": False,
+            "api_calls": 3,
+        }
+
+        response = _normalize_empty_agent_response(
+            agent_result,
+            agent_result["final_response"],
+            history_len=10,
+        )
+
+        assert response == "재기동 전에 저장을 마쳤어."

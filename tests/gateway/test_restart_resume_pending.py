@@ -314,6 +314,18 @@ class TestResumePendingSystemNote:
         # But still guards against re-running already-recorded tool calls.
         assert "already appear in the history" in note
 
+    def test_empty_message_interactive_note_continues_task_without_waiting_for_user(self):
+        """A chat restart must resume unfinished work instead of stopping at
+        a restore acknowledgement and requiring another user nudge."""
+        note = build_resume_recovery_note(
+            "restart_timeout", "", interactive=True
+        )
+
+        assert "CONTINUE the interrupted task" in note
+        assert "ask what they would like to do next" not in note
+        assert "skip any unfinished work" not in note
+        assert "already appear in the history" in note
+
 
     def test_resume_note_is_persisted_instead_of_original_empty_message(self):
         """The auto-resume note must not leave an empty row in state.db."""
