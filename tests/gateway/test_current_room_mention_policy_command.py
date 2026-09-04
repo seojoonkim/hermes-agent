@@ -101,6 +101,106 @@ async def test_exact_english_inverse_policy_persists_and_updates_live_adapter(tm
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "phrase",
+    [
+        "너 안불러도 작동하게해",
+        "너 안 불러도 작동하게 해",
+        "너 안불러도 일하게 세팅해",
+        "이 방에서 너 안불러도 일하게 세팅해",
+    ],
+)
+async def test_korean_no_call_wording_hot_applies_all_telegram_room_gates(
+    tmp_path, phrase
+):
+    (tmp_path / "config.yaml").write_text(
+        "telegram:\n"
+        "  allowed_chats: '-999'\n"
+        "  group_allowed_chats: ['-999']\n"
+        "  require_mention_chats: ['-10042', '-999']\n"
+        "  free_response_chats: ['-999']\n",
+        encoding="utf-8",
+    )
+    runner, adapter = _runner()
+    adapter.config.extra.update(
+        {
+            "allowed_chats": "-999",
+            "group_allowed_chats": ["-999"],
+            "require_mention_chats": ["-10042", "-999"],
+            "free_response_chats": ["-999"],
+        }
+    )
+    token = set_hermes_home_override(str(tmp_path))
+    try:
+        reply = await runner._handle_current_room_mention_policy_command(
+            _event(phrase)
+        )
+    finally:
+        reset_hermes_home_override(token)
+
+    assert reply == "✓ 이 방에서는 이제 멘션 없이도 답할게요."
+    saved = yaml.safe_load((tmp_path / "config.yaml").read_text(encoding="utf-8"))
+    assert saved["telegram"]["allowed_chats"] == "-999,-10042"
+    assert saved["telegram"]["group_allowed_chats"] == ["-999"]
+    assert saved["telegram"]["require_mention_chats"] == ["-999"]
+    assert saved["telegram"]["free_response_chats"] == ["-999", "-10042"]
+    assert adapter.config.extra["allowed_chats"] == "-999,-10042"
+    assert adapter.config.extra["group_allowed_chats"] == ["-999"]
+    assert adapter.config.extra["require_mention_chats"] == ["-999"]
+    assert adapter.config.extra["free_response_chats"] == ["-999", "-10042"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "stored_allowed,live_allowed,expected",
+    [
+        (None, "-999", "-999,-10042"),
+        ([], "-999", "-999,-10042"),
+        ("", "-999", "-999,-10042"),
+        (-999, -999, "-999,-10042"),
+        (["-999"], ["-999"], ["-999", "-10042"]),
+    ],
+)
+async def test_optional_policy_uses_live_allowed_gate_and_normalizes_scalar(
+    tmp_path, stored_allowed, live_allowed, expected
+):
+    telegram = {
+        "group_allowed_chats": ["-999"],
+        "require_mention_chats": [],
+        "free_response_chats": [],
+    }
+    if stored_allowed is not None:
+        telegram["allowed_chats"] = stored_allowed
+    (tmp_path / "config.yaml").write_text(
+        yaml.safe_dump({"telegram": telegram}, sort_keys=False),
+        encoding="utf-8",
+    )
+    runner, adapter = _runner()
+    adapter.config.extra.update(
+        {
+            "allowed_chats": live_allowed,
+            "group_allowed_chats": ["-999"],
+            "require_mention_chats": [],
+            "free_response_chats": [],
+        }
+    )
+    token = set_hermes_home_override(str(tmp_path))
+    try:
+        reply = await runner._handle_current_room_mention_policy_command(
+            _event("너 안불러도 작동하게해")
+        )
+    finally:
+        reset_hermes_home_override(token)
+
+    assert reply == "✓ 이 방에서는 이제 멘션 없이도 답할게요."
+    saved = yaml.safe_load((tmp_path / "config.yaml").read_text(encoding="utf-8"))
+    assert saved["telegram"]["allowed_chats"] == expected
+    assert saved["telegram"]["group_allowed_chats"] == ["-999"]
+    assert adapter.config.extra["allowed_chats"] == expected
+    assert adapter.config.extra["group_allowed_chats"] == ["-999"]
+
+
+@pytest.mark.asyncio
 async def test_slack_policy_persists_and_updates_live_adapter(tmp_path):
     (tmp_path / "config.yaml").write_text(
         "slack:\n"

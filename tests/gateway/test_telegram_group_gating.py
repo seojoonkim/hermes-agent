@@ -362,6 +362,25 @@ def test_required_mention_chat_overrides_free_response_exception():
     assert adapter._should_process_message(_group_message("ordinary chatter", chat_id=-100)) is True
 
 
+def test_exact_current_room_policy_command_bypasses_mention_and_chat_gate():
+    adapter = _make_adapter(
+        require_mention=True,
+        allowed_chats=["-999"],
+        group_allowed_chats=["-999"],
+        free_response_chats=[],
+    )
+
+    assert adapter._should_process_message(
+        _group_message("너 안불러도 작동하게해", chat_id=-100)
+    ) is True
+    assert adapter._should_process_message(
+        _group_message("이 방에서는 멘션할 때만 답해", chat_id=-100)
+    ) is False
+    assert adapter._should_process_message(
+        _group_message("그냥 여기서도 알아서 반응해", chat_id=-100)
+    ) is False
+
+
 def test_explicit_multi_bot_mentions_route_only_to_named_bots():
     text = "@research_bot @ops_bot hi"
     entities = _mention_entities(text, ["@research_bot", "@ops_bot"])

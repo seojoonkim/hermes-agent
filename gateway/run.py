@@ -77,6 +77,11 @@ from agent.runtime_resume import (
 )
 from hermes_cli.config import _is_ssh_remote_tilde_cwd, cfg_get
 from hermes_cli.fallback_config import get_fallback_chain
+from gateway.room_mention_policy import (
+    CURRENT_ROOM_MENTION_OPTIONAL_PHRASES,
+    CURRENT_ROOM_MENTION_REQUIRED_PHRASES,
+    current_room_mention_policy,
+)
 
 # --- Agent cache tuning ---------------------------------------------------
 # Bounds the per-session AIAgent cache to prevent unbounded growth in
@@ -6828,52 +6833,10 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             return None
         return _HygieneSlotLease(_GATEWAY_HYGIENE_SLOT)
 
-    # Deliberately finite exact-match surface for the natural-language room
-    # policy command.  Do not replace this with fuzzy/LLM intent detection: this
-    # path mutates durable authorization-adjacent gateway configuration.
-    _CURRENT_ROOM_MENTION_REQUIRED_PHRASES = frozenset({
-        "이 방에서는 멘션할 때만 답해",
-        "이 방에서는 멘션해야 답해",
-        "이 방에서는 멘션해야만 답해",
-        "이 방에서는 나를 멘션할 때만 답해",
-        "이 방에서는 멘션할 때만 대답해",
-        "이 방에서는 멘션할 때만 응답해",
-        "이 방에선 멘션할 때만 답해",
-        "이 방에서 멘션할 때만 답해",
-        "이 방에서 멘션해야 답해",
-        "이 방에서 멘션해야만 답해",
-        "이 방에서는 내가 태그할 때만 답해",
-        "이 방에서는 내가 태그할 때만 대답해",
-        "이 방에서는 내가 태그하기 전에는 말하지 마",
-        "이 방에서는 내가 태그하기 전까지 말하지 마",
-        "내가 태그하기 전에는 말하지 마",
-        "내가 태그하기 전까지 말하지 마",
-        "내가 태그할 때만 답해",
-        "내가 태그할 때만 대답해",
-        "only respond when mentioned in this room",
-        "in this room, only respond when mentioned",
-        "only answer when mentioned in this room",
-        "in this room, only answer when mentioned",
-        "only respond to mentions in this room",
-        "require a mention in this room",
-        "require mentions in this room",
-    })
-    _CURRENT_ROOM_MENTION_OPTIONAL_PHRASES = frozenset({
-        "이 방에서는 멘션 없이 답해",
-        "이 방에서는 멘션 없이도 답해",
-        "이 방에서는 멘션 없이도 대답해",
-        "이 방에서는 멘션 없이도 응답해",
-        "이 방에선 멘션 없이 답해",
-        "이 방에서 멘션 없이 답해",
-        "이 방에서 멘션 없이도 답해",
-        "respond without mentions in this room",
-        "in this room, respond without mentions",
-        "answer without mentions in this room",
-        "in this room, answer without mentions",
-        "don't require mentions in this room",
-        "do not require mentions in this room",
-        "mentions are not required in this room",
-    })
+    # Deliberately finite exact-match surface for authorization-adjacent room
+    # policy changes. Telegram imports the same source before its mention gate.
+    _CURRENT_ROOM_MENTION_REQUIRED_PHRASES = CURRENT_ROOM_MENTION_REQUIRED_PHRASES
+    _CURRENT_ROOM_MENTION_OPTIONAL_PHRASES = CURRENT_ROOM_MENTION_OPTIONAL_PHRASES
 
     # ------------------------------------------------------------------
     # Legacy per-session dict adapters.  All per-session state lives in
@@ -17595,9 +17558,9 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             return None
 
         raw_text = str(getattr(event, "text", "") or "").strip()
-        normalized_text = raw_text.casefold()
-        required = normalized_text in self._CURRENT_ROOM_MENTION_REQUIRED_PHRASES
-        optional = normalized_text in self._CURRENT_ROOM_MENTION_OPTIONAL_PHRASES
+        policy = current_room_mention_policy(raw_text)
+        required = policy == "required"
+        optional = policy == "optional"
         if not required and not optional:
             return None
 
@@ -17683,6 +17646,37 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                     if chat_id not in free_chats:
                         free_chats.append(chat_id)
 
+                live_gate_updates: dict[str, Any] = {}
+                if platform == Platform.TELEGRAM and optional:
+                    stored_allowed = platform_config.get("allowed_chats")
+                    allowed_values = self._room_policy_list(stored_allowed)
+                    effective_allowed = stored_allowed
+                    if (
+                        not allowed_values
+                        and stored_allowed not in (None, "", [])
+                    ):
+                        normalized_allowed = str(stored_allowed).strip()
+                        if normalized_allowed:
+                            allowed_values = [normalized_allowed]
+                    if not allowed_values:
+                        effective_allowed = extra.get("allowed_chats")
+                        allowed_values = self._room_policy_list(effective_allowed)
+                        if (
+                            not allowed_values
+                            and effective_allowed not in (None, "", [])
+                        ):
+                            normalized_allowed = str(effective_allowed).strip()
+                            if normalized_allowed:
+                                allowed_values = [normalized_allowed]
+                    if allowed_values:
+                        if chat_id not in allowed_values:
+                            allowed_values.append(chat_id)
+                        updated_allowed: Any = allowed_values
+                        if not isinstance(effective_allowed, list):
+                            updated_allowed = ",".join(allowed_values)
+                        platform_config["allowed_chats"] = updated_allowed
+                        live_gate_updates["allowed_chats"] = updated_allowed
+
                 platform_config[require_key] = require_chats
                 platform_config[free_key] = free_chats
                 atomic_yaml_write(config_path, user_config, sort_keys=False)
@@ -17693,6 +17687,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
             # effective for the connected adapter immediately.
             extra[require_key] = list(require_chats)
             extra[free_key] = list(free_chats)
+            extra.update(live_gate_updates)
             if platform == Platform.MATRIX:
                 setattr(adapter, "_require_mention_rooms", set(require_chats))
                 setattr(adapter, "_free_rooms", set(free_chats))

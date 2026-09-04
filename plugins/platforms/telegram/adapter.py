@@ -198,6 +198,7 @@ sys.path.insert(0, str(_Path(__file__).resolve().parents[3]))
 
 from gateway.authz_mixin import _coerce_allow_set
 from gateway.config import Platform, PlatformConfig
+from gateway.room_mention_policy import current_room_mention_policy
 from gateway.platforms.base import (
     BasePlatformAdapter,
     MessageEvent,
@@ -9720,13 +9721,16 @@ class TelegramAdapter(BasePlatformAdapter):
         # Resolve guest-mode mention bypass once so _message_mentions_bot
         # is not called redundantly in the normal flow below.
         guest_mention = self._is_guest_mention(message)
+        optional_room_policy_command = current_room_mention_policy(
+            getattr(message, "text", None) or getattr(message, "caption", None)
+        ) == "optional"
 
         # allowed_chats check (whitelist). When set, group messages from chats
         # outside the whitelist are ignored unless guest_mode permits this
         # exact message as an explicit direct mention. DMs are excluded above.
         allowed = self._telegram_allowed_chats()
         if allowed and chat_id_str not in allowed:
-            return guest_mention
+            return guest_mention or optional_room_policy_command
 
         if guest_mention:
             return True
@@ -9743,7 +9747,7 @@ class TelegramAdapter(BasePlatformAdapter):
         # _message_mentions_bot above — skip the redundant second call.
         if not self._telegram_guest_mode() and self._message_mentions_bot(message):
             return True
-        return self._message_matches_mention_patterns(message)
+        return optional_room_policy_command or self._message_matches_mention_patterns(message)
 
     async def _ensure_forum_commands(self, message) -> None:
         """Lazy-register bot commands for forum supergroups.
