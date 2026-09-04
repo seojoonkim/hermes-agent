@@ -127,6 +127,7 @@ except ImportError:
     TrustState = _TrustStateStub  # type: ignore[misc,assignment]
 
 from gateway.config import Platform, PlatformConfig
+from gateway.room_mention_policy import current_room_mention_policy
 from gateway.platforms.base import (
     BasePlatformAdapter,
     MessageEvent,
@@ -3388,6 +3389,7 @@ class MatrixAdapter(BasePlatformAdapter):
             mentions_block.get("user_ids") if isinstance(mentions_block, dict) else None
         )
         is_mentioned = self._is_bot_mentioned(body, formatted_body, mention_user_ids)
+        optional_room_policy_command = current_room_mention_policy(body) == "optional"
 
         # Require-mention gating.
         if not is_dm:
@@ -3407,7 +3409,7 @@ class MatrixAdapter(BasePlatformAdapter):
             force_mention = room_id in self._require_mention_rooms
             in_bot_thread = bool(thread_id and thread_id in self._threads)
             is_command = body.startswith("/")
-            if force_mention and not is_mentioned:
+            if force_mention and not is_mentioned and not optional_room_policy_command:
                 logger.debug(
                     "Matrix: ignoring message %s in %s — explicit room mention required",
                     event_id,
@@ -3420,7 +3422,11 @@ class MatrixAdapter(BasePlatformAdapter):
                 and not is_free_room
                 and not in_bot_thread
             ):
-                if not is_mentioned and not is_command:
+                if (
+                    not is_mentioned
+                    and not is_command
+                    and not optional_room_policy_command
+                ):
                     logger.debug(
                         "Matrix: ignoring message %s in %s — no @mention "
                         "(set MATRIX_REQUIRE_MENTION=false to disable)",
@@ -3435,7 +3441,7 @@ class MatrixAdapter(BasePlatformAdapter):
             # where multiple bots all participate in the same thread.
             elif (self._thread_require_mention and in_bot_thread
                   and not is_free_room):
-                if not is_mentioned:
+                if not is_mentioned and not optional_room_policy_command:
                     logger.debug(
                         "Matrix: ignoring message %s in thread %s — "
                         "no @mention (thread_require_mention=true)",

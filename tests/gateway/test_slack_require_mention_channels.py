@@ -157,3 +157,30 @@ async def test_forced_channel_wake_checks_still_apply(adapter):
     adapter.handle_message.assert_called_once()
 
 
+@pytest.mark.asyncio
+async def test_optional_policy_phrase_bypasses_forced_channel_gate(adapter):
+    adapter.config.extra["require_mention"] = False
+    adapter.config.extra["require_mention_channels"] = CHANNEL_ID
+
+    await adapter._handle_slack_message(
+        _event("이 방에서는 멘션 없이도 답해")
+    )
+
+    adapter.handle_message.assert_awaited_once()
+    assert adapter.handle_message.await_args.args[0].text == (
+        "이 방에서는 멘션 없이도 답해"
+    )
+
+
+@pytest.mark.asyncio
+async def test_near_match_does_not_bypass_forced_channel_gate(adapter):
+    adapter.config.extra["require_mention"] = False
+    adapter.config.extra["require_mention_channels"] = CHANNEL_ID
+
+    await adapter._handle_slack_message(
+        _event("이 방에서는 멘션 없이도 답해줘")
+    )
+
+    adapter.handle_message.assert_not_awaited()
+
+

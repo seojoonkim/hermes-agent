@@ -217,6 +217,36 @@ async def test_require_mention_m_mentions_other_user_ignored(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_optional_policy_phrase_bypasses_required_room_gate(monkeypatch):
+    monkeypatch.setenv("MATRIX_AUTO_THREAD", "false")
+    adapter = _make_adapter()
+    room_id = "!room1:example.org"
+    _set_dm(adapter, room_id, is_dm=False)
+    adapter._require_mention_rooms.add(room_id)
+
+    await adapter._on_room_message(
+        _make_event("이 방에서는 멘션 없이도 답해", room_id=room_id)
+    )
+
+    adapter.handle_message.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_near_match_does_not_bypass_required_room_gate(monkeypatch):
+    monkeypatch.setenv("MATRIX_AUTO_THREAD", "false")
+    adapter = _make_adapter()
+    room_id = "!room1:example.org"
+    _set_dm(adapter, room_id, is_dm=False)
+    adapter._require_mention_rooms.add(room_id)
+
+    await adapter._on_room_message(
+        _make_event("이 방에서는 멘션 없이도 답해줘", room_id=room_id)
+    )
+
+    adapter.handle_message.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_required_mention_room_overrides_global_disable_and_free_response(
     monkeypatch,
 ):

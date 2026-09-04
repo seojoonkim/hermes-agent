@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from gateway.config import Platform, PlatformConfig
+from gateway.room_mention_policy import current_room_mention_policy
 from gateway.platforms.helpers import MessageDeduplicator
 from gateway.platforms.base import (
     BasePlatformAdapter,
@@ -856,6 +857,9 @@ class MattermostAdapter(BasePlatformAdapter):
 
         # For DMs, user_id is sufficient.  For channels, check for @mention.
         message_text = post.get("message", "")
+        optional_room_policy_command = (
+            current_room_mention_policy(message_text) == "optional"
+        )
 
         # Mention-gating for non-DM channels.
         # Config (config.yaml `mattermost.*` with env-var fallback):
@@ -922,7 +926,12 @@ class MattermostAdapter(BasePlatformAdapter):
                 for pattern in mention_patterns
             )
 
-            if (require_mention or is_required_channel) and not is_free_channel and not has_mention:
+            if (
+                (require_mention or is_required_channel)
+                and not is_free_channel
+                and not has_mention
+                and not optional_room_policy_command
+            ):
                 logger.debug(
                     "Mattermost: skipping non-DM message without @mention (channel=%s)",
                     channel_id,

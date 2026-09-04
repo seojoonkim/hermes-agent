@@ -415,6 +415,26 @@ class TestMattermostMentionBehavior:
 
         assert not self.adapter.handle_message.called
 
+    @pytest.mark.asyncio
+    async def test_optional_policy_phrase_bypasses_required_gate(self):
+        self.adapter.config.extra["require_mention_channels"] = ["chan_456"]
+
+        await self.adapter._handle_ws_event(
+            self._make_event("이 방에서는 멘션 없이도 답해")
+        )
+
+        self.adapter.handle_message.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_near_match_does_not_bypass_required_gate(self):
+        self.adapter.config.extra["require_mention_channels"] = ["chan_456"]
+
+        await self.adapter._handle_ws_event(
+            self._make_event("이 방에서는 멘션 없이도 답해줘")
+        )
+
+        self.adapter.handle_message.assert_not_awaited()
+
 
 # ---------------------------------------------------------------------------
 # File upload (send_image)

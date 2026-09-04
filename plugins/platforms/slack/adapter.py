@@ -41,6 +41,7 @@ sys.path.insert(0, str(_Path(__file__).resolve().parents[3]))
 
 from agent.secret_scope import UnscopedSecretError, get_secret
 from gateway.config import Platform, PlatformConfig
+from gateway.room_mention_policy import current_room_mention_policy
 from gateway.platforms.helpers import MessageDeduplicator
 from gateway.platforms.base import (
     BasePlatformAdapter,
@@ -6400,6 +6401,9 @@ class SlackAdapter(BasePlatformAdapter):
         bot_uid = self._team_bot_user_ids.get(team_id, self._bot_user_id)
         # Detect mentions authored only inside Block Kit blocks too (#52387)
         routing_text = _slack_mention_detection_text(event) or original_text or ""
+        optional_room_policy_command = (
+            current_room_mention_policy(original_text) == "optional"
+        )
         is_mentioned = bool(
             (bot_uid and f"<@{bot_uid}>" in routing_text)
             or self._slack_message_matches_mention_patterns(routing_text)
@@ -6462,7 +6466,7 @@ class SlackAdapter(BasePlatformAdapter):
                 )
                 return
 
-            if force_process:
+            if force_process or optional_room_policy_command:
                 pass  # Explicit internal routing path (reaction trigger).
             elif (
                 channel_id not in self._slack_require_mention_channels()

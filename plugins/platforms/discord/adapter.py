@@ -148,6 +148,7 @@ except ImportError:
     from ffmpeg_utils import resolve_ffmpeg_executable
 
 from gateway.config import Platform, PlatformConfig
+from gateway.room_mention_policy import current_room_mention_policy
 
 from gateway.platforms.helpers import (
     MessageDeduplicator,
@@ -8122,6 +8123,11 @@ class DiscordAdapter(BasePlatformAdapter):
                 normalized_content = normalized_content.replace(f"<@{self._client.user.id}>", "").strip()
                 normalized_content = normalized_content.replace(f"<@!{self._client.user.id}>", "").strip()
             message.content = normalized_content
+        optional_room_policy_command = (
+            current_room_mention_policy(raw_content) == "optional"
+        )
+        channel_keys: set[str] = set()
+        is_free_channel = False
         if not isinstance(message.channel, discord.DMChannel):
             channel_ids = {str(message.channel.id)}
             if parent_channel_id:
@@ -8171,7 +8177,12 @@ class DiscordAdapter(BasePlatformAdapter):
                 and not self._discord_thread_require_mention()
             )
 
-            if (require_mention or is_forced_mention_channel) and not is_free_channel and not in_bot_thread:
+            if (
+                (require_mention or is_forced_mention_channel)
+                and not is_free_channel
+                and not in_bot_thread
+                and not optional_room_policy_command
+            ):
                 if not self._self_is_explicitly_mentioned(message) and not mention_prefix:
                     return False
         # Auto-thread: when enabled, automatically create a thread for every
@@ -8181,7 +8192,11 @@ class DiscordAdapter(BasePlatformAdapter):
         auto_threaded_channel = None
         if not is_thread and not isinstance(message.channel, discord.DMChannel):
             no_thread_channels = self._get_no_thread_channels()
-            skip_thread = bool(channel_keys & no_thread_channels) or is_free_channel
+            skip_thread = (
+                bool(channel_keys & no_thread_channels)
+                or is_free_channel
+                or optional_room_policy_command
+            )
             auto_thread = os.getenv("DISCORD_AUTO_THREAD", "true").lower() in {"true", "1", "yes"}
             is_reply_message = getattr(message, "type", None) == discord.MessageType.reply
             if auto_thread and not skip_thread and not is_voice_linked_channel and not is_reply_message:

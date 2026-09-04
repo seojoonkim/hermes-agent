@@ -223,6 +223,42 @@ async def test_discord_required_mention_channel_overrides_global_and_free_respon
     adapter.handle_message.assert_not_awaited()
 
 
+@pytest.mark.asyncio
+async def test_discord_optional_policy_phrase_bypasses_required_gate(adapter, monkeypatch):
+    monkeypatch.setenv("DISCORD_AUTO_THREAD", "true")
+    adapter.config.extra.update(
+        {"require_mention": True, "require_mention_channels": ["123"]}
+    )
+    adapter._auto_create_thread = AsyncMock()
+
+    await adapter._handle_message(
+        make_message(
+            channel=FakeTextChannel(channel_id=123),
+            content="이 방에서는 멘션 없이도 답해",
+        )
+    )
+
+    adapter._auto_create_thread.assert_not_awaited()
+    adapter.handle_message.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_discord_near_match_does_not_bypass_required_gate(adapter, monkeypatch):
+    monkeypatch.setenv("DISCORD_AUTO_THREAD", "false")
+    adapter.config.extra.update(
+        {"require_mention": True, "require_mention_channels": ["123"]}
+    )
+
+    await adapter._handle_message(
+        make_message(
+            channel=FakeTextChannel(channel_id=123),
+            content="이 방에서는 멘션 없이도 답해줘",
+        )
+    )
+
+    adapter.handle_message.assert_not_awaited()
+
+
 def test_discord_required_mention_channels_yaml_bridge(monkeypatch):
     monkeypatch.delenv("DISCORD_REQUIRE_MENTION_CHANNELS", raising=False)
 

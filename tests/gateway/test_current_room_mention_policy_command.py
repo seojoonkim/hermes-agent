@@ -108,6 +108,12 @@ async def test_exact_english_inverse_policy_persists_and_updates_live_adapter(tm
         "너 안 불러도 작동하게 해",
         "너 안불러도 일하게 세팅해",
         "이 방에서 너 안불러도 일하게 세팅해",
+        "에이전트 태그 안해도 응답해",
+        "에이전트 태그 안 해도 응답해",
+        "이 방에서는 에이전트 태그 안 해도 응답해",
+        "이 채널에서는 에이전트 태그 안 해도 응답해",
+        "태그 안 해도 응답해",
+        "멘션 안 해도 응답해",
     ],
 )
 async def test_korean_no_call_wording_hot_applies_all_telegram_room_gates(
