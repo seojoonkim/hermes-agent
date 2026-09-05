@@ -3646,19 +3646,15 @@ class TelegramAdapter(BasePlatformAdapter):
             expected_generation = self._polling_generation + 1
             if not app:
                 raise RuntimeError("Telegram application was torn down during conflict reconnect")
-            # drop_pending_updates=True tells Telegram to terminate any
-            # other active getUpdates sessions for this bot token.  The
-            # competing session is either a zombie from the previous
-            # gateway process (whose long-poll hasn't expired server-side
-            # yet) or our own previous retry's still-expiring session.
-            # Without this, each retry starts a new getUpdates session
-            # that immediately gets 409'd by the previous one, creating
-            # the very conflict we are trying to recover from (#75017).
+            # Never use drop_pending_updates while recovering a conflict.
+            # The backoff above gives the previous long poll time to expire;
+            # discarding Telegram's queue here permanently loses user requests
+            # that arrived while this process could not poll.
             self._polling_conflict_recovery_generation = expected_generation
             try:
                 await self._start_polling_once(
                     app,
-                    drop_pending_updates=True,
+                    drop_pending_updates=False,
                     error_callback=self._polling_error_callback_ref,
                 )
                 logger.info(
@@ -4403,13 +4399,10 @@ class TelegramAdapter(BasePlatformAdapter):
         instead.  Webhook mode is useful for cloud deployments (Fly.io,
         Railway) where inbound HTTP can wake a suspended machine.
 
-        ``is_reconnect`` distinguishes a cold first boot (False — drop any
-        stale Bot API queue) from a watcher reconnect after a prolonged
-        outage (True — preserve the updates Telegram queued while the bot
-        was offline, otherwise every message sent during the outage is
-        silently lost). The in-process network-error ladder and the
-        409-conflict handler already pass ``drop_pending_updates=False``
-        for the same reason; bootstrap follows suit on the reconnect path.
+        Both cold starts and watcher reconnects preserve Telegram's pending
+        update queue. A queued user request is durable input, not stale data;
+        dropping it on process restart creates silent, unrecoverable task loss.
+        Existing update-id and message-id dedupe guards handle replay safely.
 
         Env vars for webhook mode::
 
@@ -4885,10 +4878,9 @@ class TelegramAdapter(BasePlatformAdapter):
                 self._polling_error_callback_ref = _polling_error_callback
 
                 polling_started = await self._start_polling_resilient(
-                    # On a cold first boot drop the stale Bot API queue; on a
-                    # watcher reconnect after an outage preserve it so messages
-                    # sent while the bot was offline are delivered (#46621).
-                    drop_pending_updates=not is_reconnect,
+                    # Preserve updates on every start. Restarts are an internal
+                    # lifecycle detail and must not erase user requests.
+                    drop_pending_updates=False,
                     error_callback=_polling_error_callback,
                     require_progress=not is_reconnect,
                 )
@@ -9808,6 +9800,14 @@ class TelegramAdapter(BasePlatformAdapter):
             )
             return
         if not self._should_process_message(msg):
+            logger.info(
+                "[%s] Telegram text update filtered before dispatch: "
+                "chat=%s message_id=%s update_id=%s",
+                self.name,
+                getattr(getattr(msg, "chat", None), "id", None),
+                getattr(msg, "message_id", None),
+                getattr(update, "update_id", None),
+            )
             if self._should_observe_unmentioned_group_message(msg):
                 self._observe_unmentioned_group_message(msg, MessageType.TEXT, update_id=update.update_id)
             return

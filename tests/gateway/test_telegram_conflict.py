@@ -57,6 +57,7 @@ async def test_polling_conflict_retries_before_fatal(monkeypatch):
 
     async def fake_start_polling(**kwargs):
         captured["error_callback"] = kwargs["error_callback"]
+        captured["initial_drop_pending_updates"] = kwargs.get("drop_pending_updates")
         # Cold connect requires real getUpdates readiness (#67498) — simulate
         # the first successful poll for the generation this call started, but
         # only on the initial connect: the conflict-retry generation must NOT
@@ -93,6 +94,10 @@ async def test_polling_conflict_retries_before_fatal(monkeypatch):
 
     assert ok is True
     bot.delete_webhook.assert_awaited_once_with(drop_pending_updates=False)
+    assert captured["initial_drop_pending_updates"] is False, (
+        "A cold gateway start must preserve Telegram updates queued while the "
+        "process was offline; dropping them permanently loses user requests"
+    )
     assert callable(captured["error_callback"])
 
     conflict = type("Conflict", (Exception,), {})
@@ -114,13 +119,8 @@ async def test_polling_conflict_retries_before_fatal(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_conflict_retry_drops_pending_updates(monkeypatch):
-    """Conflict recovery must use drop_pending_updates=True (#75017).
-
-    Without this, each retry starts a new getUpdates session that
-    immediately gets 409'd by the previous still-expiring session,
-    creating the very conflict we are trying to recover from.
-    """
+async def test_conflict_retry_preserves_pending_updates(monkeypatch):
+    """Conflict recovery must never discard queued user requests."""
     adapter = TelegramAdapter(PlatformConfig(enabled=True, token="***"))
     adapter.set_fatal_error_handler(AsyncMock())
     adapter._drain_polling_connections = AsyncMock()
@@ -143,9 +143,9 @@ async def test_conflict_retry_drops_pending_updates(monkeypatch):
         conflict("Conflict: terminated by other getUpdates request")
     )
 
-    assert captured.get("drop_pending_updates") is True, (
-        "Conflict retry must use drop_pending_updates=True to terminate "
-        "stale getUpdates sessions on Telegram's servers (#75017)"
+    assert captured.get("drop_pending_updates") is False, (
+        "Conflict retry must preserve Telegram's pending update queue; "
+        "backoff handles still-expiring getUpdates sessions without data loss"
     )
 
 
