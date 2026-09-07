@@ -41,7 +41,36 @@ def is_busy_status_question(text: str | None) -> bool:
     patterns = (
         _KOREAN_STATUS_PATTERNS if _KOREAN_RE.search(normalized) else _ENGLISH_STATUS_PATTERNS
     )
-    return any(pattern.search(normalized) for pattern in patterns)
+    # Whole-message matching is deliberate: never swallow a correction appended
+    # to a status question (including one without punctuation).
+    if _KOREAN_RE.search(normalized):
+        return bool(re.fullmatch(
+            r"(?:(?:지금\s*)?(?:하는\s*중|하고\s*있어|진행\s*중)|"
+            r"왜\s*(?:이렇게\s*)?(?:오래\s*걸려|늦어|늦지)|"
+            r"왜\s*(?:대답|답|응답)(?:이|을)?\s*(?:안\s*해|없어)|"
+            r"(?:얼마나|몇\s*분)\s*(?:남았어|걸려)|"
+            r"(?:지금\s*)?(?:무슨|어떤)\s*(?:상태|단계|작업)(?:야|이야)?|"
+            r"(?:진행|상태|현황)\s*(?:어때|알려줘|뭐야))\s*[?!.]*",
+            normalized,
+        ))
+    return bool(re.fullmatch(
+        r"(?:why\s+(?:is\s+it\s+)?(?:so\s+)?(?:slow|long|late)|"
+        r"why\s+(?:aren't|are\s+you\s+not)\s+(?:responding|replying|answering)|"
+        r"how\s+long(?:\s+(?:left|will\s+it\s+take))?|"
+        r"(?:what(?:'s|\s+is)\s+the\s+)?(?:status|progress|eta)|"
+        r"still\s+(?:working|there))\s*[?!.]*", normalized,
+    ))
+
+
+def render_busy_status_reply(text: str | None, *, pending: bool = False) -> str:
+    """Only report the gateway's ownership state, not inferred task progress."""
+    if _KOREAN_RE.search(str(text or "")) or str(text or "").strip() in {"?", "??", "???"}:
+        state = "요청을 시작할 준비 중이야." if pending else "현재 요청은 아직 처리 중인 상태야."
+        return (f"{state} 구체적인 작업 진척이나 지연 원인, 완료 시간은 지금 확인할 수 없어. "
+                "이 질문 때문에 작업을 중단하거나 변경하지는 않았어.")
+    state = "Your request is still starting." if pending else "Your request is still active."
+    return (f"{state} I cannot confirm task progress, the reason for the delay, or an ETA from here. "
+            "This question has not interrupted or changed the task.")
 
 
 def render_compression_timeout_reply(text: str | None) -> str:

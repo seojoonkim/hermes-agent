@@ -238,7 +238,7 @@ def test_unstamped_legacy_completion_delivers(monkeypatch, isolated_registry):
     session DB is present."""
     _finished_session(isolated_registry)
     adapter = SimpleNamespace(handle_message=AsyncMock())
-    runner = _runner(adapter, session_db=_SessionDB(None))
+    runner = _runner(adapter, session_db=_SessionDB({'ended_at': 1, 'end_reason': 'session_reset'}))
 
     _run_watcher(monkeypatch, runner, _watcher("proc_boundary"))
 
@@ -263,7 +263,7 @@ def test_retry_verdict_returns_false_for_watcher_repoll():
 
 def test_terminal_verdict_returns_none_without_injection():
     adapter = SimpleNamespace(handle_message=AsyncMock())
-    runner = _runner(adapter, session_db=_SessionDB(None))
+    runner = _runner(adapter, session_db=_SessionDB({'ended_at': 1, 'end_reason': 'session_reset'}))
 
     result = asyncio.run(
         runner._deliver_completion_notification(
@@ -284,7 +284,7 @@ def test_async_delegation_gate_unchanged():
     delegation-owned gate (terminal verdict -> None), proving the completion
     branch did not fork or shadow the delegation policy."""
     adapter = SimpleNamespace(handle_message=AsyncMock())
-    runner = _runner(adapter, session_db=_SessionDB(None))
+    runner = _runner(adapter, session_db=_SessionDB({'ended_at': 1, 'end_reason': 'session_reset'}))
 
     evt = {
         "type": "async_delegation",

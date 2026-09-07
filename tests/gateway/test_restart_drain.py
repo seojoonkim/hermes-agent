@@ -102,9 +102,8 @@ async def test_request_restart_is_idempotent():
     assert runner._restart_task is not None
     assert runner._restart_task not in runner._background_tasks
     assert runner.request_restart(detached=True, via_service=False) is False
-    # In-band restart marks draining immediately so new turns are refused
-    # while any after-turn wait runs (#77184).
-    assert runner._draining is True
+    # Routine idle observation must keep inbound admission open.
+    assert runner._draining is False
 
     await runner._restart_task
 
@@ -125,7 +124,7 @@ async def test_request_restart_defers_stop_until_active_turn_finishes():
     runner._running_agents[session_key] = MagicMock()
 
     assert runner.request_restart(detached=False, via_service=True) is True
-    assert runner._draining is True
+    assert runner._draining is False
 
     # While the requesting turn is still active, stop() must not run.
     await asyncio.sleep(0.25)
@@ -203,7 +202,11 @@ async def test_request_restart_defers_when_pending_inbound_remains():
     await runner._restart_task
 
     runner.stop.assert_not_awaited()
-    assert adapter._pending_messages
+    await runner._restart_replay_task
+    if adapter._session_tasks:
+        await asyncio.gather(*list(adapter._session_tasks.values()))
+    adapter._message_handler.assert_awaited_once()
+    assert not adapter._pending_messages
     assert runner._draining is False
     assert runner._restart_requested is False
 

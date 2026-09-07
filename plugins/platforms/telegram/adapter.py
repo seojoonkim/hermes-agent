@@ -645,6 +645,47 @@ class TelegramAdapter(BasePlatformAdapter):
     _TEXT_BATCH_FAST_DELAY_S = 0.18
     _TEXT_BATCH_SHORT_LEN = 1024
     _TEXT_BATCH_SHORT_DELAY_S = 0.24
+    # An instruction that points at reference material the user has not sent
+    # yet ("아래 메시지 참고해서 …", "see the message below") must not be
+    # dispatched alone.  Hold the batch for this long (once) so the follow-up
+    # text / forwarded post / photo lands in the same MessageEvent.
+    _reference_await_delay_seconds = 4.0
+    _REFERENCE_CUE_RE = re.compile(
+        r"(아래|다음\s*(메시지|메세지|내용|자료|글)|이어서\s*(보내|올리|줄|드릴)|"
+        r"첨부\s*(할|하는|한)|following\s+message|message\s+below|\bbelow\b)",
+        re.IGNORECASE,
+    )
+
+    @classmethod
+    def _needs_reference_material(cls, event: Optional[MessageEvent]) -> bool:
+        if event is None or getattr(event, "_reference_satisfied", False):
+            return False
+        if getattr(event, "media_urls", None):
+            return False
+        text = getattr(event, "text", "") or ""
+        return bool(text) and bool(cls._REFERENCE_CUE_RE.search(text))
+
+    def _adopt_reference_material(self, key: str, event: MessageEvent) -> bool:
+        """Merge ``event`` into a text batch that is waiting for reference
+        material.  Returns True when the event was absorbed."""
+        pending = self._pending_text_batches.get(key)
+        if not self._needs_reference_material(pending):
+            return False
+        if event.text:
+            pending.text = f"{pending.text}\n{event.text}" if pending.text else event.text
+        if event.media_urls:
+            pending.media_urls.extend(event.media_urls)
+            pending.media_types.extend(event.media_types)
+        pending.metadata.setdefault("_telegram_text_dedup_keys", []).extend(
+            (event.metadata or {}).get("_telegram_text_dedup_keys", [])
+        )
+        pending._reference_satisfied = True  # type: ignore[attr-defined]
+        pending._last_chunk_len = len(event.text or "")  # type: ignore[attr-defined]
+        prior_task = self._pending_text_batch_tasks.get(key)
+        if prior_task and not prior_task.done():
+            prior_task.cancel()
+        self._pending_text_batch_tasks[key] = asyncio.create_task(self._flush_text_batch(key))
+        return True
 
     @staticmethod
     def _env_float_clamped(
@@ -750,6 +791,12 @@ class TelegramAdapter(BasePlatformAdapter):
             1.0,
             min_value=self._text_batch_delay_seconds,
             max_value=4.0,
+        )
+        self._reference_await_delay_seconds = self._env_float_clamped(
+            "HERMES_TELEGRAM_REFERENCE_AWAIT_SECONDS",
+            4.0,
+            min_value=0.0,
+            max_value=15.0,
         )
         self._pending_text_batches: Dict[str, MessageEvent] = {}
         self._pending_text_batch_tasks: Dict[str, asyncio.Task] = {}
@@ -8719,6 +8766,38 @@ class TelegramAdapter(BasePlatformAdapter):
         chat_id = str(getattr(getattr(message, "chat", None), "id", ""))
         return self._telegram_require_mention() or chat_id in self._telegram_require_mention_chats()
 
+    def _telegram_is_silence_instruction(self, message) -> bool:
+        """Return True for a direct mention that asks the bot to stay silent.
+
+        A message such as ``@bot 부르기 전까지 응답하지 마`` contains a real
+        Telegram mention, but the mention is part of the instruction's target,
+        not a request for an agent turn.  Treating it as a trigger defeats the
+        user's intended silence gate.  This narrow, opt-out decision is made
+        before normal mention handling; a later ordinary mention still wakes
+        the bot normally.
+        """
+        if not self._message_mentions_bot(message):
+            return False
+        text = getattr(message, "text", None) or getattr(message, "caption", None) or ""
+        normalized = re.sub(r"\\s+", " ", str(text)).strip().lower()
+        if not normalized:
+            return False
+        has_deferred_boundary = any(
+            phrase in normalized
+            for phrase in (
+                "부르기 전", "호출하기 전", "말 걸기 전", "부르기전", "호출 전",
+                "before you call", "until i call", "until called",
+            )
+        )
+        has_silence_request = any(
+            phrase in normalized
+            for phrase in (
+                "응답하지", "반응하지", "대답하지", "조용히", "가만히 있어",
+                "do not respond", "don't respond", "stay silent", "remain silent",
+            )
+        )
+        return has_deferred_boundary and has_silence_request
+
     def _telegram_observe_unmentioned_group_messages(self) -> bool:
         """Return whether skipped unmentioned group messages are stored as context.
 
@@ -9707,6 +9786,17 @@ class TelegramAdapter(BasePlatformAdapter):
 
         chat_id_str = str(getattr(getattr(message, "chat", None), "id", ""))
 
+        # A direct @mention inside an explicit "stay silent until called"
+        # instruction is the target of the policy, not a wake-up request.
+        # Drop it before guest-mode and normal mention paths can dispatch it.
+        if self._telegram_is_silence_instruction(message):
+            logger.info(
+                "[%s] Suppressed Telegram group silence instruction in chat %s",
+                self.name,
+                chat_id_str,
+            )
+            return False
+
         if self._telegram_exclusive_bot_mentions() and self._explicit_bot_mentions_exclude_self(message):
             return False
 
@@ -10008,6 +10098,9 @@ class TelegramAdapter(BasePlatformAdapter):
             if event.text:
                 existing.text = f"{existing.text}\n{event.text}" if existing.text else event.text
             existing._last_chunk_len = chunk_len  # type: ignore[attr-defined]
+            # A follow-up arriving on a reference-awaiting instruction *is*
+            # the reference material; don't keep holding.
+            existing._reference_satisfied = True  # type: ignore[attr-defined]
             # Merge any media that might be attached
             if event.media_urls:
                 existing.media_urls.extend(event.media_urls)
@@ -10053,6 +10146,8 @@ class TelegramAdapter(BasePlatformAdapter):
                 delay = min(self._text_batch_delay_seconds, self._TEXT_BATCH_SHORT_DELAY_S)
             else:
                 delay = self._text_batch_delay_seconds
+            if self._needs_reference_material(pending):
+                delay = max(delay, float(self._reference_await_delay_seconds or 0.0))
             if delay > 0:
                 await asyncio.sleep(delay)
             event = self._pending_text_batches.pop(key, None)
@@ -10108,6 +10203,18 @@ class TelegramAdapter(BasePlatformAdapter):
             return f"{session_key}:album:{media_group_id}"
         return f"{session_key}:photo-burst"
 
+    def _photo_batch_key_for_event(self, event: MessageEvent) -> str:
+        """Photo-burst batch key derived from the event alone (no Telegram Message)."""
+        return f"{self._text_batch_key(event)}:photo-burst"
+
+    @staticmethod
+    def _session_key_from_photo_batch_key(batch_key: str) -> str:
+        for marker in (":album:", ":photo-burst"):
+            idx = batch_key.find(marker)
+            if idx != -1:
+                return batch_key[:idx]
+        return batch_key
+
     async def _flush_photo_batch(self, batch_key: str) -> None:
         """Send a buffered photo burst/album as a single MessageEvent."""
         current_task = asyncio.current_task()
@@ -10136,6 +10243,13 @@ class TelegramAdapter(BasePlatformAdapter):
         """Merge photo events into a pending batch and schedule flush."""
         if self._should_drop_delayed_delivery():
             self._hold_inbound_event(event, where="photo-enqueue")
+            return
+
+        # If the user just sent "아래 메시지 참고해서 …" and this photo/forward is
+        # the material, fold it into that pending instruction instead of
+        # dispatching the instruction alone and the photo as a second turn.
+        if self._adopt_reference_material(self._session_key_from_photo_batch_key(batch_key), event):
+            logger.info("[Telegram] Folded photo into reference-awaiting text batch %s", batch_key)
             return
 
         existing = self._pending_photo_batches.get(batch_key)

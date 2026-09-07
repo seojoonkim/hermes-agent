@@ -6699,6 +6699,10 @@ class BasePlatformAdapter(ABC):
                         metadata=_final_thread_metadata,
                     )
                     _record_delivery(result)
+                    logger.info(
+                        "Final delivery receipt: session=%s success=%s message_id=%s",
+                        session_key, result.success, getattr(result, "message_id", None),
+                    )
                     if _obligation_id is not None:
                         try:
                             from gateway.delivery_ledger import (

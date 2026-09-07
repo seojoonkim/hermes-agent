@@ -239,6 +239,9 @@ class GatewayStreamConsumer:
         self._on_before_finalize = on_before_finalize
         self._initial_reply_to_id = initial_reply_to_id
         self._queue: queue.Queue = queue.Queue()
+        # Per-consumer (per-turn) receipt state, shared by agent and async sender.
+        self._commentary_receipt_lock = threading.Lock()
+        self._commentary_receipts: dict[str, str] = {}
         self._accumulated = ""
         # Full segment text mirror of ``_accumulated`` that is NOT truncated
         # when overflow splits seal head chunks.  Used to record a reconciliable
@@ -553,6 +556,21 @@ class GatewayStreamConsumer:
     def on_segment_break(self) -> None:
         """Finalize the current stream segment and start a fresh message."""
         self._queue.put(_NEW_SEGMENT)
+
+    def on_commentary_receipt_aware(self, text: str) -> None:
+        """Queue once until a definite negative receipt permits explicit retry.
+
+        Unknown transport outcomes remain suppressed; this never auto-resends.
+        The lock covers claim + enqueue and receipt transitions across threads.
+        """
+        key = " ".join(self._clean_for_display(text).split())
+        if not key:
+            return
+        with self._commentary_receipt_lock:
+            if key in self._commentary_receipts:
+                return
+            self._commentary_receipts[key] = "pending"
+            self.on_commentary(text)
 
     def on_commentary(self, text: str) -> None:
         """Queue a completed interim assistant commentary message."""
@@ -2096,8 +2114,23 @@ class GatewayStreamConsumer:
                 # an interim "preview" actually carried the final response, vs.
                 # unrelated commentary delivered during a session split (#14238).
                 self._delivered_commentary_texts.append(text)
+            with self._commentary_receipt_lock:
+                key = " ".join(text.split())
+                if key in self._commentary_receipts:
+                    if result.success:
+                        self._commentary_receipts[key] = "delivered"
+                    elif (getattr(result, "error_kind", None) in {
+                        "forbidden", "not_found", "rate_limited", "bad_format"
+                    } and not getattr(result, "message_id", None)
+                          and not getattr(result, "continuation_message_ids", ())
+                          and not getattr(result, "raw_response", None)):
+                        # Definite rejection: release only for an explicit
+                        # future emission, never schedule an automatic resend.
+                        self._commentary_receipts.pop(key, None)
             return result.success
         except Exception as e:
+            # Unknown outcome (e.g. timeout after server acceptance): retain
+            # the pending claim rather than risking duplicate delivery.
             logger.error("Commentary send error: %s", e)
             return False
 

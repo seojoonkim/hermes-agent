@@ -147,6 +147,6 @@ async def test_user_boundary_still_terminal(end_reason):
 
 
 @pytest.mark.asyncio
-async def test_unknown_session_still_terminal():
+async def test_unknown_session_retries_without_proven_user_boundary():
     runner = _classify_runner(None)
-    assert await runner._classify_completion_target("gone") == "terminal"
+    assert await runner._classify_completion_target("gone") == "retry"

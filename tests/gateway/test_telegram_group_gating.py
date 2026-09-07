@@ -337,6 +337,30 @@ def test_group_messages_can_require_direct_trigger_via_config():
     assert adapter_no_mention._should_process_message(_group_message("/status"), is_command=True) is True
 
 
+def test_direct_mention_silence_instruction_is_not_dispatched():
+    adapter = _make_adapter(require_mention=True)
+
+    korean = "@hermes_bot 너 부르기 전까지는 반응하지 말고 가만히 있어"
+    assert adapter._should_process_message(
+        _group_message(korean, entities=[_mention_entity(korean)])
+    ) is False
+
+    korean_variant = "@hermes_bot 내가 호출하기 전에는 응답하지 마"
+    assert adapter._should_process_message(
+        _group_message(korean_variant, entities=[_mention_entity(korean_variant)])
+    ) is False
+
+    english = "@hermes_bot stay silent until I call you"
+    assert adapter._should_process_message(
+        _group_message(english, entities=[_mention_entity(english)])
+    ) is False
+
+    ordinary_call = "@hermes_bot 이제 불렀어, 기사 확인해줘"
+    assert adapter._should_process_message(
+        _group_message(ordinary_call, entities=[_mention_entity(ordinary_call)])
+    ) is True
+
+
 def test_required_mention_chat_overrides_free_response_exception():
     adapter = _make_adapter(
         require_mention=True,

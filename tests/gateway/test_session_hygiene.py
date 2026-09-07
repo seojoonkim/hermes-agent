@@ -505,7 +505,8 @@ async def test_session_hygiene_preserves_transcript_when_in_place_configured_but
 
 
 @pytest.mark.asyncio
-async def test_session_hygiene_timeout_continues_to_agent_and_sets_cooldown(monkeypatch, tmp_path):
+@pytest.mark.parametrize("request_text", ["hello", "이 작업 계속해줘"])
+async def test_session_hygiene_timeout_continues_to_agent_and_sets_cooldown(monkeypatch, tmp_path, request_text):
     """A timed-out SessionDB-bound worker cannot compact after the live turn starts.
 
     The worker remains alive long enough to cross the old race window. The
@@ -626,7 +627,7 @@ async def test_session_hygiene_timeout_continues_to_agent_and_sets_cooldown(monk
     )
 
     event = MessageEvent(
-        text="hello",
+        text=request_text,
         source=SessionSource(
             platform=Platform.TELEGRAM,
             chat_id="12345",
@@ -648,13 +649,13 @@ async def test_session_hygiene_timeout_continues_to_agent_and_sets_cooldown(monk
     assert elapsed < 2.0
     assert worker_started.is_set()
     assert runner._run_agent.await_count == 1
-    assert runner.session_store.reset_session.call_count == 1
+    runner.session_store.reset_session.assert_not_called()
     # The process-wide slot stays occupied until the detached worker really
     # exits, preventing repeated timeouts from filling the executor queue.
     assert runner._try_acquire_hygiene_slot() is None
     run_kwargs = runner._run_agent.await_args_list[0].kwargs
-    assert run_kwargs["session_id"] == "sess-timeout-fresh"
-    assert run_kwargs["history"] == []
+    assert run_kwargs["session_id"] == "sess-timeout"
+    assert len(run_kwargs["history"]) == 6
     # Cooldown must be persisted to the state DB (survives restart, #74136),
     # not stashed in an in-memory dict.
     assert fake_db.record_compression_failure_cooldown.called
@@ -663,11 +664,11 @@ async def test_session_hygiene_timeout_continues_to_agent_and_sets_cooldown(monk
     assert _cd_args[1] > time.time()
     timeout_warnings = [
         s for s in adapter.sent
-        if "Organizing the earlier conversation did not finish within 30 seconds" in s["content"]
+        if "Organizing the earlier conversation" in s["content"]
+        or "이전 대화 정리가" in s["content"]
     ]
-    assert len(timeout_warnings) == 1
-    assert "summary model" not in timeout_warnings[0]["content"]
-    assert "auxiliary.compression" not in timeout_warnings[0]["content"]
+    # Routine automatic hygiene timeout must not emit unsolicited chat noise.
+    assert timeout_warnings == []
     fake_db.archive_and_compact.assert_not_called()
     SlowCompressAgent.last_instance.close.assert_not_called()
 

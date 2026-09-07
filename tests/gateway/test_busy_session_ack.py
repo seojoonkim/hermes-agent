@@ -223,7 +223,8 @@ class TestBusySessionAck:
         adapter._send_with_retry.assert_called_once()
         call_kwargs = adapter._send_with_retry.call_args
         content = call_kwargs.kwargs.get("content") or call_kwargs[1].get("content", "")
-        assert "현재 작업에 요청을 반영했어" in content
+        assert "요청을 받았어" in content
+        assert "아직 적용된 것은 아니고" in content
         assert "다음 확인 단계부터 적용할게" in content
         assert "Interrupting" not in content
 
@@ -354,7 +355,8 @@ class TestBusySessionAck:
         agent.interrupt.assert_not_called()
         assert sk not in adapter._pending_messages
         content = adapter._send_with_retry.call_args.kwargs["content"]
-        assert "현재 작업에 요청을 반영했어" in content
+        assert "요청을 받았어" in content
+        assert "아직 적용된 것은 아니고" in content
         assert "다음 확인 단계부터 적용할게" in content
 
 
