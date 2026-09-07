@@ -908,8 +908,8 @@ def _get_max_async_children() -> int:
     ``delegation.max_concurrent_children`` — one cap governs both a single
     synchronous batch's parallelism and how many background delegation units
     may run at once. When at capacity, a new async dispatch is REJECTED (not
-    queued) so a runaway model can't pile up unbounded background work; the
-    caller falls back to running the work synchronously.
+    queued) so a runaway model can't pile up unbounded background work. The
+    caller receives an explicit rejection instead of blocking synchronously.
 
     A leftover ``max_async_children`` in config.yaml is ignored (the config
     migration removes it, folding a raised value into
@@ -3049,6 +3049,9 @@ def _run_single_child(
 
         if interrupted:
             status = "interrupted"
+        elif (not completed and (result.get("error") or summary.startswith("API call failed after"))):
+            # A framework-generated API failure is not a usable child artifact.
+            status = "failed"
         elif summary and not _empty_sentinel:
             # A summary means the subagent produced usable output.
             # exit_reason ("completed" vs "max_iterations") already
@@ -4343,24 +4346,22 @@ def delegate_task(
                 )
             return json.dumps(payload, ensure_ascii=False)
 
-        # Pool at capacity / schedule failure — children are still attached
-        # (we detach above only on the parent list, but the async unit was
-        # never accepted, so re-attaching isn't needed: we just run inline).
-        logger.info(
-            "delegate_task: async pool at capacity (%s); running the whole "
-            "batch synchronously instead.",
-            dispatch.get("error", "rejected"),
-        )
-        _cap_result = _execute_and_aggregate()
-        if isinstance(_cap_result, dict):
-            _cap_result["note"] = (
-                "The background delegation pool was at capacity "
-                "(delegation.max_concurrent_children), so the subagent(s) ran "
-                "SYNCHRONOUSLY and the result is included above. Raise "
-                "delegation.max_concurrent_children in config.yaml to allow "
-                "more concurrent background delegations."
-            )
-        return json.dumps(_cap_result, ensure_ascii=False)
+        # Never turn a background request into a blocking parent tool call.
+        # Rejected work has not started; let the parent handle new guidance,
+        # steer an existing child, or retry dispatch after a completion event.
+        for child in _child_agents:
+            try:
+                child.close()
+            except Exception:
+                logger.debug("Rejected child cleanup failed", exc_info=True)
+        return json.dumps({
+            "status": "rejected",
+            "error": dispatch.get("error", "background dispatch rejected"),
+            "started": False,
+            "note": "No child work was executed. Keep handling user input; "
+                    "steer an existing relevant child or retry after its completion. "
+                    "Do not poll or silently run this request synchronously.",
+        }, ensure_ascii=False)
 
     # ----- Synchronous path -----
     return json.dumps(_execute_and_aggregate(), ensure_ascii=False)

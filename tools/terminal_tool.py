@@ -3092,8 +3092,9 @@ def terminal_tool(
                     "error": (
                         "Blocked: launchctl submit/bootstrap registers a persistent "
                         "KeepAlive job and is unsafe from inside the gateway process. "
-                        "Use Hermes cron for one-shot delayed work, or install an "
-                        "explicit LaunchAgent from a separate shell."
+                        "Hermes cron runs inside the gateway and must not own gateway "
+                        "lifecycle work. Run and witness it from a separate shell outside "
+                        "the gateway process, using the approved external supervisor."
                     ),
                     "status": "error",
                 }, ensure_ascii=False)
