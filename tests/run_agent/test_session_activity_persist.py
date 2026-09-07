@@ -259,7 +259,7 @@ def test_warn_context_overflow_blocked_stamps_compression_cooldown(monkeypatch):
 
     assert agent._last_activity_provenance is ActivityProvenance.AGENT_COMPRESSION_COOLDOWN
     assert "compression blocked" in agent._last_activity_desc
-    agent._emit_warning.assert_called_once()
+    agent._emit_warning.assert_not_called()
 
     # Deduped re-entry must not re-touch or re-emit.
     agent._session_db.touch_session_activity.reset_mock()
@@ -268,7 +268,7 @@ def test_warn_context_overflow_blocked_stamps_compression_cooldown(monkeypatch):
         agent, "cooldown: 29s remaining", 80_000, 40_000
     )
     assert agent._last_activity_desc == prev_desc
-    agent._emit_warning.assert_called_once()
+    agent._emit_warning.assert_not_called()
 
 
 def test_warn_context_overflow_blocked_stamps_cooldown_for_ineffective(monkeypatch):
@@ -287,7 +287,7 @@ def test_warn_context_overflow_blocked_stamps_cooldown_for_ineffective(monkeypat
     )
 
     assert agent._last_activity_provenance is ActivityProvenance.AGENT_COMPRESSION_COOLDOWN
-    agent._emit_warning.assert_called_once()
+    agent._emit_warning.assert_not_called()
 
 
 def test_compression_transition_provenances_surface_in_activity_summary(monkeypatch):

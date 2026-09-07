@@ -1583,7 +1583,7 @@ def _bypass_sdk_request_transform(stream_kwargs: dict) -> dict:
     return bypassed
 
 
-def run_codex_stream(agent, api_kwargs: dict, client: Any = None, on_first_delta=None):
+def run_codex_stream(agent, api_kwargs: dict, client: Any = None, on_first_delta=None, request_control=None):
     """Execute one streaming Responses API request and return the final response.
 
     Uses ``responses.create(stream=True)`` (low-level raw event iteration)
@@ -1596,35 +1596,66 @@ def run_codex_stream(agent, api_kwargs: dict, client: Any = None, on_first_delta
     from openai import APIConnectionError as _APIConnectionError
 
     from agent import relay_llm
+    from agent.stream_progress import _CodexProgressClient, _codex_event_has_meaningful_progress
 
     active_client = client or agent._ensure_primary_openai_client(reason="codex_stream_direct")
+    if request_control is not None:
+        cancelled = request_control.setdefault("cancelled", {"value": False})
+        active_client = _CodexProgressClient(
+            active_client, cancelled, request_control["progress"],
+            request_control.get("clock", time.monotonic),
+        )
     max_stream_retries = 1
     # Accumulate streamed text so callers / compat shims can read it.
     agent._codex_streamed_text_parts: list = []
 
+    def _interrupt_or_superseded() -> bool:
+        return bool(agent._interrupt_requested) or (
+            request_control is not None
+            and request_control.get("cancelled", {}).get("value", False)
+        )
+
     def _on_text_delta(text: str) -> None:
+        if _interrupt_or_superseded():
+            return
         agent._codex_streamed_text_parts.append(text)
         agent._fire_stream_delta(text)
 
     def _on_reasoning_delta(text: str) -> None:
+        if _interrupt_or_superseded():
+            return
         agent._fire_reasoning_delta(text)
 
     def _on_commentary_message(text: str) -> None:
+        if _interrupt_or_superseded():
+            return
         agent._fire_streamed_codex_commentary(text)
 
+    def _on_first_delta() -> None:
+        if not _interrupt_or_superseded() and on_first_delta is not None:
+            on_first_delta()
+
     def _on_event(event: Any) -> None:
+        if _interrupt_or_superseded():
+            return
         # TTFB watchdog and activity touch — runs once per SSE event.
-        agent._codex_stream_last_event_ts = time.time()
+        epoch_now = time.time()
+        agent._codex_stream_last_event_ts = epoch_now
         agent._touch_activity("receiving stream response")
+        if request_control is not None and _codex_event_has_meaningful_progress(event):
+            clock = request_control.get("clock", time.monotonic)
+            request_control["progress"]["t"] = clock()
 
     for attempt in range(max_stream_retries + 1):
-        if agent._interrupt_requested:
+        if _interrupt_or_superseded():
             raise InterruptedError("Agent interrupted before Codex stream retry")
 
         intercepted_events = []
         writer_token = {"value": None}
 
         def _open_codex_stream(next_api_kwargs: dict[str, Any]):
+            if _interrupt_or_superseded():
+                raise InterruptedError("Agent interrupted before Codex stream creation")
             stream_kwargs = _sanitize_consumer_codex_request(
                 agent,
                 next_api_kwargs,
@@ -1634,11 +1665,15 @@ def run_codex_stream(agent, api_kwargs: dict, client: Any = None, on_first_delta
             return active_client.responses.create(**stream_kwargs)
 
         def _codex_stream_created(_raw_stream: Any) -> None:
+            if _interrupt_or_superseded():
+                return
             # Claim the delta sink for THIS physical attempt. A newer attempt
             # supersedes this token and fences late deltas out of the turn.
             writer_token["value"] = claim_stream_writer(agent)
 
         def _accept_codex_chunk(_chunk: Any) -> bool:
+            if _interrupt_or_superseded():
+                return False
             token = writer_token["value"]
             if token is None or stream_writer_is_current(agent, token):
                 return True
@@ -1692,6 +1727,8 @@ def run_codex_stream(agent, api_kwargs: dict, client: Any = None, on_first_delta
             ConnectionError,
         ) as exc:
             if attempt < max_stream_retries:
+                if request_control is not None:
+                    request_control["progress"]["t"] = request_control.get("clock", time.monotonic)()
                 logger.debug(
                     "Codex Responses stream connect failed (attempt %s/%s); "
                     "retrying. %s error=%s",
@@ -1715,9 +1752,6 @@ def run_codex_stream(agent, api_kwargs: dict, client: Any = None, on_first_delta
             )
             raise
 
-        def _interrupt_or_superseded() -> bool:
-            return bool(agent._interrupt_requested)
-
         try:
             try:
                 final = _consume_codex_event_stream(
@@ -1733,7 +1767,7 @@ def run_codex_stream(agent, api_kwargs: dict, client: Any = None, on_first_delta
                         )
                         else None
                     ),
-                    on_first_delta=on_first_delta,
+                    on_first_delta=_on_first_delta,
                     on_event=_on_event,
                     interrupt_check=_interrupt_or_superseded,
                 )
@@ -1770,7 +1804,7 @@ def run_codex_stream(agent, api_kwargs: dict, client: Any = None, on_first_delta
             # finalizer — must NOT discard it or trigger a new physical
             # request. Record it as a non-fatal finalization warning and
             # still return the already-completed, already-billed response.
-            if not agent._interrupt_requested:
+            if not _interrupt_or_superseded():
                 try:
                     for _ignored in event_stream:
                         pass

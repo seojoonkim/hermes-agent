@@ -2819,9 +2819,25 @@ class ContextCompressor(ContextEngine):
         the ladder at each call site (#62452).
         """
         _TIMEOUT_COOLDOWN_LADDER = (60, 300, 900)
-        self._consecutive_timeout_failures = (
-            getattr(self, "_consecutive_timeout_failures", 0) + 1
-        )
+        previous_failures = getattr(self, "_consecutive_timeout_failures", 0)
+        # Gateway agents are recreated between turns. The active cooldown
+        # deadline persists, but the in-memory ladder otherwise restarts at
+        # 60s after every expiry. Retain a bounded streak in the existing
+        # durable error field (including expired rows); success clears it.
+        session_db = getattr(self, "_session_db", None)
+        session_id = getattr(self, "_session_id", None)
+        read_row = getattr(type(session_db), "get_compression_failure_cooldown_row", None)
+        if session_id and callable(read_row):
+            try:
+                row = read_row(session_db, session_id)
+                match = re.search(r"\[compression-timeout-streak=([1-3])\]", str(row.get("error") or ""))
+                if match:
+                    previous_failures = max(previous_failures, int(match.group(1)))
+            except Exception:
+                logger.debug("compression timeout streak read failed", exc_info=True)
+        self._consecutive_timeout_failures = min(previous_failures + 1, 3)
+        error = re.sub(r"\s*\[compression-timeout-streak=[1-3]\]", "", error)
+        error += f" [compression-timeout-streak={self._consecutive_timeout_failures}]"
         cooldown = _TIMEOUT_COOLDOWN_LADDER[
             min(self._consecutive_timeout_failures,
                 len(_TIMEOUT_COOLDOWN_LADDER)) - 1

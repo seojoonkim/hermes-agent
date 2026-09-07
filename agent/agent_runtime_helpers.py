@@ -1808,15 +1808,13 @@ def restore_primary_runtime(agent) -> bool:
         agent._provider_fallback_active = False
         agent._provider_fallback_route = None
         if provider_fallback_active:
-            try:
-                agent._emit_status(
-                    f"✅ Primary model restored: {agent.model} via {agent.provider}; "
-                    f"fallback {previous_model} via {previous_provider} is no longer active."
-                )
-            except Exception:
-                # Notification surfaces are best-effort and must never undo a
-                # successful runtime restoration.
-                pass
+            # This is local runtime selection, not a successful provider probe.
+            # Keep routine restoration internal; fallback/error reporting is
+            # independent and remains visible when a request actually fails.
+            logger.debug(
+                "Primary selection restored from fallback %s (%s)",
+                previous_model, previous_provider,
+            )
         return True
     except Exception as e:
         logger.warning("Failed to restore primary runtime: %s", e)

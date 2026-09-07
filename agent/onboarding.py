@@ -40,7 +40,7 @@ def busy_input_hint_gateway(mode: str) -> str:
                 "새 메시지로 현재 작업을 바로 중단하려면 `/busy interrupt`, 상태를 확인하려면 `/busy status`를 입력해줘. "
                 "이 안내는 다시 표시하지 않아.")
     if mode == "steer":
-        return ("💡 처음 안내할게. 방금 메시지는 현재 작업을 중단하지 않고 진행 중인 작업에 반영했어. "
+        return ("💡 처음 안내할게. 방금 메시지를 받았고, 현재 작업을 중단하지 않고 안전하게 전달할 시점을 기다리고 있어. "
                 "동작 방식을 바꾸려면 `/busy interrupt` 또는 `/busy queue`, 상태를 확인하려면 `/busy status`를 입력해줘. "
                 "이 안내는 다시 표시하지 않아.")
     if mode == "redirect":

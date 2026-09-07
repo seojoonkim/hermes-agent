@@ -16,6 +16,7 @@ stall.
 
 from __future__ import annotations
 
+import socket
 import sys
 import time
 import types
@@ -29,11 +30,42 @@ sys.modules.setdefault("firecrawl", types.SimpleNamespace(Firecrawl=object))
 sys.modules.setdefault("fal_client", types.SimpleNamespace())
 
 
+@pytest.fixture(autouse=True)
+def _deny_network(monkeypatch):
+    """Independent safety net: this module never opens a live connection."""
+    attempts = []
+
+    def deny(*args, **kwargs):
+        import traceback
+        attempts.append("".join(traceback.format_stack(limit=25)))
+        raise AssertionError("network is forbidden in watchdog tests")
+
+    for name in ("connect", "connect_ex", "sendto", "sendmsg"):
+        if hasattr(socket.socket, name):
+            monkeypatch.setattr(socket.socket, name, deny)
+    monkeypatch.setattr(socket, "create_connection", deny)
+    monkeypatch.setattr(socket, "getaddrinfo", deny)
+    yield
+    assert not attempts, "network attempts must not be swallowed:\n" + "\n".join(attempts)
+
+
 def _make_codex_agent(tmp_path, monkeypatch):
     monkeypatch.setenv("HERMES_HOME", str(tmp_path))
     (tmp_path / ".env").write_text("", encoding="utf-8")
     (tmp_path / "config.yaml").write_text("{}\n", encoding="utf-8")
     from run_agent import AIAgent
+    import run_agent
+    import hermes_cli.plugins
+    import agent.context_compressor
+
+    # Constructor setup is unrelated to watchdog behavior. Stub it before
+    # instantiation so tool checks cannot probe providers or discover plugins.
+    monkeypatch.setattr(run_agent, "get_tool_definitions", lambda **kwargs: [])
+    monkeypatch.setattr(run_agent, "check_toolset_requirements", lambda: {})
+    monkeypatch.setattr(hermes_cli.plugins, "discover_plugins", lambda: None)
+    monkeypatch.setattr(
+        agent.context_compressor, "get_model_context_length", lambda *args, **kwargs: 128_000
+    )
 
     agent = AIAgent(
         model="gpt-5.5",
@@ -86,7 +118,7 @@ def test_ttfb_includes_silent_hang_hint_for_gpt_5_5(tmp_path, monkeypatch):
 
     stop = {"flag": False}
 
-    def fake_hang(api_kwargs, client=None, on_first_delta=None):
+    def fake_hang(api_kwargs, client=None, on_first_delta=None, request_control=None):
         deadline = time.time() + 30
         while time.time() < deadline and not stop["flag"] and not agent._interrupt_requested:
             time.sleep(0.02)
@@ -132,7 +164,7 @@ def test_ttfb_does_not_kill_when_events_flow(tmp_path, monkeypatch):
 
     sentinel = SimpleNamespace(ok=True)
 
-    def fake_stream(api_kwargs, client=None, on_first_delta=None):
+    def fake_stream(api_kwargs, client=None, on_first_delta=None, request_control=None):
         # Bytes flowing: mark stream activity right away, then keep generating
         # past the 0.4s TTFB cutoff before returning a real response.
         agent._codex_stream_last_event_ts = time.time()
@@ -210,14 +242,14 @@ def test_moa_heartbeat_survives_infinite_stale_timeout(monkeypatch):
             pass
 
         def join(self, timeout=None):
-            pass
-
-        def is_alive(self):
+            # Liveness checks are observations, not elapsed polling intervals.
+            # Complete after the 100th poll has emitted its real heartbeat.
             self._polls += 1
             if self._polls == 101:
                 self._target()
-                return False
-            return True
+
+        def is_alive(self):
+            return self._polls < 101
 
     monkeypatch.setattr(h.threading, "Thread", HeartbeatThread)
     monkeypatch.setattr(
@@ -239,6 +271,7 @@ def test_wait_notice_formatting_error_does_not_abort_request(monkeypatch):
     from agent import chat_completion_helpers as h
 
     response = SimpleNamespace(ok=True)
+    formatting_calls = []
     agent = SimpleNamespace(
         platform="desktop",
         api_mode="chat_completions",
@@ -259,14 +292,14 @@ def test_wait_notice_formatting_error_does_not_abort_request(monkeypatch):
             pass
 
         def join(self, timeout=None):
-            pass
-
-        def is_alive(self):
+            # Liveness checks are observations, not elapsed polling intervals.
+            # Complete after the 100th poll has emitted its real heartbeat.
             self._polls += 1
             if self._polls == 101:
                 self._target()
-                return False
-            return True
+
+        def is_alive(self):
+            return self._polls < 101
 
     monkeypatch.setattr(h.threading, "Thread", HeartbeatThread)
     monkeypatch.setattr(
@@ -274,23 +307,16 @@ def test_wait_notice_formatting_error_does_not_abort_request(monkeypatch):
         "_dispatch_nonstreaming_api_request",
         lambda *_args, **_kwargs: response,
     )
-    monkeypatch.setattr(
-        h,
-        "_codex_wait_notice_recovery",
-        lambda **_kwargs: (_ for _ in ()).throw(ValueError("bad display state")),
-    )
+    def broken_formatter(**kwargs):
+        formatting_calls.append(kwargs)
+        raise ValueError("bad display state")
+
+    monkeypatch.setattr(h, "_codex_wait_notice_recovery", broken_formatter)
 
     result = h.interruptible_api_call(agent, {"model": "openai-xai-wide"})
 
     assert result is response
-
-
-
-
-
-
-
-
+    assert len(formatting_calls) == 1
 
 
 def test_large_codex_request_hard_ceiling_reclaims_silent_stall(tmp_path, monkeypatch):
@@ -323,7 +349,7 @@ def test_large_codex_request_hard_ceiling_reclaims_silent_stall(tmp_path, monkey
 
     stop = {"flag": False}
 
-    def fake_hang(api_kwargs, client=None, on_first_delta=None):
+    def fake_hang(api_kwargs, client=None, on_first_delta=None, request_control=None):
         # No event marker AND no event ever: the exact issue-64507 stall.
         deadline = time.time() + 120
         while time.time() < deadline and not stop["flag"] and not agent._interrupt_requested:

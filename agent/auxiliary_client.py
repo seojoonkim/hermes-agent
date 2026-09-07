@@ -9218,7 +9218,18 @@ class _ChatStreamAccumulator:
         self.resp_model = model or ""
 
     def feed(self, chunk: Any) -> None:
-        _notify_aux_progress()
+        # Transport heartbeats and usage metadata are not summary progress.
+        for choice in (getattr(chunk, "choices", None) or [])[:1]:
+            delta = getattr(choice, "delta", None)
+            values = [getattr(delta, key, None) for key in
+                      ("content", "reasoning", "reasoning_content")]
+            for tc in (getattr(delta, "tool_calls", None) or []):
+                fn = getattr(tc, "function", None)
+                values.extend((getattr(fn, "name", None), getattr(fn, "arguments", None)))
+            if getattr(choice, "finish_reason", None) or any(
+                isinstance(value, str) and bool(value) for value in values
+            ):
+                _notify_aux_progress()
         if (
             self._total_ceiling is not None
             and (time.monotonic() - self._started) >= self._total_ceiling

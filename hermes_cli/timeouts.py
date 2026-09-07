@@ -1,5 +1,43 @@
 from __future__ import annotations
 
+import math
+
+
+def _get_agent_inactivity_timeout(key: str) -> float | None:
+    """Read an opt-in policy; missing/invalid values leave legacy behavior intact.
+
+    Only YAML numbers (not booleans or numeric strings) are accepted. Keep
+    this validation separate from legacy provider timeout coercion.
+    """
+    try:
+        from hermes_cli.config import load_config_readonly
+
+        config = load_config_readonly()
+    except Exception:
+        return None
+
+    agent_config = config.get("agent", {}) if isinstance(config, dict) else {}
+    if not isinstance(agent_config, dict):
+        return None
+    raw = agent_config.get(key)
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        return None
+    try:
+        timeout = float(raw)
+    except (OverflowError, ValueError):
+        return None
+    return timeout if math.isfinite(timeout) and timeout > 0 else None
+
+
+def get_agent_stream_idle_timeout() -> float | None:
+    """Read agent.stream_idle_timeout_seconds; does not enforce a timeout."""
+    return _get_agent_inactivity_timeout("stream_idle_timeout_seconds")
+
+
+def get_agent_nonstream_stale_timeout() -> float | None:
+    """Read agent.nonstream_stale_timeout_seconds; does not enforce a timeout."""
+    return _get_agent_inactivity_timeout("nonstream_stale_timeout_seconds")
+
 
 def _coerce_timeout(raw: object) -> float | None:
     try:

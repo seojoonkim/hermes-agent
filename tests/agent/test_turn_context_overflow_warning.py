@@ -213,6 +213,13 @@ class _WarnAgent(_FakeAgent):
         # Replace the MagicMock with a recorder so we can assert contents.
         self._emit_warning = lambda message: self._warnings.append(message)
 
+    def _warn_context_overflow_blocked(self, *args):
+        from run_agent import AIAgent
+        return AIAgent._warn_context_overflow_blocked(self, *args)
+
+    def _touch_activity(self, *args, **kwargs):
+        pass
+
     def _compress_context(self, messages, *a, **k):
         self._compress_calls += 1
         self._compress_kwargs.append(k)
@@ -252,15 +259,37 @@ def _run_build(agent, *, estimated_tokens=73_000):
 
 
 class TestTurnContextOverflowWarning:
-    def test_warns_on_cooldown_block(self):
+    @pytest.mark.parametrize("reason", ["cooldown:30", "ineffective", "structural_backoff:30"])
+    def test_automatic_blocks_stay_internal_across_fresh_agents(self, reason):
+        """Recreated gateway agents must not re-announce automatic retry guards."""
+        from run_agent import AIAgent
+        from unittest.mock import MagicMock
+
+        for _ in range(3):
+            agent = object.__new__(AIAgent)
+            agent._touch_activity = MagicMock()
+            agent._vprint = MagicMock()
+            agent.log_prefix = ""
+            agent.status_callback = MagicMock()
+            for _ in range(2):
+                agent._warn_context_overflow_blocked(reason, 73_000, 72_000)
+            agent._vprint.assert_not_called()
+            agent.status_callback.assert_not_called()
+
+    def test_automatic_cooldown_block_is_internal(self):
         comp = _make_compressor()
         comp.last_prompt_tokens = 73_000
         comp._summary_failure_cooldown_until = time.monotonic() + 30
         agent = _build_warn_agent(comp)
         _run_build(agent)
+        assert agent._warnings == []
+
+    def test_permanent_block_remains_visible(self):
+        agent = _build_warn_agent(_make_compressor())
+        agent._warn_context_overflow_blocked("provider_failure", 73_000, 72_000)
         assert len(agent._warnings) == 1
-        assert "over the compression threshold" in agent._warnings[0]
-        assert "blocked (cooldown:" in agent._warnings[0]
+        from agent.conversation_compression import CONTEXT_OVERFLOW_BLOCKED_WARNING_TEMPLATE
+        assert agent._warnings == [CONTEXT_OVERFLOW_BLOCKED_WARNING_TEMPLATE]
 
     def test_emergency_pressure_uses_static_fallback_instead_of_warning(self):
         comp = _make_compressor()
@@ -289,19 +318,19 @@ class TestTurnContextOverflowWarning:
         comp.last_prompt_tokens = 73_000
         comp._summary_failure_cooldown_until = time.monotonic() + 30
         agent = _build_warn_agent(comp)
-        # Turn 1: over threshold + cooldown -> warn.
+        # Automatic guards remain internal through cooldown resets.
         _run_build(agent)
-        assert len(agent._warnings) == 1
+        assert agent._warnings == []
         # Turn 2: cooldown expires while STILL over threshold -> compression
         # branch runs; the reset must happen there (not in the else branch).
         comp._summary_failure_cooldown_until = 0.0
         _run_build(agent)
         assert agent._compress_calls > 0
         assert agent._last_ctx_overflow_warn is None
-        # Turn 3: cooldown re-arms -> the warning must re-fire.
+        # Turn 3: cooldown re-arms without a user-visible warning.
         comp._summary_failure_cooldown_until = time.monotonic() + 30
         _run_build(agent)
-        assert len(agent._warnings) == 2
+        assert agent._warnings == []
 
     def test_no_warning_below_threshold_with_persisted_cooldown(self):
         """A live cooldown with the context BELOW threshold must not warn —

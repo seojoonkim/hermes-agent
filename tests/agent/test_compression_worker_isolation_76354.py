@@ -66,6 +66,62 @@ def _build_agent_with_db(db: SessionDB, session_id: str, **compressor_kwargs):
     return agent
 
 
+def test_host_timeout_reclaims_slot_while_provider_is_still_blocked(tmp_path, monkeypatch):
+    """The summary owner must observe the fence, not only explicit /stop."""
+    import agent.auxiliary_client as aux
+    import agent.conversation_compression as cc
+
+    db = SessionDB(db_path=tmp_path / "state.db")
+    db.create_session("FENCE_RECLAIM", source="cli")
+    agent = _build_agent_with_db(db, "FENCE_RECLAIM")
+    agent._cached_system_prompt = "sys"
+    agent._hard_interrupt_requested = threading.Event()
+    monkeypatch.setattr(cc, "resolve_context_compression_timeouts", lambda cfg=None: (0.2, 0.4))
+    started = threading.Event()
+    release = threading.Event()
+    finished = threading.Event()
+
+    def provider(kwargs):
+        started.set()
+        try:
+            assert release.wait(5)
+            return [{"role": "user", "content": "late summary"}]
+        finally:
+            finished.set()
+
+    def engine(messages, **kwargs):
+        return aux._run_protected_sync_provider_call(provider, {})
+
+    agent.context_compressor.compress.side_effect = engine
+    live = [{"role": "user", "content": f"m{i}"} for i in range(20)]
+    baseline = copy.deepcopy(live)
+    try:
+        returned, _ = agent._compress_context(live, "sys", approx_tokens=120_000)
+        assert started.is_set()
+        assert returned is live and live == baseline
+        deadline = time.monotonic() + 1
+        while cc._compress_admitted_count and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert cc._compress_admitted_count == 0, "timed-out summary stranded the sole pool slot"
+        assert not finished.is_set(), "recovery must not depend on provider return"
+        assert not agent._hard_interrupt_requested.is_set()
+        assert db.get_compression_lock_holder("FENCE_RECLAIM") is None
+        result = cc.run_compress_context_with_progress_timeout(
+            worker=lambda fence: (baseline, "next-summary"), messages=live,
+            system_prompt_fallback="saturated", idle_timeout_seconds=0.5,
+            total_ceiling_seconds=1,
+        )
+        assert result[1] == "next-summary"
+    finally:
+        release.set()
+        assert finished.wait(2)
+        deadline = time.monotonic() + 2
+        while cc._compress_admitted_count and time.monotonic() < deadline:
+            time.sleep(0.01)
+        db.close()
+    assert live == baseline
+
+
 def test_f3_mutating_engine_cannot_touch_live_transcript_after_timeout(
     tmp_path: Path, monkeypatch
 ) -> None:

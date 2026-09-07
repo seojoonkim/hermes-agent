@@ -423,14 +423,7 @@ class TestCompressContextForwarderOwnsTimeout:
         assert out_msgs is original
         assert out_prompt == "sys"
         assert calls["n"] == 1
-        agent._emit_warning.assert_called_once()
-        warning = agent._emit_warning.call_args.args[0]
-        assert "이전 대화 정리" in warning
-        assert "기존 메시지는 그대로 보존" in warning
-        assert "summary model" not in warning
-        assert "auxiliary.compression" not in warning
-        assert "/compress" not in warning
-        assert "/new" not in warning
+        agent._emit_warning.assert_not_called()
         assert agent.context_compressor._consecutive_timeout_failures == 1
         agent.context_compressor._record_compression_failure_cooldown.assert_called_once()
         cooldown_args = (
@@ -498,7 +491,7 @@ class TestCompressContextForwarderOwnsTimeout:
         assert out_prompt == "sys"
         # Fallback rebuild runs only on the timeout return path.
         assert builds["n"] == 1
-        agent._emit_warning.assert_called_once()
+        agent._emit_warning.assert_not_called()
 
     def test_caller_fence_bypasses_owned_wrapper(self, monkeypatch):
         from run_agent import AIAgent

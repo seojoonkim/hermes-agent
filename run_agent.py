@@ -1024,21 +1024,20 @@ class AIAgent:
     def _warn_context_overflow_blocked(
         self, reason: str, preflight_tokens: int, threshold_tokens: int
     ) -> None:
-        """Surface a deduped warning when the context is over the compression
-        threshold but compression is blocked (summary-LLM cooldown or
-        anti-thrashing).
+        """Record blocked automatic compression without recurring chat noise.
 
-        Without this signal the session keeps growing until the model silently
-        stops answering — the conversation hits the hard provider token limit
-        with no explanation. Centralised here so every caller that checks
+        Known retry guards stay internal; unknown reasons retain warnings.
+
+        Emergency fallback and permanent failure reporting remain separate.
+        Centralised here so every caller that checks
         ``should_compress_info`` (turn-context preflight, conversation-loop
         guards) shares identical dedup/reset logic.
 
         Dedup is on the *kind* of block (``cooldown`` / ``ineffective``), not the
         exact countdown string, so a cooldown ticking down 30→29→… doesn't
-        re-fire the warning every turn. The dedup key is cleared when the block
-        clears (see ``_clear_context_overflow_warn``), so the warning can fire
-        again on the next blocked-over-threshold turn.
+        repeat activity updates every turn. The key is cleared when the block
+        clears (see ``_clear_context_overflow_warn``). Automatic guards never
+        emit a warning, including after agent recreation or process restart.
         """
         _warn_kind = (reason or "unknown").split(":", 1)[0]
         _warn_key = ("ctx_overflow_blocked", _warn_kind)
@@ -1053,6 +1052,14 @@ class AIAgent:
                     f"compression blocked ({reason})",
                     provenance=ActivityProvenance.AGENT_COMPRESSION_COOLDOWN,
                 )
+            if _warn_kind in ("cooldown", "ineffective", "structural_backoff"):
+                # Automatic retry guards need no user action. Keep diagnostics
+                # internal even when a gateway recreates the agent or restarts.
+                logger.debug(
+                    "Automatic compression deferred: reason=%s tokens=%s threshold=%s",
+                    reason, preflight_tokens, threshold_tokens,
+                )
+                return
             self._emit_warning(
                 CONTEXT_OVERFLOW_BLOCKED_WARNING_TEMPLATE.format(
                     tokens=preflight_tokens,
@@ -1492,6 +1499,12 @@ class AIAgent:
         applies the same way to both shapes via
         :func:`agent.chat_completion_helpers.estimate_request_context_tokens`.
         """
+        from hermes_cli.timeouts import get_agent_nonstream_stale_timeout
+
+        policy_timeout = get_agent_nonstream_stale_timeout()
+        if policy_timeout is not None:
+            return policy_timeout
+
         stale_base, uses_implicit_default = self._resolved_api_call_stale_timeout_base()
         base_url = getattr(self, "_base_url", None) or self.base_url or ""
         if uses_implicit_default and base_url and is_local_endpoint(base_url):
@@ -1526,11 +1539,16 @@ class AIAgent:
     def _stale_timeout_is_explicit(self) -> bool:
         """True when the user explicitly configured the non-stream stale timeout.
 
-        Explicit = provider/model ``stale_timeout_seconds`` in config.yaml or
-        the ``HERMES_API_CALL_STALE_TIMEOUT`` env var. Reasoning-model floors
+        Explicit = agent ``nonstream_stale_timeout_seconds``, provider/model
+        ``stale_timeout_seconds`` in config.yaml, or the
+        ``HERMES_API_CALL_STALE_TIMEOUT`` env var. Reasoning-model floors
         and the 90s default are implicit — they yield to the wall-clock run
         budget cap; explicit user configuration never does.
         """
+        from hermes_cli.timeouts import get_agent_nonstream_stale_timeout
+
+        if get_agent_nonstream_stale_timeout() is not None:
+            return True
         if get_provider_stale_timeout(self.provider, self.model) is not None:
             return True
         return os.getenv("HERMES_API_CALL_STALE_TIMEOUT") is not None
@@ -3511,6 +3529,9 @@ class AIAgent:
             with _steer_lock:
                 self._pending_steer = None
         return True
+
+    # Compression adopts its snapshot before draining the independent steer slot.
+    _supports_compression_steer = False
 
     def steer(self, text: str) -> bool:
         """
@@ -5781,10 +5802,10 @@ class AIAgent:
                 exc,
             )
 
-    def _run_codex_stream(self, api_kwargs: dict, client: Any = None, on_first_delta: callable = None):
+    def _run_codex_stream(self, api_kwargs: dict, client: Any = None, on_first_delta: callable = None, request_control=None):
         """Forwarder — see ``agent.codex_runtime.run_codex_stream``."""
         from agent.codex_runtime import run_codex_stream
-        return run_codex_stream(self, api_kwargs, client, on_first_delta)
+        return run_codex_stream(self, api_kwargs, client, on_first_delta, request_control)
 
     def _run_codex_create_stream_fallback(self, api_kwargs: dict, client: Any = None):
         """Forwarder — see ``agent.codex_runtime.run_codex_create_stream_fallback``."""
@@ -6759,8 +6780,10 @@ class AIAgent:
         if not visible or visible == "(empty)" or self._interim_text_was_delivered(visible):
             return
         try:
-            cb(visible, already_streamed=False)
-            self._record_delivered_interim_text(visible)
+            # Explicit False delegates receipt/dedup ownership to an async
+            # surface. Legacy synchronous callbacks return None as before.
+            if cb(visible, already_streamed=False) is not False:
+                self._record_delivered_interim_text(visible)
         except Exception:
             logger.debug("interim_assistant_callback error", exc_info=True)
 
@@ -6824,7 +6847,15 @@ class AIAgent:
         if cb is None:
             return
         try:
-            cb(visible, already_streamed=already_streamed)
+            if undelivered_parts and getattr(cb, "receipt_aware", False) is True:
+                if already_streamed:
+                    cb(visible, already_streamed=True)
+                else:
+                    for part in undelivered_parts:
+                        cb(part, already_streamed=False)
+                return
+            if cb(visible, already_streamed=already_streamed) is False:
+                return  # async surface owns pending/receipt-aware dedup
             if undelivered_parts:
                 for part in undelivered_parts:
                     self._record_delivered_interim_text(part)
@@ -8076,6 +8107,30 @@ class AIAgent:
                 "_active_compression_commit_fence", missing_fence
             )
             self._active_compression_commit_fence = active_fence
+        def _finish_compression(result):
+            # Caller thread only: never inject into the worker snapshot or
+            # publish a steer before the compression result has been adopted.
+            # A compacted transcript may contain no tool result; append to its
+            # latest user message instead, without inserting a synthetic role.
+            # Post-commit mutation is not durable and may invalidate cached
+            # API sidecars. Keep pending input for the normal ingestion path.
+            if not self._supports_compression_steer:
+                return result
+            result_messages, _ = result
+            target = next((m for m in reversed(result_messages)
+                           if isinstance(m, dict) and m.get("role") in {"tool", "user"}), None)
+            if target is not None:
+                text = self._drain_pending_steer()
+                if text:
+                    from agent.prompt_builder import format_steer_marker
+                    marker = format_steer_marker(text)
+                    content = target.get("content", "")
+                    if isinstance(content, list):
+                        target["content"] = content + [{"type": "text", "text": marker}]
+                    else:
+                        target["content"] = (content or "") + marker
+            return result
+
         try:
             def _run(fence=None, target_messages=None):
                 return compress_context(
@@ -8095,11 +8150,15 @@ class AIAgent:
             # Callers that already own a progress-aware wait (gateway session
             # hygiene) pass commit_fence and must not be double-wrapped.
             if commit_fence is not None:
-                return _run(active_fence)
+                return _finish_compression(_run(active_fence))
 
             idle_timeout, total_ceiling = resolve_context_compression_timeouts()
+            if not force and not emergency_fallback and idle_timeout > 0:
+                from agent.preparation_budget import remaining_preparation_seconds
+                total_ceiling = remaining_preparation_seconds(total_ceiling)
+                idle_timeout = min(idle_timeout, total_ceiling)
             if idle_timeout <= 0:
-                return _run(active_fence)
+                return _finish_compression(_run(active_fence))
 
             def _snapshot_worker(fence=None):
                 # #76354 review F3: the pooled worker must NEVER share the
@@ -8146,8 +8205,8 @@ class AIAgent:
 
             def _on_timeout(idle, waited, since_progress):
                 logger.warning(
-                    "Context compression made no progress for %.1fs "
-                    "(total wait %.1fs, ceiling %.1fs); continuing without "
+                    "Context compression timed out (last progress %.1fs ago, "
+                    "total wait %.1fs, ceiling %.1fs); continuing without "
                     "compression",
                     since_progress,
                     waited,
@@ -8183,7 +8242,7 @@ class AIAgent:
                                 exc_info=True,
                             )
                 emit = getattr(self, "_emit_warning", None)
-                if callable(emit):
+                if callable(emit) and (force or emergency_fallback):
                     emit(
                         "⚠ 이전 대화 정리가 제한 시간 안에 끝나지 않아 이번에는 "
                         "건너뛰었어. 기존 메시지는 그대로 보존했고, 지금 요청은 "
@@ -8214,6 +8273,10 @@ class AIAgent:
                 on_commit_overrun=_on_commit_overrun,
                 fence=active_fence,
                 telemetry_agent=self,
+                static_only=(
+                    emergency_fallback
+                    and type(getattr(self, "context_compressor", None)) is ContextCompressor
+                ),
             )
             # compress_context ran on a daemon pool worker thread; the session
             # id rotation updated hermes_logging._session_context (a
@@ -8241,7 +8304,7 @@ class AIAgent:
                     "post-compression session ContextVar rebind failed",
                     exc_info=True,
                 )
-            return result
+            return _finish_compression(result)
         finally:
             with fence_registration_lock:
                 if previous_fence is missing_fence:

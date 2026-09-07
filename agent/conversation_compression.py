@@ -752,6 +752,8 @@ _COMMIT_OVERRUN_WAIT_SLICE_SECONDS = 30.0
 _COMPRESS_EXECUTOR_MAX_WORKERS = 1
 _compress_admission_lock = threading.Lock()
 _compress_admitted_count = 0
+_static_compress_slot = threading.BoundedSemaphore(1)
+_static_compress_executor = None
 
 
 class CompressionExecutorSaturatedError(RuntimeError):
@@ -836,6 +838,19 @@ def resolve_context_compression_timeouts(
                 pass
     if idle > 0:
         ceiling = max(ceiling, idle)
+        # The summary worker shares the agent's meaningful-output policy. A
+        # silent summary stream must not outlive the explicit agent idle cap,
+        # otherwise one wedged worker blocks the single shared pool slot for
+        # every sibling profile while user turns run uncompressed.
+        try:
+            from hermes_cli.timeouts import get_agent_stream_idle_timeout
+
+            agent_idle = get_agent_stream_idle_timeout()
+        except Exception:
+            agent_idle = None
+        if agent_idle is not None and agent_idle > 0:
+            idle = min(idle, agent_idle)
+            ceiling = max(min(ceiling, agent_idle), idle)
     return idle, ceiling
 
 
@@ -850,6 +865,7 @@ def run_compress_context_with_progress_timeout(
     on_commit_overrun: Optional[Callable[[float, float], None]] = None,
     fence: Optional[CompressionCommitFence] = None,
     telemetry_agent: Any = None,
+    static_only: bool = False,
 ) -> Tuple[list, str]:
     """Run ``worker(fence)`` under a sync progress-aware timeout.
 
@@ -902,12 +918,26 @@ def run_compress_context_with_progress_timeout(
     # match tool_executor: a cancelled hung summary must not block process exit.
     from tools.thread_context import propagate_context_to_thread
 
-    executor = _get_compress_timeout_executor()
+    if static_only:
+        global _static_compress_executor
+        from tools.daemon_pool import DaemonThreadPoolExecutor
+        with _compress_timeout_executor_lock:
+            if _static_compress_executor is None:
+                _static_compress_executor = DaemonThreadPoolExecutor(
+                    max_workers=1, thread_name_prefix="compress-static"
+                )
+        executor = _static_compress_executor
+        admitted = _static_compress_slot.acquire(blocking=False)
+        release_admission = lambda _future=None: _static_compress_slot.release()
+    else:
+        executor = _get_compress_timeout_executor()
+        admitted = _try_admit_compression_job()
+        release_admission = _release_compression_admission
     # Bounded admission (#76354 F6): refuse rather than queue when every pool
     # slot is occupied. A queued job would silently wait out its whole budget
     # without starting and stay eligible to run as a stale cancelled job when
     # a worker recovers. Fail fast: continue without compression this cycle.
-    if not _try_admit_compression_job():
+    if not admitted:
         logger.warning(
             "Context compression pool saturated (%d workers busy) — "
             "refusing new compression this cycle and continuing without "
@@ -930,7 +960,10 @@ def run_compress_context_with_progress_timeout(
             )
             if callable(record_failure):
                 try:
-                    record_failure("Context compression pool saturated")
+                    record_failure(
+                        "Context compression pool saturated: "
+                        "session hygiene total compression budget exhausted"
+                    )
                 except Exception:
                     logger.debug(
                         "compression pool-saturation circuit update failed",
@@ -968,10 +1001,11 @@ def run_compress_context_with_progress_timeout(
             propagate_context_to_thread(_fence_gated_worker), fence
         )
     except BaseException:
-        _release_compression_admission()
+        release_admission()
         raise
-    future.add_done_callback(_release_compression_admission)
+    future.add_done_callback(release_admission)
     wait_started = time.monotonic()
+    next_progress_log_at = 30.0
     # F2: EVERY host unwind (KeyboardInterrupt, task cancellation, unexpected
     # exception while waiting) must revoke future commit admission before the
     # host resumes, or a detached worker could later commit and mutate durable
@@ -1007,14 +1041,16 @@ def run_compress_context_with_progress_timeout(
                 waited = time.monotonic() - wait_started
                 since_progress = fence.seconds_since_progress()
                 if since_progress < idle and waited < ceiling:
-                    logger.info(
-                        "Context compression still streaming after %.0fs "
-                        "(last progress %.1fs ago) — extending wait "
-                        "(ceiling %.0fs)",
-                        waited,
-                        since_progress,
-                        ceiling,
-                    )
+                    if waited >= next_progress_log_at:
+                        logger.info(
+                            "Context compression still streaming after %.0fs "
+                            "(last progress %.1fs ago) — extending wait "
+                            "(ceiling %.0fs)",
+                            waited,
+                            since_progress,
+                            ceiling,
+                        )
+                        next_progress_log_at = waited + 30.0
                     continue
                 break
 
@@ -3211,7 +3247,14 @@ def compress_context(
                 compressed = messages
             else:
                 with aux_progress_hook(_progress_hook), aux_interrupt_protection(
-                    cancel_event=_hard_cancel_event
+                    # A host timeout cancels the fence, not the user's stop
+                    # Event. Forward both sources so the protected provider
+                    # wait releases the compression slot even if I/O is stuck.
+                    # Use one check: cancel_event takes precedence over checks.
+                    cancel_check=lambda: (
+                        (commit_fence is not None and commit_fence.is_cancelled)
+                        or (_hard_cancel_event is not None and _hard_cancel_event.is_set())
+                    )
                 ):
                     compressed = compress_fn(messages, **compress_kwargs)
                     # Freeze a hard stop that arrived after the final provider
@@ -3270,7 +3313,11 @@ def compress_context(
             started_at=_attempt_started_at,
             commit_status="aborted",
             split_status="aborted",
-            failure_class="explicit_interrupt",
+            failure_class=(
+                "commit_fence_cancelled"
+                if commit_fence is not None and commit_fence.is_cancelled
+                else "explicit_interrupt"
+            ),
         )
         _existing_sp = getattr(agent, "_cached_system_prompt", None)
         if not _existing_sp:
