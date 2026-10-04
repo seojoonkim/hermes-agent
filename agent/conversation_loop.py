@@ -279,6 +279,8 @@ def _initialize_task_intensity(agent, user_request):
     agent._task_intensity_decision = decision
     agent._task_intensity_metadata = decision.as_metadata()
     agent._task_intensity_prompt_guidance = decision.prompt_guidance
+    from agent.task_intensity import apply_task_reasoning_effort
+    apply_task_reasoning_effort(agent, decision)
     return decision
 
 
@@ -338,6 +340,29 @@ def _format_turn_eta(estimate: Any) -> str:
         f"ETA p50 {p50 / 1000:.1f}s · p80 {p80 / 1000:.1f}s · "
         f"confidence {confidence} · critical path {critical_path} · risk +{risk / 1000:.1f}s"
     )
+
+
+def _pre_api_steer_target_index(messages, current_turn_user_idx):
+    """Return the index of the tool result a pre-API steer may ride on.
+
+    Only tool results from THIS turn qualify. Scanning the whole history
+    used to land a mid-turn user message inside an older turn's tool output
+    (before already-delivered assistant replies); the model read it as
+    replayed history and ignored it, so the user's instruction was lost.
+    Returning None keeps the steer pending: it is injected after the next
+    tool batch, or handed back as result["pending_steer"] and delivered as
+    the next user turn.
+    """
+    floor = (
+        current_turn_user_idx
+        if isinstance(current_turn_user_idx, int) and current_turn_user_idx >= 0
+        else -1
+    )
+    for idx in range(len(messages) - 1, floor, -1):
+        msg = messages[idx]
+        if isinstance(msg, dict) and msg.get("role") == "tool":
+            return idx
+    return None
 
 
 def _requirements_completion_gate(agent, existing_completed):
@@ -2065,6 +2090,8 @@ def _run_conversation_impl(
     # Commentary deduplication spans all provider continuations and tool calls
     # within one user turn, but must not suppress the same phrase next turn.
     agent._delivered_interim_texts = set()
+    if hasattr(agent, "_begin_turn_start_ack_tracking"):
+        agent._begin_turn_start_ack_tracking()
     # A configured SessionDB append failure halts only the affected turn. A
     # cached gateway agent must recover on the next message if storage did.
     agent._incremental_persistence_failed = False
@@ -2293,7 +2320,8 @@ def _run_conversation_impl(
         _delivered_steer_for_intensity = None
         if _pre_api_steer:
             _injected = False
-            for _si in range(len(messages) - 1, -1, -1):
+            _target_si = _pre_api_steer_target_index(messages, current_turn_user_idx)
+            for _si in ([_target_si] if _target_si is not None else []):
                 _sm = messages[_si]
                 if isinstance(_sm, dict) and _sm.get("role") == "tool":
                     from agent.prompt_builder import format_steer_marker
@@ -4633,7 +4661,7 @@ def _run_conversation_impl(
                 agent._touch_activity(f"API call #{api_call_count} completed")
                 break  # Success, exit retry loop
 
-            except InterruptedError:
+            except InterruptedError as interrupt_error:
                 if thinking_spinner:
                     thinking_spinner.stop("")
                     thinking_spinner = None
@@ -4659,6 +4687,13 @@ def _run_conversation_impl(
                 _partial = agent._strip_think_blocks(
                     getattr(agent, "_current_streamed_assistant_text", "") or ""
                 ).strip()
+                from agent.errors import StreamTotalTimeoutError
+                if isinstance(interrupt_error, StreamTotalTimeoutError):
+                    # A deadline is not a user /stop. Preserve partial text,
+                    # but explicitly mark it incomplete and do not replay it.
+                    _partial = "\n\n".join(filter(None, (
+                        _partial, interrupt_error.user_message,
+                    )))
                 if _partial:
                     append_message(messages, {"role": "assistant", "content": _partial})
                     final_response = _partial
@@ -7669,7 +7704,10 @@ def _run_conversation_impl(
                 # A UI must never observe an assistant/tool-call row that is
                 # still only an ephemeral in-memory projection. Emit interim
                 # commentary only after the canonical SessionDB append above.
-                if not duplicate_previous_interim:
+                _start_ack_handled = False
+                if hasattr(agent, "_ensure_task_start_ack"):
+                    _start_ack_handled = agent._ensure_task_start_ack(assistant_msg)
+                if not duplicate_previous_interim and not _start_ack_handled:
                     agent._emit_interim_assistant_message(assistant_msg)
 
                 # Close any open streaming display (response box, reasoning
