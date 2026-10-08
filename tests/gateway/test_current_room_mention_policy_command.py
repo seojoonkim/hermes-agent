@@ -356,7 +356,9 @@ async def test_tag_wording_enables_required_policy(tmp_path, phrase):
 @pytest.mark.parametrize(
     "event",
     [
-        _event("이 방에서는 멘션할 때만 답해줘"),
+        # Short Korean paraphrases are now accepted (fuzzy matcher); long
+        # task messages that merely mention the topic must still pass through.
+        _event("멘션할 때만 답하게 바꾼 거 어떻게 된 건지 로그 확인하고 원인 정리해줘"),
         _event("Only respond when mentioned in this room please"),
         _event("이 방에서는 멘션할 때만 답해", allow_gateway_control=False),
         _event("이 방에서는 멘션할 때만 답해", chat_type="dm"),

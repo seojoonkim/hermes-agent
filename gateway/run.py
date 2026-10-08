@@ -20181,6 +20181,67 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 pass
         return source
 
+    def _turn_receipt_enabled(self, source) -> bool:
+        """display.turn_receipt (default True) — Simon's turn contract #1."""
+        try:
+            from gateway.display_config import resolve_display_setting
+            # Telegram-first: default on for Telegram (Simon's surface), off
+            # elsewhere so Slack/Discord first-message flows are unchanged
+            # unless display.platforms.<platform>.turn_receipt opts in.
+            default_on = getattr(source, "platform", None) == Platform.TELEGRAM
+            return bool(resolve_display_setting(
+                _load_gateway_config(), _platform_config_key(source.platform), "turn_receipt", default_on,
+            ))
+        except Exception:
+            return False
+
+    def _schedule_turn_receipt(self, source, message_text: str, session_key: Optional[str] = None) -> None:
+        """Send the instant receipt without blocking the turn (contract #1)."""
+        if not self._turn_receipt_enabled(source):
+            return
+        adapter = self._adapter_for_source(source)
+        if adapter is None:
+            return
+        from hermes_constants import get_hermes_home
+        hermes_home = get_hermes_home()
+        platform = source.platform.value if getattr(source, "platform", None) else "other"
+        metadata = self._thread_metadata_for_source(source)
+
+        async def _go():
+            from gateway.turn_eta import estimate_turn_for_profile
+            from gateway.turn_receipt_sender import send_turn_receipt
+            try:
+                estimate = await asyncio.wait_for(
+                    asyncio.to_thread(estimate_turn_for_profile, hermes_home, platform, message_text),
+                    timeout=1.5,
+                )
+            except Exception:
+                estimate = None
+            if session_key and estimate:
+                # The long-running heartbeat reads this to show remaining time.
+                if getattr(self, "_turn_eta_by_session", None) is None:
+                    self._turn_eta_by_session = {}
+                self._turn_eta_by_session[session_key] = estimate
+            delivered = await send_turn_receipt(
+                adapter, source, message_text, estimate=estimate, enabled=True, metadata=metadata,
+            )
+            logger.info(
+                "turn receipt: delivered=%s eta=%s cohort=%s n=%s correction=%s session=%s",
+                delivered, bool(estimate),
+                (estimate or {}).get("cohort", "-"),
+                (estimate or {}).get("sample_count", 0),
+                (estimate or {}).get("correction", "-"),
+                session_key or "-",
+            )
+
+        # Keep a strong reference: a bare create_task() can be garbage
+        # collected before it runs (asyncio holds only a weak ref).
+        _task = asyncio.get_running_loop().create_task(_go())
+        _bg = getattr(self, "_background_tasks", None)
+        if isinstance(_bg, set):
+            _bg.add(_task)
+            _task.add_done_callback(_bg.discard)
+
     async def _handle_message_with_agent(self, event, source, _quick_key: str, run_generation: int):
         """Inner handler that runs under the _running_agents sentinel guard."""
         _msg_start_time = time.time()
@@ -20607,6 +20668,16 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 },
             )
             return _replay_text
+
+        # Turn contract #1 (Simon, 2026-10-05): confirm the request before any
+        # heavy preparation. Session hygiene / preflight compression below can
+        # take 30-60s+, so the receipt goes out first. Fire-and-forget and
+        # bounded; never delays or fails the turn.
+        if not getattr(event, "internal", False):
+            try:
+                self._schedule_turn_receipt(source, event.text or "", session_key=session_key)
+            except Exception:
+                logger.warning("turn receipt scheduling failed", exc_info=True)
 
         # Load conversation history from transcript
         history = await self.async_session_store.load_transcript(session_entry.session_id)
@@ -21694,6 +21765,25 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 _response_time, _api_calls, _resp_len,
             )
 
+            # ETA learning loop (Simon 2026-10-09): every finished turn feeds
+            # the MemKraft ETA ledger + calibration log so the next receipt's
+            # number is grounded and keeps getting more accurate. Off-thread,
+            # fail-open, never delays delivery.
+            if not getattr(event, "internal", False):
+                try:
+                    from gateway.turn_eta import record_turn_outcome
+                    from hermes_constants import get_hermes_home as _eta_home
+                    _eta_shown = (getattr(self, "_turn_eta_by_session", None) or {}).pop(session_key, None)
+                    _eta_task = asyncio.get_running_loop().create_task(asyncio.to_thread(
+                        record_turn_outcome, _eta_home(), _platform_name, event.text or "",
+                        _response_time, shown=_eta_shown,
+                    ))
+                    _bg = getattr(self, "_background_tasks", None)
+                    if isinstance(_bg, set):
+                        _bg.add(_eta_task)
+                        _eta_task.add_done_callback(_bg.discard)
+                except Exception:
+                    logger.debug("turn ETA record scheduling failed", exc_info=True)
             # NOTE: the cross-process cache-coherence re-baseline
             # (_refresh_agent_cache_message_count) is intentionally deferred
             # until AFTER this turn's transcript persistence block below — it
@@ -30396,13 +30486,47 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                             _status_detail = " — " + ", ".join(_parts)
                     except Exception:
                         pass
-                _heartbeat_text = (
-                    _generic_status_phrase("status")
-                    if _long_running_mode == "generic"
-                    else f"⏳ Working — {_elapsed_mins} min{_status_detail}"
-                )
+                _heartbeat_lang = str(
+                    resolve_display_setting(
+                        user_config or {},
+                        platform_key,
+                        "language",
+                        ((user_config or {}).get("display") or {}).get("language") or "",
+                    )
+                    or ""
+                ).lower()
+                if _long_running_mode == "generic":
+                    _heartbeat_text = _generic_status_phrase("status")
+                elif _heartbeat_lang.startswith("ko"):
+                    # Turn contract #3: elapsed + remaining time + current step.
+                    from agent.turn_receipt import build_heartbeat, describe_phase
+                    _hb_est = (getattr(self, "_turn_eta_by_session", None) or {}).get(session_key)
+                    _hb_phase = ""
+                    if _agent_ref and hasattr(_agent_ref, "get_activity_summary"):
+                        try:
+                            _hb_phase = describe_phase(_agent_ref.get_activity_summary())
+                        except Exception:
+                            _hb_phase = ""
+                    _heartbeat_text = build_heartbeat(
+                        elapsed_s=time.time() - _notify_start,
+                        phase=_hb_phase,
+                        eta=_hb_est,
+                    )
+                else:
+                    _heartbeat_text = f"⏳ Working — {_elapsed_mins} min{_status_detail}"
                 try:
                     _notify_res = None
+                    # Korean users: an edited bubble scrolls out of view and never
+                    # notifies, so the user sees silence. Send a fresh bubble each
+                    # time and remove the previous heartbeat so only one stays.
+                    if _heartbeat_msg_id and _heartbeat_lang.startswith("ko"):
+                        try:
+                            _del = getattr(_notify_adapter, "delete_message", None)
+                            if _del is not None:
+                                await _del(source.chat_id, _heartbeat_msg_id)
+                        except Exception as _de:
+                            logger.debug("Heartbeat delete failed: %s", _de)
+                        _heartbeat_msg_id = None
                     if _heartbeat_msg_id:
                         try:
                             _notify_res = await _notify_adapter.edit_message(
