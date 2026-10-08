@@ -19,6 +19,7 @@ import stat
 import sys
 import time
 import types
+import shutil
 import uuid
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -708,7 +709,11 @@ class TestHealthDetailedEndpoint:
             "active_agents": 2,
             "exit_reason": None,
             "updated_at": "2026-04-14T00:00:00Z",
-        }), patch("gateway.run._resolve_gateway_model", return_value="test/model"):
+        }), patch("gateway.run._resolve_gateway_model", return_value="test/model"), \
+             patch("gateway.readiness.shutil.disk_usage",
+                   return_value=shutil._ntuple_diskusage(100, 50, 50)):
+            # Hermetic: the host's real disk fill level must not flip this test
+            # (2026-10-09: a 96%-full dev Mac made it report "degraded").
             async with TestClient(TestServer(app)) as cli:
                 resp = await cli.get("/health/detailed")
                 assert resp.status == 200
